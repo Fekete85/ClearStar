@@ -8,9 +8,9 @@
   3. makeappx pack  → packaging\out\ClearStar_<version>_x64.msix
   4. optionally (-Sign) a self-signed certificate so the package can be installed locally for a test.
 
-  For the Store submission run it with the three values from Partner Center → Product identity:
-    .\make-msix.ps1 -IdentityName "12345Publisher.ClearStar" -Publisher "CN=xxxxxxxx-xxxx-..." -PublisherDisplayName "Your name"
-  and upload the .msix under Packages; the Store signs it itself (do NOT sign a Store upload).
+  For the Store submission run it without parameters (the Store identity is the default) and upload the
+  .msix under Packages; the Store signs it itself (do NOT sign a Store upload):
+    .\make-msix.ps1
 
   For a local test build:
     .\make-msix.ps1 -Sign
@@ -19,15 +19,18 @@
 .PARAMETER Version
   Four-part package version; default: <Version> from Directory.Build.props + ".0".
 #>
+# Store identity of ClearStar (Partner Center → Product identity, Store ID 9N193WDH7KF). A -Sign (local test)
+# build uses a separate dev identity so it never collides with the Store-installed app.
 param(
-    [string]$IdentityName = "ClearStar.Dev",
-    [string]$Publisher = "CN=ClearStar Dev",
-    [string]$PublisherDisplayName = "ClearStar",
+    [string]$IdentityName = "LaszloFekete.ClearStar",
+    [string]$Publisher = "CN=EA8412CF-9BD5-4574-9413-B9FC60B2BABF",
+    [string]$PublisherDisplayName = "Laszlo Fekete",
     [string]$Version = "",
     [switch]$Sign,
     [switch]$SkipPublish
 )
 $ErrorActionPreference = "Stop"
+if ($Sign -and -not $PSBoundParameters.ContainsKey("IdentityName")) { $IdentityName = "ClearStar.Dev"; $Publisher = "CN=ClearStar Dev"; $PublisherDisplayName = "ClearStar" }
 $root = Split-Path $PSScriptRoot -Parent
 $out = Join-Path $PSScriptRoot "out"
 $publishDir = Join-Path $out "publish"
