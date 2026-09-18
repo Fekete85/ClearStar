@@ -29,7 +29,10 @@
     "crop": {
       "name": "Vágás",
       "desc": "Húzz egy téglalapot a képen arra a részre, amit meg szeretnél tartani. Ha nem jelölsz ki semmit, a széleken lévő, összeillesztésből származó vékony hibás sávot vágjuk le.",
-      "margin": { "label": "Szélek levágása", "ticks": ["Semmi", "Kicsi", "Nagyobb"], "help": "A csúszka a képen látható kijelölést állítja; a kijelölés széleit utána egérrel is finomhangolhatod." }
+      "margin": { "label": "Szélek levágása", "ticks": ["Semmi", "Kicsi", "Nagyobb"], "help": "A csúszka a képen látható kijelölést állítja; a kijelölés széleit utána egérrel is finomhangolhatod." },
+      "rotate": { "label": "Elforgatás", "0": "Nincs", "90": "90° jobbra", "180": "180°", "270": "90° balra", "help": "A vágás után forgatunk – veszteségmentes, csak a tájolás változik." },
+      "flipH": { "label": "Tükrözés vízszintesen" },
+      "flipV": { "label": "Tükrözés függőlegesen" }
     },
     "bge": {
       "name": "Háttér kiegyenlítése",
@@ -64,7 +67,7 @@
       "name": "Égbolt azonosítása",
       "tech": "plate solving",
       "desc": "A csillagmintázatból kiderítjük, pontosan hova néz a képed: a távcső által a fejlécbe írt irány körül a Gaia-katalógus csillagait illesztjük a képhez (internet kell hozzá). Ez kell a pontos színkalibráláshoz.",
-      "object": { "label": "Objektum neve (ha a fejlécben nincs irány)", "help": "Pl. M 31, NGC 6992, IC 1396. Üresen a kép fejlécéből vesszük az irányt." },
+      "object": { "label": "Objektum neve", "help": "A képek fejlécéből (vagy a mappa nevéből) töltjük ki. Ha a fejlécben van irány, azt használjuk; ha nincs, vagy más nevet írsz ide, ezt keressük meg az interneten (pl. M 31, NGC 6992, IC 1396)." },
       "scale": { "label": "Képskála (″/px, ha a fejlécben nincs)", "help": "Üresen a fókusztávolságból és a pixelméretből számoljuk. Seestar S50: 2,3." },
       "maglimit": { "label": "Katalógus határfényessége", "ticks": ["Fényes (11)", "Közepes (14)", "Halvány (16)"], "help": "Sűrű csillagmezőnél elég a fényesebb, kevés csillagnál kell a halványabb határ." }
     },
@@ -159,7 +162,9 @@
     },
     "crop": {
       "size": "{0} × {1} px",
-      "tooMuch": "Túl sokat vágnál le – nem maradna kép."
+      "tooMuch": "Túl sokat vágnál le – nem maradna kép.",
+      "rotated": " · elforgatva {0}°",
+      "flipped": " · tükrözve"
     },
     "bge": {
       "selectedSource": "kiválasztott",

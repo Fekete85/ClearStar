@@ -560,3 +560,29 @@ public class AstrometryTests
         Assert.InRange(ClearStar.Core.Steps.PlateSolveStep.Sexagesimal("-05:23:28", 1.0)!.Value, -5.392, -5.391);
     }
 }
+
+public class OrientationTests
+{
+    [Fact]
+    public void RotationAndMirrorMoveThePixelsAsExpected()
+    {
+        var img = new AstroImage(4, 3, 1);
+        for (int y = 0; y < 3; y++) for (int x = 0; x < 4; x++) img[0, x, y] = y * 10 + x;
+        var r90 = CropStep.Orient(img, 90, false, false);
+        Assert.Equal(3, r90.Width); Assert.Equal(4, r90.Height);
+        Assert.Equal(20f, r90[0, 0, 0]);     // bottom-left of the source becomes top-left
+        Assert.Equal(0f, r90[0, 2, 0]);      // top-left of the source becomes top-right
+        var r270 = CropStep.Orient(img, 270, false, false);
+        Assert.Equal(3f, r270[0, 0, 0]);     // top-right of the source becomes top-left
+        var r180 = CropStep.Orient(img, 180, false, false);
+        Assert.Equal(23f, r180[0, 0, 0]);
+        var fh = CropStep.Orient(img, 0, true, false);
+        Assert.Equal(3f, fh[0, 0, 0]); Assert.Equal(0f, fh[0, 3, 0]);
+        var fv = CropStep.Orient(img, 0, false, true);
+        Assert.Equal(20f, fv[0, 0, 0]);
+        Assert.Equal("NGC 6992", ClearStar.Core.IO.ObjectNameGuess.FromText("NGC6992_0905"));
+        Assert.Equal("M 31", ClearStar.Core.IO.ObjectNameGuess.FromText("M31_0908"));
+        Assert.Equal("Sh2-101", ClearStar.Core.IO.ObjectNameGuess.FromText("sh2-101 tulip"));
+        Assert.Null(ClearStar.Core.IO.ObjectNameGuess.FromText("2026-09-18 session"));
+    }
+}

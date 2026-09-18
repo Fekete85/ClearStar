@@ -35,8 +35,8 @@ public abstract class StepBase : IWorkflowStep
     protected static ParameterDefinition Text(string step, string key, string @default = "") =>
         new(key, Label(step, key), ParameterKind.Text, @default);
 
-    protected static ParameterDefinition Model(string step, string key, string tag) =>
-        new(key, Label(step, key), ParameterKind.Model, "", Help: Help(step, key), Tag: tag);
+    protected static ParameterDefinition Model(string step, string key, string tag, bool advanced = false) =>
+        new(key, Label(step, key), ParameterKind.Model, "", Advanced: advanced, Help: Help(step, key), Tag: tag);
 
     protected static ParameterDefinition Hidden(string key, object @default) =>
         new(key, "", ParameterKind.Hidden, @default);

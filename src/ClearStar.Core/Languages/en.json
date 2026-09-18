@@ -29,7 +29,10 @@
     "crop": {
       "name": "Crop",
       "desc": "Drag a rectangle over the part of the image you want to keep. If you select nothing, the thin faulty band left by stacking at the edges is removed.",
-      "margin": { "label": "Trim edges", "ticks": ["None", "A little", "More"], "help": "The slider sets the selection shown on the image; you can fine-tune its edges with the mouse afterwards." }
+      "margin": { "label": "Trim edges", "ticks": ["None", "A little", "More"], "help": "The slider sets the selection shown on the image; you can fine-tune its edges with the mouse afterwards." },
+      "rotate": { "label": "Rotate", "0": "None", "90": "90° right", "180": "180°", "270": "90° left", "help": "Applied after the crop – lossless, only the orientation changes." },
+      "flipH": { "label": "Mirror horizontally" },
+      "flipV": { "label": "Mirror vertically" }
     },
     "bge": {
       "name": "Flatten background",
@@ -64,7 +67,7 @@
       "name": "Identify the sky",
       "tech": "plate solving",
       "desc": "From the star pattern we work out exactly where the image points: Gaia catalogue stars around the direction the telescope wrote into the header are matched to the image (needs internet). Needed for accurate colour calibration.",
-      "object": { "label": "Object name (if the header has no direction)", "help": "E.g. M 31, NGC 6992, IC 1396. Leave empty to use the image header." },
+      "object": { "label": "Object name", "help": "Pre-filled from the image header (or the folder name). If the header has a direction it is used; otherwise – or if you type a different name – this name is looked up online (e.g. M 31, NGC 6992, IC 1396)." },
       "scale": { "label": "Pixel scale (″/px, if the header has none)", "help": "Leave empty to compute it from the focal length and pixel size. Seestar S50: 2.3." },
       "maglimit": { "label": "Catalogue magnitude limit", "ticks": ["Bright (11)", "Medium (14)", "Faint (16)"], "help": "Dense star fields need only the brighter stars; sparse fields need a fainter limit." }
     },
@@ -159,7 +162,9 @@
     },
     "crop": {
       "size": "{0} × {1} px",
-      "tooMuch": "That would cut away too much – no image would be left."
+      "tooMuch": "That would cut away too much – no image would be left.",
+      "rotated": " · rotated {0}°",
+      "flipped": " · mirrored"
     },
     "bge": {
       "selectedSource": "selected",

@@ -12,6 +12,9 @@ public sealed class CropStep : StepBase
 {
     public const string MarginKey = "margin";
     public const string SelLeftKey = "selLeft", SelTopKey = "selTop", SelWidthKey = "selWidth", SelHeightKey = "selHeight";
+    public const string RotateKey = "rotate";
+    public const string FlipHKey = "flipH";
+    public const string FlipVKey = "flipV";
 
     private const string S = "crop";
 
@@ -19,6 +22,9 @@ public sealed class CropStep : StepBase
         StepId.Crop, StepGroup.Preparation, S,
         [
             Slider(S, MarginKey, 0.0, 0, 0.15),
+            Choice(S, RotateKey, "0", ["0", "90", "180", "270"]),
+            Toggle(S, FlipHKey, false),
+            Toggle(S, FlipVKey, false),
             Hidden(SelLeftKey, 0.0),
             Hidden(SelTopKey, 0.0),
             Hidden(SelWidthKey, 0.0),
@@ -47,7 +53,49 @@ public sealed class CropStep : StepBase
             top = bottom = (int)(m * input.Height);
         }
         var output = Crop(input, left, top, right, bottom);
-        return Task.FromResult(new StepResult(output, L.F("msg.crop.size", output.Width, output.Height)));
+        int rotate = int.TryParse(p.GetString(RotateKey, "0"), out var r) ? r : 0;
+        bool flipH = p.GetBool(FlipHKey), flipV = p.GetBool(FlipVKey);
+        output = Orient(output, rotate, flipH, flipV);
+        string summary = L.F("msg.crop.size", output.Width, output.Height);
+        if (rotate != 0) summary += L.F("msg.crop.rotated", rotate);
+        if (flipH || flipV) summary += L.T("msg.crop.flipped");
+        return Task.FromResult(new StepResult(output, summary));
+    }
+
+    /// <summary>Mirror (horizontal / vertical) and then rotate by a multiple of 90° clockwise. Lossless.</summary>
+    public static AstroImage Orient(AstroImage input, int rotateDegrees, bool flipH, bool flipV)
+    {
+        int rot = ((rotateDegrees % 360) + 360) % 360;
+        if (rot == 0 && !flipH && !flipV) return input;
+        int w = input.Width, h = input.Height;
+        bool swap = rot is 90 or 270;
+        int ow = swap ? h : w, oh = swap ? w : h;
+        var output = new AstroImage(ow, oh, input.Channels, null, new Dictionary<string, string>(input.Header, StringComparer.OrdinalIgnoreCase));
+        for (int c = 0; c < input.Channels; c++)
+        {
+            var src = input.Channel(c).ToArray();
+            var dstOff = c * output.PixelsPerChannel;
+            var dst = output.Data;
+            Parallel.For(0, oh, oy =>
+            {
+                for (int ox = 0; ox < ow; ox++)
+                {
+                    // Undo the rotation to find the source pixel, then undo the flips.
+                    int x, y;
+                    switch (rot)
+                    {
+                        case 90: x = oy; y = h - 1 - ox; break;
+                        case 180: x = w - 1 - ox; y = h - 1 - oy; break;
+                        case 270: x = w - 1 - oy; y = ox; break;
+                        default: x = ox; y = oy; break;
+                    }
+                    if (flipH) x = w - 1 - x;
+                    if (flipV) y = h - 1 - y;
+                    dst[dstOff + oy * ow + ox] = src[y * w + x];
+                }
+            });
+        }
+        return output;
     }
 
     public static AstroImage Crop(AstroImage input, int left, int top, int right, int bottom)

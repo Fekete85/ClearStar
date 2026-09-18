@@ -29,10 +29,10 @@ public sealed class DeconvolutionStep : StepBase
             Slider(S, StarsStrengthKey, 0.5),
             Toggle(S, ObjectKey, true),
             Slider(S, ObjectStrengthKey, 0.5),
-            Model(S, StarsModelKey, nameof(AiModelKind.DeconvolutionStars)),
-            Model(S, ObjectModelKey, nameof(AiModelKind.DeconvolutionObject)),
             Toggle(S, AutoPsfKey, true, advanced: true),
             Slider(S, PsfKey, 5.0, 1.5, 12, advanced: true),
+            Model(S, StarsModelKey, nameof(AiModelKind.DeconvolutionStars), advanced: true),
+            Model(S, ObjectModelKey, nameof(AiModelKind.DeconvolutionObject), advanced: true),
         ]);
 
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() => Run(context), context.CancellationToken);

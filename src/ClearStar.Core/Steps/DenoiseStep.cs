@@ -15,7 +15,7 @@ public sealed class DenoiseStep : StepBase
         StepId.Denoise, StepGroup.Basics, S,
         [
             Slider(S, StrengthKey, 0.5),
-            Model(S, ModelKey, nameof(AiModelKind.Denoise)),
+            Model(S, ModelKey, nameof(AiModelKind.Denoise), advanced: true),
         ]);
 
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() =>

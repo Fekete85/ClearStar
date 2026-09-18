@@ -30,9 +30,9 @@ public sealed class BackgroundExtractionStep : StepBase
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
         StepId.BackgroundExtraction, StepGroup.Basics, S,
         [
-            Choice(S, MethodKey, MethodAi, [MethodAi, MethodPolynomial]),
-            Model(S, ModelKey, nameof(AiModelKind.BackgroundExtraction)),
             Slider(S, SmoothingKey, 0.2),
+            Choice(S, MethodKey, MethodAi, [MethodAi, MethodPolynomial], advanced: true),
+            Model(S, ModelKey, nameof(AiModelKind.BackgroundExtraction), advanced: true),
             Slider(S, StrengthKey, 0.5, advanced: true),
             Slider(S, GridKey, 0.5, advanced: true),
             Choice(S, CorrectionKey, CorrectionSubtract, [CorrectionSubtract, CorrectionDivide], advanced: true),

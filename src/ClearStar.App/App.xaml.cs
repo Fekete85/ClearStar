@@ -14,6 +14,14 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        // Choice lists never scroll themselves, so pass the wheel on to the sidebar's ScrollViewer.
+        EventManager.RegisterClassHandler(typeof(System.Windows.Controls.ListBox), UIElement.PreviewMouseWheelEvent, new System.Windows.Input.MouseWheelEventHandler((sender, args) =>
+        {
+            if (sender is not System.Windows.Controls.ListBox list || args.Handled) return;
+            args.Handled = true;
+            var forwarded = new System.Windows.Input.MouseWheelEventArgs(args.MouseDevice, args.Timestamp, args.Delta) { RoutedEvent = UIElement.MouseWheelEvent, Source = sender };
+            (System.Windows.Media.VisualTreeHelper.GetParent(list) as UIElement)?.RaiseEvent(forwarded);
+        }));
         // Nyelv: a beállításokban választott, különben a Windows nyelve (ha van hozzá fájl), különben magyar.
         L.Load(UserSettings.Get(UserSettings.LanguageKey) ?? L.SystemLanguage());
         DispatcherUnhandledException += (_, args) =>

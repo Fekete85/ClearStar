@@ -432,6 +432,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
         QualityVersion++;
         HasFrames = Frames.Count > 0;
         WindowTitle = L.F("ui.app.titleWithFolder", Path.GetFileName(frames.Folder));
+        PrefillObjectName(frames);
+    }
+
+    /// <summary>Plate solving: pre-fill the object name from the header (or the folder name) so the user sees what will be looked up.</summary>
+    private void PrefillObjectName(FrameSet frames)
+    {
+        var step = Steps.FirstOrDefault(s => s.Id == StepId.PlateSolve);
+        var param = step?.Parameters.OfType<TextParameterViewModel>().FirstOrDefault(t => t.Key == PlateSolveStep.ObjectKey);
+        if (param is null) return;
+        string? name = ObjectNameGuess.From(frames);
+        if (name is not null) param.Text = name;
     }
 
     private void UpdateImageInfo()

@@ -28,7 +28,7 @@ public sealed class PlateSolveStep : StepBase
         StepId.PlateSolve, StepGroup.Basics, S,
         [
             Text(S, ObjectKey),
-            Text(S, ScaleKey),
+            new(ScaleKey, L.T("step.platesolve.scale.label"), ParameterKind.Text, "", Advanced: true, Help: L.T("step.platesolve.scale.help")),
             Slider(S, MagLimitKey, 14.0, 11, 16, advanced: true),
         ]);
 
@@ -41,10 +41,13 @@ public sealed class PlateSolveStep : StepBase
 
         // 1. Centre hint: object name typed by the user → online resolver; otherwise the header.
         string objectName = p.GetString(ObjectKey).Trim();
+        string headerObject = header.TryGetValue("OBJECT", out var ho) ? ho.Trim() : "";
+        // A name the user typed (different from the header's own OBJECT) overrides the header direction.
+        bool userOverride = objectName.Length > 0 && !string.Equals(objectName, headerObject, StringComparison.OrdinalIgnoreCase);
         double ra, dec;
         try
         {
-            if (objectName.Length > 0)
+            if (userOverride || (objectName.Length > 0 && HeaderCentre(header) is null))
             {
                 context.Report(0.02, L.F("msg.platesolve.resolving", objectName));
                 var pos = await NameResolver.ResolveAsync(objectName, ct) ?? throw new InvalidOperationException(L.F("msg.platesolve.unknownObject", objectName));

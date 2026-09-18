@@ -2,7 +2,7 @@ namespace ClearStar.Core.IO;
 
 public enum FrameType { Light, Dark, Flat, Bias, Unknown }
 
-public sealed record FrameInfo(string Path, FrameType Type, double ExposureSeconds, int Width, int Height, string? Filter)
+public sealed record FrameInfo(string Path, FrameType Type, double ExposureSeconds, int Width, int Height, string? Filter, string? ObjectName = null)
 {
     public string FileName => System.IO.Path.GetFileName(Path);
 }
@@ -63,6 +63,7 @@ public sealed class FrameSet
         double exposure = 0;
         int w = 0, h = 0;
         string? filter = null;
+        string? objectName = null;
 
         if (FitsReader.IsFits(path))
         {
@@ -75,6 +76,7 @@ public sealed class FrameSet
                 if (header.TryGetValue("NAXIS1", out var n1)) int.TryParse(n1, out w);
                 if (header.TryGetValue("NAXIS2", out var n2)) int.TryParse(n2, out h);
                 if (header.TryGetValue("FILTER", out var f)) filter = f;
+                if (header.TryGetValue("OBJECT", out var o) && o.Trim().Length > 0) objectName = o.Trim();
             }
             catch (Exception ex) when (ex is IOException or InvalidDataException)
             {
@@ -89,7 +91,7 @@ public sealed class FrameSet
             // Ha semmi nem utal a típusra, fényképnek vesszük – ez a leggyakoribb eset egy kezdőnél.
             if (type == FrameType.Unknown) type = FrameType.Light;
         }
-        return new FrameInfo(path, type, exposure, w, h, filter);
+        return new FrameInfo(path, type, exposure, w, h, filter, objectName);
     }
 
     private static FrameType ParseType(string text)
