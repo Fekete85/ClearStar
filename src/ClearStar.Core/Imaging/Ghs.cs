@@ -3,7 +3,11 @@ using System.Text.Json;
 
 namespace ClearStar.Core.Imaging;
 
-public enum GhsType { Ghs, InverseGhs, Asinh, InverseAsinh, Linear, Mtf }
+/// <summary>
+/// Stretch types: Siril's five, <see cref="Mtf"/> for the auto-stretch (wand) and <see cref="Simple"/>
+/// for the beginner sliders (object brightness, background level, contrast around the background).
+/// </summary>
+public enum GhsType { Ghs, InverseGhs, Asinh, InverseAsinh, Linear, Mtf, Simple }
 public enum GhsColourModel { Independent, HumanLuminance, EvenLuminance }
 
 /// <summary>
@@ -18,8 +22,21 @@ public sealed record GhsParams(GhsType Type, float D, float B, float LP, float S
 
     /// <summary>ln(D+1) → D.</summary>
     public static float DFromLog(double lnD1) => (float)(Math.Exp(lnD1) - 1.0);
-    /// <summary>For <see cref="GhsType.Mtf"/> (auto stretch) D holds the midtones balance and SP the shadow clipping point.</summary>
-    public bool IsIdentity => Type == GhsType.Linear ? BP <= 0f : Type == GhsType.Mtf ? false : D <= 0f;
+    /// <summary>
+    /// For <see cref="GhsType.Mtf"/> (auto stretch) D holds the midtones balance and SP the shadow clipping point.
+    /// For <see cref="GhsType.Simple"/> D, BP and B are the three sliders in −1…1 (objects, background, contrast) and SP the background level they pivot on.
+    /// </summary>
+    public bool IsIdentity => Type switch
+    {
+        GhsType.Linear => BP <= 0f,
+        GhsType.Mtf => false,
+        GhsType.Simple => MathF.Abs(D) < 1e-4f && MathF.Abs(BP) < 1e-4f && MathF.Abs(B) < 1e-4f,
+        _ => D <= 0f,
+    };
+
+    /// <summary>The beginner stretch: <paramref name="objects"/>, <paramref name="background"/> and <paramref name="contrast"/> in −1…1 around the background level <paramref name="pivot"/>.</summary>
+    public static GhsParams SimpleStretch(float objects, float background, float contrast, float pivot) =>
+        new(GhsType.Simple, Math.Clamp(objects, -1f, 1f), Math.Clamp(contrast, -1f, 1f), 0f, Math.Clamp(pivot, 0f, 1f), 1f, Math.Clamp(background, -1f, 1f), GhsColourModel.Independent);
 
     public string ToJson() => JsonSerializer.Serialize(this);
     public static GhsParams? FromJson(string json)
@@ -38,6 +55,7 @@ public sealed record GhsParams(GhsType Type, float D, float B, float LP, float S
     {
         GhsType.Linear => string.Format(CultureInfo.CurrentCulture, "BP {0:0.000}", BP),
         GhsType.Mtf => string.Format(CultureInfo.CurrentCulture, "auto (MTF m={0:0.000}, shadows {1:0.000})", D, SP),
+        GhsType.Simple => Localization.L.F("msg.ghs.simple", D, BP, B),
         _ => string.Format(CultureInfo.CurrentCulture, "ln(D+1) {0:0.00}, b {1:0.0}, SP {2:0.000}", Math.Log(D + 1), B, SP),
     };
 }
@@ -61,8 +79,43 @@ public sealed class GhsTransform
         // power form a hair away from −1 is indistinguishable and well behaved.
         if (B == -1f) B = -1.0001f;
         _bcat = B == -1f ? 0 : B == 0f ? 1 : 2;
+        if (p.Type == GhsType.Simple) { SetupSimple(p); return; }
         if (D == 0f || p.Type == GhsType.Linear) return;
         Setup(B, D, LP, SP, HP, p.Type);
+    }
+
+    // ----- Simple (beginner) stretch -----
+    // Three effects composed around the background level (pivot):
+    //  * background: moves the pivot up or down (a black-point shift with the shadows scaled linearly),
+    //  * objects: an MTF on the range above the pivot – brightens or darkens everything that is not sky,
+    //  * contrast: a hyperbolic stretch centred on the new pivot, re-pivoted so the background stays put.
+    private const float BackgroundRange = 0.12f;   // full slider throw moves the background by this much
+    private const float ObjectsRange = 0.35f;      // midtones 0.5 ± this
+    private const float ContrastLnD = 1.5f;        // ln(D+1) of the contrast GHS at full throw
+    private float sBg, sBg2, sM, sYsp, sLo, sHi;
+    private GhsTransform? sContrast;
+
+    private void SetupSimple(GhsParams p)
+    {
+        sBg = Math.Clamp(p.SP, 0.005f, 0.9f);
+        sBg2 = Math.Clamp(sBg + BackgroundRange * p.BP, 0.001f, 0.9f);
+        sM = Math.Clamp(0.5f - ObjectsRange * p.D, 0.15f, 0.85f);
+        if (MathF.Abs(p.B) < 1e-4f) return;
+        var g = new GhsParams(p.B > 0f ? GhsType.Ghs : GhsType.InverseGhs, GhsParams.DFromLog(ContrastLnD * MathF.Abs(p.B)), 1f, 0f, sBg2, 1f, 0f, GhsColourModel.Independent);
+        sContrast = new GhsTransform(g);
+        sYsp = sContrast.Apply(sBg2);
+        sLo = sBg2 / MathF.Max(sYsp, 1e-6f);
+        sHi = (1f - sBg2) / MathF.Max(1f - sYsp, 1e-6f);
+    }
+
+    private float ApplySimple(float x)
+    {
+        float y;
+        if (x < sBg) y = sBg2 * (x / sBg);
+        else y = sBg2 + (1f - sBg2) * DisplayStretch.Mtf((x - sBg) / (1f - sBg), sM);
+        if (sContrast is null) return y;
+        float z = sContrast.Apply(y);
+        return z <= sYsp ? z * sLo : 1f - (1f - z) * sHi;
     }
 
     private void Setup(float B, float D, float LP, float SP, float HP, GhsType type)
@@ -218,6 +271,8 @@ public sealed class GhsTransform
                 return Math.Max(0f, (x - p.BP) / (1f - p.BP));
             case GhsType.Mtf:
                 return DisplayStretch.Mtf(Math.Max(0f, (x - p.SP) / (1f - p.SP)), p.D);
+            case GhsType.Simple:
+                return ApplySimple(x);
             case GhsType.Ghs:
             {
                 if (p.D == 0f) return x;

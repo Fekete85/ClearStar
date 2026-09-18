@@ -93,7 +93,10 @@
     "ghs": {
       "name": "Ködök, galaxis kiemelése",
       "tech": "GHS nyújtás",
-      "desc": "A nyers kép szinte fekete: a halvány részletek a sötétben lapulnak. Itt hozzuk elő őket – ugyanazokkal a csúszkákkal, mint a Siril GHS-nyújtása. A kép és a hisztogram élőben követi a beállítást; az „Alkalmaz” rögzíti a nyújtást, és tiszta lappal jöhet a következő, így több finom lépésben is dolgozhatsz.",
+      "desc": "A nyers kép szinte fekete: a halvány részletek a sötétben lapulnak. Itt hozzuk elő őket. Kezdd az automatikus nyújtással (varázspálca), utána a három csúszkával finomíts: az objektum fényessége, a háttér szintje és a kettő közti kontraszt. A kép és a hisztogram élőben követi a beállítást; az „Alkalmaz” rögzíti, és tiszta lappal jöhet a következő, így több finom lépésben is dolgozhatsz. A haladó beállítások alatt a Siril GHS-csúszkái vannak.",
+      "objects": { "label": "Objektum fényessége", "ticks": ["sötétebb", "0", "világosabb"], "help": "A ködöt, galaxist világosítja vagy sötétíti – a háttér szintje nem változik." },
+      "background": { "label": "Háttér", "ticks": ["sötétebb", "0", "világosabb"], "help": "Az égi háttér szintje: balra sötétebb, feketébb ég; jobbra világosabb. Ne vidd teljesen feketére, mert a halvány részek is elvesznek." },
+      "contrast": { "label": "Kontraszt az objektum és a háttér között", "ticks": ["lágyabb", "0", "erősebb"], "help": "Mennyire váljon el a halvány köd a háttértől: jobbra a háttér közeli részek kapnak több kontrasztot (a zaj is látszóbb lehet), balra lágyabb, egyenletesebb." },
       "lnD": { "label": "Nyújtás mértéke (ln(D+1))", "ticks": ["0", "5", "10"], "help": "Mennyi kontrasztot adunk a szimmetriapont környékén – ez a fő csúszka. Nulla = nincs változás." },
       "b": { "label": "Helyi nyújtás erőssége (b)", "ticks": ["−5", "5", "15"], "help": "Mennyire koncentrálódjon a kontraszt a szimmetriapont köré: nagy b = keskeny, erős kiemelés; kis vagy negatív b = szélesebb, lágyabb." },
       "sp": { "label": "Szimmetriapont (SP)", "ticks": ["0", "0,5", "1"], "help": "Az a fényességérték, ahol a legnagyobb a kontrasztnövelés. Halvány ködhöz kicsi (a háttér közelében), fényes maghoz nagyobb." },
@@ -259,7 +262,7 @@
       "noLayers": "Nincs külön csillagréteg (a csillagleválasztás kimaradt) – a kép változatlan",
       "summary": "Csillagok visszahelyezve (súly {0:0.0})"
     },
-    "ghs": { "summary": "{0} nyújtás alkalmazva · utolsó: {1}", "none": "Nincs nyújtás – a kép változatlan" },
+    "ghs": { "summary": "{0} nyújtás alkalmazva · utolsó: {1}", "none": "Nincs nyújtás – a kép változatlan", "simple": "objektum {0:+0.00;−0.00;0}, háttér {1:+0.00;−0.00;0}, kontraszt {2:+0.00;−0.00;0}" },
     "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "A csillagréteg nyújtva – az előnézet a ködre visszatett csillagokat mutatja" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
     "contrast": { "summary": "Kontraszt beállítva" },

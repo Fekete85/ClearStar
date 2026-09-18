@@ -146,11 +146,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _showHistogram;
     private System.Windows.Threading.DispatcherTimer? _liveTimer;
 
-    private static HistogramData BuildHistogram(AstroImage input, AstroImage output, GhsParams p)
+    /// <param name="stretches">The live stretches in order (the curve shows their composition).</param>
+    /// <param name="p">The GHS parameters whose markers (LP, SP, HP, BP) are drawn.</param>
+    private static HistogramData BuildHistogram(AstroImage input, AstroImage output, IReadOnlyList<GhsParams> stretches, GhsParams p)
     {
-        var t = new GhsTransform(p);
+        var transforms = stretches.Select(s => new GhsTransform(s)).ToArray();
         var curve = new float[128];
-        for (int i = 0; i < curve.Length; i++) curve[i] = t.Apply(i / (float)(curve.Length - 1));
+        for (int i = 0; i < curve.Length; i++)
+        {
+            float v = i / (float)(curve.Length - 1);
+            foreach (var t in transforms) v = t.Apply(v);
+            curve[i] = v;
+        }
         return new HistogramData(ClearStar.Core.Imaging.Histogram.Compute(input, 2), ClearStar.Core.Imaging.Histogram.Compute(output, 2), curve,
             p.LP, p.SP, p.HP, p.Type == GhsType.Linear ? p.BP : 0f, true);
     }
@@ -187,6 +194,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
         step.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
     }
 
+    /// <summary>After a commit, undo or auto stretch the sliders refine the new image: the symmetry point (the pivot of the simple sliders) moves to its background.</summary>
+    private void FollowBackground(StepViewModel step)
+    {
+        if (_workflow.ImageAfter(step.Id) is not { } stretched) return;
+        step.Entry.Parameters[StarlessStretchStep.SpKey] = Math.Round(ImageStats.ComputeAll(stretched).Average(s => s.Median), 3);
+        step.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
+    }
+
     private void UpdateStretchNote(StepViewModel step)
     {
         var history = StarlessStretchStep.History(step.Entry.Parameters);
@@ -205,12 +220,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
             var preset = PreviewRenderer.Preset.IsOff ? DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey) : PreviewRenderer.Preset;
             if (!StarlessStretchStep.CommitAuto(step.Entry.Parameters, baseImage, preset)) { StatusText = L.T("step.ghs.autoBright"); return; }
             await ApplyAsync(step);
-            // The sliders now refine the auto-stretched image: move the symmetry point to its background.
-            if (_workflow.ImageAfter(step.Id) is { } stretched)
-            {
-                step.Entry.Parameters[StarlessStretchStep.SpKey] = Math.Round(ImageStats.ComputeAll(stretched).Average(s => s.Median), 3);
-                step.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
-            }
         });
     }
 
@@ -394,7 +403,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusText = L.F("ui.status.done", step.Name, result.Summary);
             UpdateImageInfo();
             var next = Steps.FirstOrDefault(s => s.Id == _workflow.NextPending);
-            if (step.Id == StepId.StarlessStretch) { UpdateStretchNote(step); RefreshPreview(); }
+            if (step.Id == StepId.StarlessStretch) { FollowBackground(step); UpdateStretchNote(step); RefreshPreview(); }
             else if (step.Id == StepId.StarStretch) RefreshPreview();
             else if (next is not null && next.Id > step.Id) SelectStep(next);
             else RefreshPreview();
@@ -668,8 +677,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         // The stretch step previews the slider settings live on top of its committed result.
         bool liveStretch = step.Id == StepId.StarlessStretch && !ShowOriginal;
-        var current = liveStretch ? StarlessStretchStep.Current(step.Entry.Parameters) : null;
-        Func<AstroImage, AstroImage>? transform = current is { IsIdentity: false } ? img => GhsTransform.Apply(img, current, cts.Token) : null;
+        var current = liveStretch ? StarlessStretchStep.CurrentAll(step.Entry.Parameters) : null;
+        Func<AstroImage, AstroImage>? transform = current is { Count: > 0 } ? img => GhsTransform.ApplyAll(img, current, cts.Token) : null;
         // Star stretch: the separated star layer is stretched with the slider value and screened over the (starless) base.
         if (step.Id == StepId.StarStretch && !ShowOriginal && StarLayerStore.StarsLinear is { } starsLinear
             && _workflow.ImageBefore(step.Id) is { } starlessBase && StarLayerStore.HasStretchedFor(starlessBase))
@@ -687,7 +696,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _ = Task.Run(() =>
         {
             var a = PreviewRenderer.Render(after, stretch, cts.Token, transform: transform,
-                smallOut: liveStretch ? (src, dst) => histogram = BuildHistogram(src, dst, current!) : null);
+                smallOut: liveStretch ? (src, dst) => histogram = BuildHistogram(src, dst, current!, StarlessStretchStep.Current(step.Entry.Parameters)) : null);
             var b = before is not null && !ReferenceEquals(before, after) ? PreviewRenderer.Render(before, stretch, cts.Token) : null;
             return (a, b);
         }, cts.Token).ContinueWith(t =>

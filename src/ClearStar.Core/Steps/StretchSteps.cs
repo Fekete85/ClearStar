@@ -21,23 +21,40 @@ public sealed class StarlessStretchStep : StepBase
     public const string BpKey = "bp";
     public const string ColourKey = "colour";
     public const string HistoryKey = "history";
+    // Beginner sliders (−1…1): brightness of the objects, level of the background, contrast between the two.
+    public const string ObjectsKey = "objects";
+    public const string BackgroundKey = "background";
+    public const string ContrastKey = "contrast";
     private const string S = "ghs";
+    private const string SignedFormat = "{0:+0.00;−0.00;0.00}";
 
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
         StepId.StarlessStretch, StepGroup.Stars, S,
         [
-            new(LnDKey, L.T("step.ghs.lnD.label"), ParameterKind.Slider, 0.0, 0, 10, L.A("step.ghs.lnD.ticks"), Help: L.T("step.ghs.lnD.help"), ValueFormat: "{0:0.00}"),
-            new(BKey, L.T("step.ghs.b.label"), ParameterKind.Slider, 0.0, -5, 15, L.A("step.ghs.b.ticks"), Help: L.T("step.ghs.b.help"), ValueFormat: "{0:0.0}"),
-            new(SpKey, L.T("step.ghs.sp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.sp.ticks"), Help: L.T("step.ghs.sp.help"), ValueFormat: "{0:0.000}"),
-            new(LpKey, L.T("step.ghs.lp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.lp.ticks"), Help: L.T("step.ghs.lp.help"), ValueFormat: "{0:0.000}"),
-            new(HpKey, L.T("step.ghs.hp.label"), ParameterKind.Slider, 1.0, 0, 1, L.A("step.ghs.hp.ticks"), Help: L.T("step.ghs.hp.help"), ValueFormat: "{0:0.000}"),
+            new(ObjectsKey, L.T("step.ghs.objects.label"), ParameterKind.Slider, 0.0, -1, 1, L.A("step.ghs.objects.ticks"), Help: L.T("step.ghs.objects.help"), ValueFormat: SignedFormat),
+            new(BackgroundKey, L.T("step.ghs.background.label"), ParameterKind.Slider, 0.0, -1, 1, L.A("step.ghs.background.ticks"), Help: L.T("step.ghs.background.help"), ValueFormat: SignedFormat),
+            new(ContrastKey, L.T("step.ghs.contrast.label"), ParameterKind.Slider, 0.0, -1, 1, L.A("step.ghs.contrast.ticks"), Help: L.T("step.ghs.contrast.help"), ValueFormat: SignedFormat),
+            // Siril's GHS controls for those who know them.
+            new(LnDKey, L.T("step.ghs.lnD.label"), ParameterKind.Slider, 0.0, 0, 10, L.A("step.ghs.lnD.ticks"), Advanced: true, Help: L.T("step.ghs.lnD.help"), ValueFormat: "{0:0.00}"),
+            new(BKey, L.T("step.ghs.b.label"), ParameterKind.Slider, 0.0, -5, 15, L.A("step.ghs.b.ticks"), Advanced: true, Help: L.T("step.ghs.b.help"), ValueFormat: "{0:0.0}"),
+            new(SpKey, L.T("step.ghs.sp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.sp.ticks"), Advanced: true, Help: L.T("step.ghs.sp.help"), ValueFormat: "{0:0.000}"),
+            new(LpKey, L.T("step.ghs.lp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.lp.ticks"), Advanced: true, Help: L.T("step.ghs.lp.help"), ValueFormat: "{0:0.000}"),
+            new(HpKey, L.T("step.ghs.hp.label"), ParameterKind.Slider, 1.0, 0, 1, L.A("step.ghs.hp.ticks"), Advanced: true, Help: L.T("step.ghs.hp.help"), ValueFormat: "{0:0.000}"),
             Choice(S, TypeKey, "ghs", ["ghs", "invghs", "asinh", "invasinh", "linear"], advanced: true),
             new(BpKey, L.T("step.ghs.bp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.bp.ticks"), Advanced: true, Help: L.T("step.ghs.bp.help"), ValueFormat: "{0:0.000}"),
             Choice(S, ColourKey, "humanlum", ["indep", "humanlum", "evenlum"], advanced: true),
             Hidden(HistoryKey, "[]"),
         ]);
 
-    /// <summary>The stretch described by the sliders (not yet committed).</summary>
+    /// <summary>The beginner stretch described by the three simple sliders, pivoting on the symmetry point (= background level).</summary>
+    public static GhsParams CurrentSimple(StepParameters p) =>
+        GhsParams.SimpleStretch(p.GetFloat(ObjectsKey), p.GetFloat(BackgroundKey), p.GetFloat(ContrastKey), p.GetFloat(SpKey));
+
+    /// <summary>Everything the sliders describe (simple stretch first, then the GHS one), identities left out.</summary>
+    public static List<GhsParams> CurrentAll(StepParameters p) =>
+        new[] { CurrentSimple(p), Current(p) }.Where(x => !x.IsIdentity).ToList();
+
+    /// <summary>The GHS stretch described by the advanced sliders (not yet committed).</summary>
     public static GhsParams Current(StepParameters p)
     {
         var type = p.GetString(TypeKey, "ghs") switch
@@ -56,10 +73,10 @@ public sealed class StarlessStretchStep : StepBase
     /// <summary>Moves the current stretch into the history and resets the sliders to the identity. Returns false when there was nothing to commit.</summary>
     public static bool Commit(StepParameters p)
     {
-        var current = Current(p);
-        if (current.IsIdentity) return false;
+        var current = CurrentAll(p);
+        if (current.Count == 0) return false;
         var history = History(p);
-        history.Add(current);
+        history.AddRange(current);
         p[HistoryKey] = GhsParams.ListToJson(history);
         ResetCurrent(p);
         return true;
@@ -78,6 +95,7 @@ public sealed class StarlessStretchStep : StepBase
     public static void ResetCurrent(StepParameters p)
     {
         p[LnDKey] = 0.0; p[BpKey] = 0.0;
+        p[ObjectsKey] = 0.0; p[BackgroundKey] = 0.0; p[ContrastKey] = 0.0;
     }
 
     /// <summary>

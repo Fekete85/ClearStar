@@ -93,6 +93,40 @@ public class StretchTests
             for (int i = 1; i < 200; i++) { float x = i / 200f; Assert.InRange(inv.Apply(ghs.Apply(x)), x - 2e-3f, x + 2e-3f); }
         }
     }
+
+    [Theory]
+    [InlineData(0f, 0f, 0f)] [InlineData(1f, 0f, 0f)] [InlineData(-1f, 0f, 0f)] [InlineData(0f, 1f, 0f)] [InlineData(0f, -1f, 0f)]
+    [InlineData(0f, 0f, 1f)] [InlineData(0f, 0f, -1f)] [InlineData(0.6f, -0.4f, 0.8f)]
+    public void SimpleStretchKeepsTheBackgroundWhereTheSliderPutsIt(float objects, float background, float contrast)
+    {
+        const float bg = 0.2f; // background after the auto stretch
+        var p = GhsParams.SimpleStretch(objects, background, contrast, bg);
+        Assert.Equal(objects == 0f && background == 0f && contrast == 0f, p.IsIdentity);
+        var t = new GhsTransform(p);
+        float prev = -1f;
+        for (int i = 0; i <= 400; i++)
+        {
+            float y = t.Apply(i / 400f);
+            Assert.True(y >= prev - 1e-5f, $"not monotonic at {i / 400f}: {prev} -> {y}");
+            prev = y;
+        }
+        Assert.Equal(0f, t.Apply(0f), 4);
+        Assert.Equal(1f, t.Apply(1f), 3);
+        // The background lands on the level the background slider asks for; objects and contrast leave it alone.
+        float expectedBg = bg + 0.12f * background;
+        Assert.InRange(t.Apply(bg), expectedBg - 2e-3f, expectedBg + 2e-3f);
+        // Objects: brighter or darker than the identity above the background.
+        float mid = t.Apply(0.5f);
+        if (objects > 0f && background == 0f && contrast == 0f) Assert.True(mid > 0.5f);
+        if (objects < 0f && background == 0f && contrast == 0f) Assert.True(mid < 0.5f);
+        // Contrast: steeper just above the background.
+        if (contrast > 0f && objects == 0f && background == 0f) Assert.True(t.Apply(bg + 0.02f) - t.Apply(bg) > 0.02f);
+        if (contrast < 0f && objects == 0f && background == 0f) Assert.True(t.Apply(bg + 0.02f) - t.Apply(bg) < 0.02f);
+        // Round trip through the history JSON.
+        var back = GhsParams.ListFromJson(GhsParams.ListToJson([p]));
+        Assert.Single(back);
+        Assert.Equal(p, back[0]);
+    }
 }
 
 public class WorkflowTests

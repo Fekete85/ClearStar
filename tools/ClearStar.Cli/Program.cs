@@ -22,6 +22,7 @@ string folder = args[0], outDir = args[1];
 Directory.CreateDirectory(outDir);
 using var wf = StepCatalog.CreateWorkflow();
 // --set <lépésszám>.<kulcs>=<érték>  pl. --set 2.gradient=false
+var sets = new List<(StepId Step, string Key, object Value)>();
 for (int a = 2; a + 1 < args.Length; a++)
 {
     if (args[a] != "--set") continue;
@@ -30,6 +31,7 @@ for (int a = 2; a + 1 < args.Length; a++)
     var entry = wf[(StepId)int.Parse(m.Groups[1].Value)];
     object value = bool.TryParse(m.Groups[3].Value, out var b) ? b : double.TryParse(m.Groups[3].Value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var d) ? d : m.Groups[3].Value;
     entry.Parameters[m.Groups[2].Value] = value;
+    sets.Add((entry.Id, m.Groups[2].Value, value));
 }
 wf[StepId.LoadFrames].Parameters[LoadFramesStep.FolderKey] = folder;
 wf[StepId.Save].Parameters[SaveStep.FolderKey] = outDir;
@@ -41,7 +43,14 @@ foreach (var entry in wf.Steps)
     // The stretch step applies only committed stretches: give the CLI a default one (ln(D+1)=1.5, b=1, SP at the background median).
     if (entry.Id == StepId.StarlessStretch && StarlessStretchStep.History(entry.Parameters).Count == 0 && wf.Current is { } cur)
     {
-        if (entry.Parameters.GetDouble(StarlessStretchStep.LnDKey) == 0) StarlessStretchStep.CommitAuto(entry.Parameters, cur); // same as the app's "auto stretch" button
+        if (entry.Parameters.GetDouble(StarlessStretchStep.LnDKey) == 0 && StarlessStretchStep.CommitAuto(entry.Parameters, cur)) // same as the app's "auto stretch" button
+        {
+            // The simple sliders pivot on the background of the auto-stretched image (the app moves SP there too),
+            // and the auto stretch resets the sliders: the values given with --set are meant on top of it.
+            var auto = GhsTransform.ApplyAll(cur, StarlessStretchStep.History(entry.Parameters));
+            entry.Parameters[StarlessStretchStep.SpKey] = Math.Round(ImageStats.ComputeAll(auto).Average(s => s.Median), 3);
+            foreach (var s in sets.Where(x => x.Step == StepId.StarlessStretch)) entry.Parameters[s.Key] = s.Value;
+        }
         StarlessStretchStep.Commit(entry.Parameters);
     }
     var r = await wf.RunAsync(entry.Id, progress);

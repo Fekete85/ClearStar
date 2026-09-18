@@ -146,8 +146,12 @@
                     </Border>
 
                     <Grid Margin="0,0,0,14" Visibility="{Binding Note, Converter={StaticResource NullToVis}}">
-                        <TextBlock Text="{Binding Note}" Style="{StaticResource T.Secondary}" Foreground="{StaticResource B.Accent}" VerticalAlignment="Center" Margin="0,0,110,0"/>
-                        <Button Style="{StaticResource Btn.Link}" Content="{Binding NoteActionText}" Command="{Binding NoteCommand}" HorizontalAlignment="Right" Height="24" Foreground="{StaticResource B.Text2}"
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding Note}" Style="{StaticResource T.Secondary}" Foreground="{StaticResource B.Accent}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Button Grid.Column="1" Style="{StaticResource Btn.Link}" Content="{Binding NoteActionText}" Command="{Binding NoteCommand}" VerticalAlignment="Center" Height="24" Foreground="{StaticResource B.Text2}"
                                 Visibility="{Binding NoteActionText, Converter={StaticResource NullToVis}}"/>
                     </Grid>
 
