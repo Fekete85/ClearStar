@@ -31,23 +31,14 @@ public static class PreviewRenderer
         var small = factor > 1 ? Downsample(image, factor) : image;
         ct.ThrowIfCancellationRequested();
 
-        var luts = new byte[small.Channels][];
-        if (autoStretch)
-        {
-            var prms = DisplayStretch.ComputeAll(small, preset, linked: false);
-            for (int c = 0; c < small.Channels; c++) luts[c] = DisplayStretch.BuildLut(prms[c]);
-        }
-        else
-        {
-            var identity = DisplayStretch.BuildLutLinear();
-            for (int c = 0; c < small.Channels; c++) luts[c] = identity;
-        }
+        // The stretch is evaluated per pixel in float: a linear image's background occupies only a few
+        // thousandths of the range, so any lookup table would posterise it into colour blotches.
+        var prms = autoStretch ? DisplayStretch.ComputeAll(small, preset, linked: false) : null;
         ct.ThrowIfCancellationRequested();
 
         int w = small.Width, h = small.Height, n = w * h;
         var pixels = new byte[n * 4];
         var d = small.Data;
-        int lutMax = luts[0].Length - 1;
         Parallel.For(0, h, y =>
         {
             for (int i = y * w; i < (y + 1) * w; i++)
@@ -55,11 +46,11 @@ public static class PreviewRenderer
                 byte r, g, b;
                 if (small.Channels == 3)
                 {
-                    r = luts[0][Index(d[i], lutMax)];
-                    g = luts[1][Index(d[n + i], lutMax)];
-                    b = luts[2][Index(d[2 * n + i], lutMax)];
+                    r = ToByte(prms is null ? d[i] : prms[0].Apply(d[i]));
+                    g = ToByte(prms is null ? d[n + i] : prms[1].Apply(d[n + i]));
+                    b = ToByte(prms is null ? d[2 * n + i] : prms[2].Apply(d[2 * n + i]));
                 }
-                else r = g = b = luts[0][Index(d[i], lutMax)];
+                else r = g = b = ToByte(prms is null ? d[i] : prms[0].Apply(d[i]));
                 int o = i * 4;
                 pixels[o] = b; pixels[o + 1] = g; pixels[o + 2] = r; pixels[o + 3] = 255;
             }
@@ -67,7 +58,7 @@ public static class PreviewRenderer
         return new Frame(pixels, w, h, image.Width, image.Height);
     }
 
-    private static int Index(float v, int max) => v <= 0f ? 0 : v >= 1f ? max : (int)(v * max);
+    private static byte ToByte(float v) => v <= 0f ? (byte)0 : v >= 1f ? (byte)255 : (byte)(v * 255f + 0.5f);
 
     /// <summary>Doboz-átlagolás egész szorzóval.</summary>
     public static AstroImage Downsample(AstroImage img, int factor)
