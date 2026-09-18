@@ -22,6 +22,7 @@ public partial class AboutWindow : Window
         VersionText.Text = L.F("ui.about.version", version);
         CopyrightText.Text = asm.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright ?? "";
         SummaryText.Text = L.T("ui.about.summary");
+        SupportUrlText.Text = ClearStar.Core.AppLinks.Support;
         LanguageFolderText.Text = L.UserLanguagesDir;
         GpuSwitch.IsChecked = ClearStar.Core.AI.OnnxSessions.GpuEnabled;
 
@@ -38,7 +39,7 @@ public partial class AboutWindow : Window
         if (sender is not ToggleButton tb || tb.Tag is not string tag) return;
         foreach (var other in new[] { TabAbout, TabLicense, TabThirdParty, TabModels })
             if (!ReferenceEquals(other, tb)) other.IsChecked = false;
-        AboutPanel.Visibility = tag == "about" ? Visibility.Visible : Visibility.Collapsed;
+        AboutScroll.Visibility = tag == "about" ? Visibility.Visible : Visibility.Collapsed;
         TextPanel.Visibility = tag == "about" ? Visibility.Collapsed : Visibility.Visible;
         TextPanel.Text = tag switch
         {
@@ -72,6 +73,12 @@ public partial class AboutWindow : Window
     }
 
     private void GpuChanged(object sender, RoutedEventArgs e) => ClearStar.Core.AI.OnnxSessions.GpuEnabled = GpuSwitch.IsChecked == true;
+
+    private void OpenSupport(object sender, RoutedEventArgs e)
+    {
+        try { Process.Start(new ProcessStartInfo(ClearStar.Core.AppLinks.Support) { UseShellExecute = true }); }
+        catch (Exception) { /* no browser – the address is shown as text next to the button */ }
+    }
 
     private void OpenLanguageFolder(object sender, RoutedEventArgs e)
     {

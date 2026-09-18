@@ -448,8 +448,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void CloseWelcome() => ShowWelcome = false;
 
-    /// <summary>Where a grateful user can buy the author a coffee (shown on the welcome screen).</summary>
-    public string SupportUrl => "https://revolut.me/laszlohmy";
+    public string SupportUrl => AppLinks.Support;
 
     [RelayCommand]
     private void OpenSupport()

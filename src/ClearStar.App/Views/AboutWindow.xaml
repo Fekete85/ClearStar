@@ -40,6 +40,7 @@
         <Border Grid.Row="2" Background="{StaticResource B.Layer}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" CornerRadius="10" Padding="16,12">
             <Grid>
                 <!-- Névjegy fül: nyelv + rövid jogi összefoglaló -->
+                <ScrollViewer x:Name="AboutScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,0">
                 <StackPanel x:Name="AboutPanel">
                     <TextBlock Text="{l:T ui.about.language}" FontSize="13.5" FontWeight="SemiBold" Margin="0,0,0,8"/>
                     <ListBox x:Name="LanguageList" Style="{StaticResource ChoiceList}" SelectionChanged="LanguageChanged">
@@ -64,7 +65,18 @@
                     <TextBlock Text="{l:T ui.about.gpuNote}" Style="{StaticResource T.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
                     <Border Height="1" Background="{StaticResource B.Stroke}" Margin="0,16,0,12"/>
                     <TextBlock x:Name="SummaryText" Style="{StaticResource T.Secondary}" TextWrapping="Wrap" FontSize="12.5"/>
+                    <!-- Support: the same note as on the welcome screen -->
+                    <Border CornerRadius="10" Background="{StaticResource B.AmberSoft}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="14,10" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{l:T ui.welcome.support}" Style="{StaticResource T.Secondary}" FontSize="12.5" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Style="{StaticResource Btn.Secondary}" Content="{l:T ui.welcome.supportButton}" Click="OpenSupport" Height="30" Padding="14,0" FontWeight="Normal"/>
+                                <TextBlock x:Name="SupportUrlText" Style="{StaticResource T.Secondary}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{StaticResource B.Text3}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
+                </ScrollViewer>
 
                 <!-- Szöveges fülek -->
                 <TextBox x:Name="TextPanel" Style="{x:Null}" Visibility="Collapsed" IsReadOnly="True" TextWrapping="Wrap"
