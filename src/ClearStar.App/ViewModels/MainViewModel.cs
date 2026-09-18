@@ -190,12 +190,26 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         var (angle, flipH, flipV) = CropStep.Orientation(crop.Entry.Parameters);
         if (Math.Abs(angle) < 1e-9 && !flipH && !flipV) return source;
-        var group = new System.Windows.Media.TransformGroup();
-        if (flipH || flipV) group.Children.Add(new System.Windows.Media.ScaleTransform(flipH ? -1 : 1, flipV ? -1 : 1));
-        if (Math.Abs(angle) > 1e-9) group.Children.Add(new System.Windows.Media.RotateTransform(angle));
-        var oriented = new System.Windows.Media.Imaging.TransformedBitmap(source, group);
-        oriented.Freeze();
-        return oriented;
+        // TransformedBitmap only rotates by multiples of 90°, so the oriented preview is drawn onto a
+        // bounding-box canvas: centre, mirror, rotate clockwise, move to the new centre (same order as CropStep.Orient).
+        int w = source.PixelWidth, h = source.PixelHeight;
+        var (ow, oh) = CropStep.OrientedSize(w, h, angle);
+        var visual = new System.Windows.Media.DrawingVisual();
+        using (var dc = visual.RenderOpen())
+        {
+            var group = new System.Windows.Media.TransformGroup();
+            group.Children.Add(new System.Windows.Media.TranslateTransform(-w / 2.0, -h / 2.0));
+            if (flipH || flipV) group.Children.Add(new System.Windows.Media.ScaleTransform(flipH ? -1 : 1, flipV ? -1 : 1));
+            if (Math.Abs(angle) > 1e-9) group.Children.Add(new System.Windows.Media.RotateTransform(angle));
+            group.Children.Add(new System.Windows.Media.TranslateTransform(ow / 2.0, oh / 2.0));
+            dc.PushTransform(group);
+            dc.DrawImage(source, new Rect(0, 0, w, h));
+            dc.Pop();
+        }
+        var target = new System.Windows.Media.Imaging.RenderTargetBitmap(ow, oh, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        target.Render(visual);
+        target.Freeze();
+        return target;
     }
 
     private void OnWorkflowChanged()
