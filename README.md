@@ -46,11 +46,11 @@ A felületet nem kell hozzá módosítani.
 |---|---|---|
 | 1 | Képek betöltése | kész |
 | 2 | Összeillesztés | kalibrálás, Bayer-debayer, képenkénti gradiens-kivonás (mint Siril `seqsubsky 1`), csillag szerinti igazítás, háttér-normálás (`norm=add`), teljes látómező (`framing=max`), szigma-vágott átlag |
-| 3 | Vágás | kész (arányos szélvágás) |
+| 3 | Vágás | kijelölés fogantyúkkal, szélcsúszka, negyedfordulatok + finom szög (−45…+45°, bilineáris), tükrözés – mind élő előnézettel (WPF TransformedBitmap), a lefedett téglalap az elforgatott képen újraszámolva |
 | 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, DirectML GPU / CPU) vagy polinom-modell; modellválasztó tallózással/URL-letöltéssel |
 | 5 | Élesítés | GraXpert deconvolution-modellek: előbb csillagok, aztán objektum (512-es csempék, log-normálás, FWHM automatikus mérése); DirectML-lel a videokártyán (~11 s a két menet 9 MP-en), CPU-tartalékkal (~140 s) |
 | 6 | Zajcsökkentés | GraXpert denoise-modell (256-os csempék, 128-as lépés, medián/MAD-normálás, fényes pixelek megtartása, erősség szerinti keverés); GPU-n ~20 s 9 MP-en |
-| 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok (ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár), háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
+| 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok – **offline** a Siril HEALPix-katalógusból (`siril_cat_healpix8_astro.dat`, saját olvasó, ~0,5 s), különben ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár, háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
 | 8 | Színek kalibrálása | fotometriai (SPCC-jellegű): a WCS alapján a Gaia-csillagok apertúra-fotometriája R/G/B-ben, robusztus egyenes-illesztés a BP−RP színindexre, a napszerű (vagy Vega-) fehér referenciánál a vörös/kék szorzó; háttér semlegesítése (~1 s) |
 | 9 | Csillagok leválasztása | a felhasználó saját StarNet2 CLI-jét hívja (Siril-beállításból, telepítési helyről vagy tallózva; beállító ablak letöltési útmutatóval); lineáris képen automatikus MTF-előnyújtás → StarNet2 → pontos visszanyújtás; a csillagréteg (eredeti − csillagtalan) a StarLayerStore-ban |
 | 10 | Ködök kiemelése (GHS) | kész – a D-t a háttér célfényességéhez keresi meg |

@@ -30,7 +30,8 @@
       "name": "Crop",
       "desc": "Drag a rectangle over the part of the image you want to keep. If you select nothing, the thin faulty band left by stacking at the edges is removed.",
       "margin": { "label": "Trim edges", "ticks": ["None", "A little", "More"], "help": "The slider sets the selection shown on the image; you can fine-tune its edges with the mouse afterwards." },
-      "rotate": { "label": "Rotate", "0": "None", "90": "90° right", "180": "180°", "270": "90° left", "help": "Applied after the crop – lossless, only the orientation changes." },
+      "rotate": { "label": "Rotate", "0": "None", "90": "90° right", "180": "180°", "270": "90° left", "help": "Quarter turns – lossless. The preview follows immediately; you draw the selection on the rotated image." },
+      "angle": { "label": "Fine rotation", "ticks": ["−45°", "0°", "+45°"], "help": "Straighten the image by any angle; the corners stay empty and the selection cuts them away." },
       "flipH": { "label": "Mirror horizontally" },
       "flipV": { "label": "Mirror vertically" }
     },
@@ -66,10 +67,14 @@
     "platesolve": {
       "name": "Identify the sky",
       "tech": "plate solving",
-      "desc": "From the star pattern we work out exactly where the image points: Gaia catalogue stars around the direction the telescope wrote into the header are matched to the image (needs internet). Needed for accurate colour calibration.",
+      "desc": "From the star pattern we work out exactly where the image points: Gaia catalogue stars around the direction the telescope wrote into the header are matched to the image (from an offline catalogue or the internet). Needed for accurate colour calibration.",
       "object": { "label": "Object name", "help": "Pre-filled from the image header (or the folder name). If the header has a direction it is used; otherwise – or if you type a different name – this name is looked up online (e.g. M 31, NGC 6992, IC 1396)." },
       "scale": { "label": "Pixel scale (″/px, if the header has none)", "help": "Leave empty to compute it from the focal length and pixel size. Seestar S50: 2.3." },
-      "maglimit": { "label": "Catalogue magnitude limit", "ticks": ["Bright (11)", "Medium (14)", "Faint (16)"], "help": "Dense star fields need only the brighter stars; sparse fields need a fainter limit." }
+      "maglimit": { "label": "Catalogue magnitude limit", "ticks": ["Bright (11)", "Medium (14)", "Faint (16)"], "help": "Dense star fields need only the brighter stars; sparse fields need a fainter limit." },
+      "offline": "Offline catalogue: {0}",
+      "online": "No offline catalogue – fetched from the internet (the server is sometimes slow).",
+      "setup": "Set up offline catalogue…",
+      "change": "Change…"
     },
     "colorcal": {
       "name": "Calibrate colours",
@@ -179,7 +184,7 @@
     "crop": {
       "size": "{0} × {1} px",
       "tooMuch": "That would cut away too much – no image would be left.",
-      "rotated": " · rotated {0}°",
+      "rotated": " · rotated {0:0.0}°",
       "flipped": " · mirrored"
     },
     "bge": {
@@ -385,6 +390,21 @@
       "start": "Let's go!"
     },
     "dialog": { "ok": "OK", "cancel": "Cancel", "close": "Close" },
+    "catalog": {
+      "title": "Offline star catalogue",
+      "whatTitle": "What is it and why is it useful?",
+      "what": "Sky identification and colour calibration need a star catalogue (Gaia DR3). By default it is fetched from the internet, but the Gaia servers are sometimes slow or do not answer – then the step gets stuck. With a once-downloaded offline catalogue (about 1.5 GB) both steps run without internet in about a second. It is the same file Siril uses: if you already downloaded it there, it is found automatically.",
+      "howTitle": "How to get it (once, about 10 minutes)",
+      "how": "1. Open Siril's download page with the button below and, under \"Local catalogues\", download siril_cat_healpix8_astro.dat (Gaia DR3 astrometric, ~1.5 GB).\n2. Put it in a permanent folder (e.g. Siril's data folder or Documents).\n3. Click \"Choose catalogue file…\" and point to the file.\n\nThe catalogue is the Siril team's Gaia DR3 extract (Siril HEALPix Catalog Format, CC BY 4.0; Gaia data: ESA/Gaia/DPAC, CC BY-SA 3.0 IGO).",
+      "download": "Open Siril's download page",
+      "browse": "Choose catalogue file…",
+      "pickTitle": "Select the offline catalogue (siril_cat_healpix8_astro.dat)",
+      "pickFilter": "Siril HEALPix catalogue|*.dat|All files|*.*",
+      "found": "Found: {0}",
+      "missing": "No offline catalogue – sky identification works over the internet (when the server answers).",
+      "invalid": "This file is not a Siril HEALPix astrometric catalogue (siril_cat_healpix8_astro.dat).",
+      "sirilNote": "If you have already set it up in Siril, it is picked up automatically."
+    },
     "starnet": {
       "title": "Set up StarNet2",
       "whatTitle": "What is it and why is it needed?",

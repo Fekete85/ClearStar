@@ -41,9 +41,21 @@ public sealed class ColorCalibrationStep : StepBase
         double fovDiagDeg = Math.Sqrt((double)input.Width * input.Width + (double)input.Height * input.Height) * wcs.ScaleArcsec / 3600.0;
         var centre = wcs.PixelToSky((input.Width - 1) / 2.0, (input.Height - 1) / 2.0);
         context.Report(0.05, L.T("msg.colorcal.catalog"));
+        // Measured BP/RP colours (online) include interstellar reddening, which T_eff-derived colours of the
+        // offline catalogue do not; so try the online archive briefly first, then fall back to whatever
+        // catalogue the plate solve used.
         List<CatalogStar> stars;
-        try { stars = await PlateSolveStep.CatalogAroundAsync(centre.ra, centre.dec, 0.5 * fovDiagDeg + 0.05, 14f, ct); }
-        catch (HttpRequestException ex) { throw new InvalidOperationException(L.F("msg.platesolve.offline", ex.Message)); }
+        double radius = 0.5 * fovDiagDeg + 0.05;
+        try
+        {
+            var online = new GaiaOnlineCatalog(useVizierFallback: false, timeout: TimeSpan.FromSeconds(10));
+            stars = await online.ConeAsync(centre.ra, centre.dec, radius, 14f, 4000, ct);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !ct.IsCancellationRequested)
+        {
+            try { stars = await PlateSolveStep.CatalogAroundAsync(centre.ra, centre.dec, radius, 14f, ct); }
+            catch (HttpRequestException ex2) { throw new InvalidOperationException(L.F("msg.platesolve.offline", ex2.Message)); }
+        }
 
         context.Report(0.2, L.T("msg.colorcal.measuring"));
         var result = await Task.Run(() =>

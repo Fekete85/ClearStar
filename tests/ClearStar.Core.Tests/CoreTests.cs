@@ -679,3 +679,58 @@ public class StarLayerTests
         Assert.True(stars[1, centres[0].x, centres[0].y] > 0.03f);
     }
 }
+
+public class LocalCatalogTests
+{
+    [Fact]
+    public void HealpixPixelCentresCoverTheSphereEvenly()
+    {
+        var h = ClearStar.Core.Astrometry.Healpix.ForOrder(3); // 768 pixels
+        Assert.Equal(768, h.Npix);
+        var (z0, phi0) = h.PixToZPhi(0);
+        Assert.InRange(z0, 0.0, 0.2); Assert.InRange(phi0, 0.7, 0.9); // NESTED pixel 0 is the southern corner of face 0, on the equator side
+        // A 30° cone at the pole must be covered by pixels of both caps and equator rows, none from the south.
+        var pix = h.QueryDiscInclusive(0, 90, 30);
+        Assert.InRange(pix.Count, 40, 140);
+        Assert.All(pix, p => Assert.True(h.PixToZPhi(p).z > 0.3));
+        Assert.InRange(ClearStar.Core.Astrometry.LocalGaiaCatalog.BpRpFromTeff(5770), 0.81f, 0.83f);
+        Assert.InRange(ClearStar.Core.Astrometry.LocalGaiaCatalog.BpRpFromTeff(9700), -0.01f, 0.01f);
+    }
+
+    [Fact]
+    public void OfflineCatalogueAgreesWithOnlineCacheIfPresent()
+    {
+        var local = ClearStar.Core.Astrometry.LocalGaiaCatalog.Default();
+        if (local is null) return; // no Siril catalogue on this machine
+        var stars = local.Cone(10.68470833, 41.26875, 0.3, 12f, 4000);
+        Assert.InRange(stars.Count, 15, 200);
+        // Brightest star in the M31 cone below G=12 is at RA 10.809, Dec 41.009 (G=8.92) in Gaia DR3.
+        var brightest = stars[0];
+        Assert.InRange(brightest.G, 8.8f, 9.0f);
+        Assert.InRange(brightest.Ra, 10.805, 10.813);
+        Assert.InRange(brightest.Dec, 41.005, 41.013);
+        Assert.All(stars, s => Assert.True(s.G <= 12f));
+    }
+}
+
+public class FineRotationTests
+{
+    [Fact]
+    public void ArbitraryAngleRotationKeepsTheCentreAndMatchesTheCanvasSize()
+    {
+        var img = new AstroImage(200, 120, 1);
+        Array.Fill(img.Data, 0.2f);
+        img[0, 100, 60] = 1f; img[0, 20, 60] = 0.9f; // centre and a point left of it
+        var r = CropStep.Orient(img, 10, false, false);
+        var (w, h) = CropStep.OrientedSize(200, 120, 10);
+        Assert.Equal(w, r.Width); Assert.Equal(h, r.Height);
+        int cx = (r.Width - 1) / 2, cy = (r.Height - 1) / 2;
+        float centreMax = 0; for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) centreMax = Math.Max(centreMax, r[0, cx + x, cy + y]);
+        Assert.True(centreMax > 0.5f);
+        // Clockwise by 10°: a point to the left of the centre moves up (smaller y) on screen.
+        double a = 10 * Math.PI / 180; int px = (int)Math.Round(cx - 80 * Math.Cos(a)), py = (int)Math.Round(cy - 80 * Math.Sin(a));
+        float leftMax = 0; for (int y = -2; y <= 2; y++) for (int x = -2; x <= 2; x++) leftMax = Math.Max(leftMax, r[0, px + x, py + y]);
+        Assert.True(leftMax > 0.5f, $"rotated point not found near ({px},{py})");
+        Assert.Equal(0f, r[0, 0, 0]); // empty corner
+    }
+}

@@ -46,7 +46,8 @@ public sealed record ParameterDefinition(
     bool Advanced = false,
     string? Help = null,
     string? Tag = null,
-    string[]? ChoiceLabels = null)
+    string[]? ChoiceLabels = null,
+    string? ValueFormat = null)
 {
     /// <summary>Egy választóérték felirata (ha nincs, maga az érték).</summary>
     public string LabelFor(string choice)

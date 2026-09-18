@@ -83,6 +83,14 @@ public sealed class GaiaOnlineCatalog : IStarCatalog
     public const string TapUrl = "https://gea.esac.esa.int/tap-server/tap/sync";
     public string Name => "Gaia DR3";
     private readonly VizierGaiaCatalog _fallback = new();
+    private readonly bool _useFallback;
+    private readonly TimeSpan _timeout;
+
+    public GaiaOnlineCatalog(bool useVizierFallback = true, TimeSpan? timeout = null)
+    {
+        _useFallback = useVizierFallback;
+        _timeout = timeout ?? TimeSpan.FromSeconds(60);
+    }
 
     public async Task<List<CatalogStar>> ConeAsync(double ra, double dec, double radiusDeg, float magLimit, int maxStars, CancellationToken ct)
     {
@@ -93,7 +101,7 @@ public sealed class GaiaOnlineCatalog : IStarCatalog
         if (File.Exists(cacheFile)) return ParseCsv(await File.ReadAllTextAsync(cacheFile, ct));
         try
         {
-            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            using var http = new HttpClient { Timeout = _timeout };
             http.DefaultRequestHeaders.UserAgent.ParseAdd("ClearStar/0.1 (astrophoto processing; plate solving)");
             var form = new FormUrlEncodedContent(new Dictionary<string, string>
             {
@@ -109,7 +117,7 @@ public sealed class GaiaOnlineCatalog : IStarCatalog
             await File.WriteAllTextAsync(cacheFile, csv, ct);
             return stars;
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !ct.IsCancellationRequested)
+        catch (Exception ex) when (_useFallback && (ex is HttpRequestException or TaskCanceledException) && !ct.IsCancellationRequested)
         {
             return await _fallback.ConeAsync(ra, dec, radiusDeg, magLimit, maxStars, ct);
         }
@@ -161,5 +169,19 @@ public static class NameResolver
                 return (ra, dec);
         }
         return null;
+    }
+}
+
+/// <summary>Uses the offline Gaia catalogue when one is available on the machine, otherwise the online services.</summary>
+public sealed class AutoStarCatalog : IStarCatalog
+{
+    private readonly GaiaOnlineCatalog _online = new();
+    public string Name => LocalGaiaCatalog.Default()?.Name ?? _online.Name;
+    public bool IsOffline => LocalGaiaCatalog.Default() is not null;
+
+    public Task<List<CatalogStar>> ConeAsync(double ra, double dec, double radiusDeg, float magLimit, int maxStars, CancellationToken ct)
+    {
+        var local = LocalGaiaCatalog.Default();
+        return local is not null ? local.ConeAsync(ra, dec, radiusDeg, magLimit, maxStars, ct) : _online.ConeAsync(ra, dec, radiusDeg, magLimit, maxStars, ct);
     }
 }

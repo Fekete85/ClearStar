@@ -116,6 +116,31 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 Selection = new Rect(b.X + m * b.Width, b.Y + m * b.Height, b.Width * (1 - 2 * m), b.Height * (1 - 2 * m));
             };
         }
+        // Crop orientation (quarter turns, fine angle, mirroring) is previewed live.
+        foreach (var prm in cropStep.Parameters.Where(x => x.Key is CropStep.RotateKey or CropStep.AngleKey or CropStep.FlipHKey or CropStep.FlipVKey))
+            prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") OnCropOrientationChanged(cropStep); };
+    }
+
+    private void OnCropOrientationChanged(StepViewModel crop)
+    {
+        if (SelectedStep?.Id != StepId.Crop) return;
+        _cropBaseImage = null;          // the covered rectangle has to be recomputed for the new orientation
+        Selection = Rect.Empty;
+        LoadCropSelection(crop);
+        RefreshPreview();
+    }
+
+    /// <summary>Rotates and mirrors the crop preview exactly as CropStep.Orient will (bounding-box canvas).</summary>
+    private static System.Windows.Media.Imaging.BitmapSource OrientPreview(System.Windows.Media.Imaging.BitmapSource source, StepViewModel crop)
+    {
+        var (angle, flipH, flipV) = CropStep.Orientation(crop.Entry.Parameters);
+        if (Math.Abs(angle) < 1e-9 && !flipH && !flipV) return source;
+        var group = new System.Windows.Media.TransformGroup();
+        if (flipH || flipV) group.Children.Add(new System.Windows.Media.ScaleTransform(flipH ? -1 : 1, flipV ? -1 : 1));
+        if (Math.Abs(angle) > 1e-9) group.Children.Add(new System.Windows.Media.RotateTransform(angle));
+        var oriented = new System.Windows.Media.Imaging.TransformedBitmap(source, group);
+        oriented.Freeze();
+        return oriented;
     }
 
     private void OnWorkflowChanged()
@@ -147,6 +172,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         IsSelectionMode = step.Id == StepId.Crop;
         if (IsSelectionMode) LoadCropSelection(step); else Selection = Rect.Empty;
         if (step.Id == StepId.StarRemoval) UpdateStarNetNote(step);
+        if (step.Id == StepId.PlateSolve) UpdateCatalogNote(step);
         UpdateFramesView(step);
         RefreshPreview();
     }
@@ -154,6 +180,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>A vágás kiindulási téglalapja: a stackelt kép adatokkal lefedett része (vagy a teljes kép).</summary>
     private Rect _cropBase = new(0, 0, 1, 1);
     private AstroImage? _cropBaseImage;
+    private (double angle, bool flipH, bool flipV) _cropBaseOrientation;
 
     private void LoadCropSelection(StepViewModel step)
     {
@@ -170,10 +197,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
         // A lefedett téglalap kiszámítása háttérszálon (nagy képen ~0,1–0,3 s).
         _cropBaseImage = img;
+        var orientation = _cropBaseOrientation = CropStep.Orientation(p);
         step.Note = L.T("ui.crop.computing");
-        _ = Task.Run(() => Coverage.LargestFilledRectangle(img)).ContinueWith(t =>
+        _ = Task.Run(() =>
         {
-            if (!ReferenceEquals(img, _cropBaseImage)) return;
+            // Coverage is measured on a small oriented copy: fast, and it matches what the preview shows.
+            var small = PreviewRenderer.Downsample(img, 4);
+            var oriented = CropStep.Orient(small, orientation.angle, orientation.flipH, orientation.flipV);
+            return Coverage.LargestFilledRectangle(oriented, 1);
+        }).ContinueWith(t =>
+        {
+            if (!ReferenceEquals(img, _cropBaseImage) || _cropBaseOrientation != orientation) return;
             _cropBase = t.IsCompletedSuccessfully && t.Result is { } r ? new Rect(r.X, r.Y, r.W, r.H) : new Rect(0, 0, 1, 1);
             if (SelectedStep?.Id == StepId.Crop && Selection.IsEmpty) Selection = _cropBase;
             if (SelectedStep?.Id == StepId.Crop) UpdateCropNote(step);
@@ -191,7 +225,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         }
         bool isBase = Math.Abs(Selection.X - _cropBase.X) < 1e-6 && Math.Abs(Selection.Y - _cropBase.Y) < 1e-6
             && Math.Abs(Selection.Width - _cropBase.Width) < 1e-6 && Math.Abs(Selection.Height - _cropBase.Height) < 1e-6;
-        step.Note = L.F("ui.crop.selection", Math.Round(Selection.Width * img.Width), Math.Round(Selection.Height * img.Height))
+        var (ow, oh) = CropStep.OrientedSize(img.Width, img.Height, CropStep.Orientation(step.Entry.Parameters).angle);
+        step.Note = L.F("ui.crop.selection", Math.Round(Selection.Width * ow), Math.Round(Selection.Height * oh))
             + (isBase && _cropBase.Width < 1 ? L.T("ui.crop.noCorners") : "");
         step.NoteActionText = L.T(isBase ? "ui.crop.clear" : "ui.crop.covered");
         if (isBase) step.NoteCommand = new RelayCommand(() => Selection = Rect.Empty);
@@ -436,6 +471,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
         PrefillObjectName(frames);
     }
 
+    /// <summary>Plate-solve card: shows whether an offline catalogue is available and offers its setup dialog.</summary>
+    private void UpdateCatalogNote(StepViewModel step)
+    {
+        string? file = ClearStar.Core.Astrometry.LocalGaiaCatalog.Locate();
+        step.Note = file is null ? L.T("step.platesolve.online") : L.F("step.platesolve.offline", Path.GetFileName(file));
+        step.NoteActionText = L.T(file is null ? "step.platesolve.setup" : "step.platesolve.change");
+        step.NoteCommand = new RelayCommand(() =>
+        {
+            Views.CatalogSetupWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
+            UpdateCatalogNote(step);
+        });
+    }
+
     /// <summary>Star removal card: shows whether StarNet2 was found and offers the setup dialog.</summary>
     private void UpdateStarNetNote(StepViewModel step)
     {
@@ -510,7 +558,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             if (t.IsCanceled || cts.IsCancellationRequested) return;
             if (t.IsFaulted) { IsError = true; StatusText = t.Exception?.InnerException?.Message ?? L.T("ui.status.previewError"); return; }
             PreviewScale = t.Result.a.SourceWidth / (double)t.Result.a.Width;
-            PreviewImage = t.Result.a.ToBitmap();
+            PreviewImage = step.Id == StepId.Crop ? OrientPreview(t.Result.a.ToBitmap(), step) : t.Result.a.ToBitmap();
             BeforeImage = t.Result.b?.ToBitmap() ?? (SplitView ? PreviewImage : null);
         }, TaskScheduler.FromCurrentSynchronizationContext());
     }

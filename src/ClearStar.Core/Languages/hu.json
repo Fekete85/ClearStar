@@ -30,7 +30,8 @@
       "name": "Vágás",
       "desc": "Húzz egy téglalapot a képen arra a részre, amit meg szeretnél tartani. Ha nem jelölsz ki semmit, a széleken lévő, összeillesztésből származó vékony hibás sávot vágjuk le.",
       "margin": { "label": "Szélek levágása", "ticks": ["Semmi", "Kicsi", "Nagyobb"], "help": "A csúszka a képen látható kijelölést állítja; a kijelölés széleit utána egérrel is finomhangolhatod." },
-      "rotate": { "label": "Elforgatás", "0": "Nincs", "90": "90° jobbra", "180": "180°", "270": "90° balra", "help": "A vágás után forgatunk – veszteségmentes, csak a tájolás változik." },
+      "rotate": { "label": "Elforgatás", "0": "Nincs", "90": "90° jobbra", "180": "180°", "270": "90° balra", "help": "Negyedfordulatok – veszteségmentes. Az előnézet azonnal követi, a kijelölést a forgatott képen rajzolod." },
+      "angle": { "label": "Finom elforgatás", "ticks": ["−45°", "0°", "+45°"], "help": "Tetszőleges szöggel egyenesbe hozhatod a képet; a sarkokban üres terület marad, amit a kijelölés kivág." },
       "flipH": { "label": "Tükrözés vízszintesen" },
       "flipV": { "label": "Tükrözés függőlegesen" }
     },
@@ -66,10 +67,14 @@
     "platesolve": {
       "name": "Égbolt azonosítása",
       "tech": "plate solving",
-      "desc": "A csillagmintázatból kiderítjük, pontosan hova néz a képed: a távcső által a fejlécbe írt irány körül a Gaia-katalógus csillagait illesztjük a képhez (internet kell hozzá). Ez kell a pontos színkalibráláshoz.",
+      "desc": "A csillagmintázatból kiderítjük, pontosan hova néz a képed: a távcső által a fejlécbe írt irány körül a Gaia-katalógus csillagait illesztjük a képhez (offline katalógusból vagy internetről). Ez kell a pontos színkalibráláshoz.",
       "object": { "label": "Objektum neve", "help": "A képek fejlécéből (vagy a mappa nevéből) töltjük ki. Ha a fejlécben van irány, azt használjuk; ha nincs, vagy más nevet írsz ide, ezt keressük meg az interneten (pl. M 31, NGC 6992, IC 1396)." },
       "scale": { "label": "Képskála (″/px, ha a fejlécben nincs)", "help": "Üresen a fókusztávolságból és a pixelméretből számoljuk. Seestar S50: 2,3." },
-      "maglimit": { "label": "Katalógus határfényessége", "ticks": ["Fényes (11)", "Közepes (14)", "Halvány (16)"], "help": "Sűrű csillagmezőnél elég a fényesebb, kevés csillagnál kell a halványabb határ." }
+      "maglimit": { "label": "Katalógus határfényessége", "ticks": ["Fényes (11)", "Közepes (14)", "Halvány (16)"], "help": "Sűrű csillagmezőnél elég a fényesebb, kevés csillagnál kell a halványabb határ." },
+      "offline": "Offline katalógus: {0}",
+      "online": "Nincs offline katalógus – internetről kérjük le (a szerver néha lassú).",
+      "setup": "Offline katalógus beállítása…",
+      "change": "Másik…"
     },
     "colorcal": {
       "name": "Színek kalibrálása",
@@ -179,7 +184,7 @@
     "crop": {
       "size": "{0} × {1} px",
       "tooMuch": "Túl sokat vágnál le – nem maradna kép.",
-      "rotated": " · elforgatva {0}°",
+      "rotated": " · elforgatva {0:0.0}°",
       "flipped": " · tükrözve"
     },
     "bge": {
@@ -385,6 +390,21 @@
       "start": "Kezdjük!"
     },
     "dialog": { "ok": "Rendben", "cancel": "Mégse", "close": "Bezárás" },
+    "catalog": {
+      "title": "Offline csillagkatalógus",
+      "whatTitle": "Mi ez, és miért jó?",
+      "what": "Az égbolt azonosításához és a színkalibráláshoz csillagkatalógus kell (Gaia DR3). Alapból az internetről kérjük le, de a Gaia-szerverek időnként lassúak vagy nem válaszolnak – ilyenkor a lépés elakad. Egy egyszer letöltött, kb. 1,5 GB-os offline katalógussal ez a két lépés internet nélkül, egy másodperc alatt lefut. Ugyanazt a fájlt használjuk, mint a Siril: ha ott már letöltötted, automatikusan megtaláljuk.",
+      "howTitle": "Így szerezd be (egyszeri, kb. 10 perc)",
+      "how": "1. Nyisd meg a Siril letöltőoldalát az alábbi gombbal, és a „Local catalogues” részben töltsd le a siril_cat_healpix8_astro.dat fájlt (Gaia DR3 astrometric, ~1,5 GB).\n2. Tedd egy állandó mappába (pl. a Siril adatmappájába vagy a Dokumentumok közé).\n3. Kattints a „Katalógusfájl kiválasztása…” gombra, és mutasd meg a fájlt.\n\nA katalógus a Siril-csapat által készített Gaia DR3-kivonat (Siril HEALPix Catalog Format, CC BY 4.0; a Gaia-adatok: ESA/Gaia/DPAC, CC BY-SA 3.0 IGO).",
+      "download": "Siril letöltőoldal megnyitása",
+      "browse": "Katalógusfájl kiválasztása…",
+      "pickTitle": "Az offline katalógus (siril_cat_healpix8_astro.dat) kiválasztása",
+      "pickFilter": "Siril HEALPix katalógus|*.dat|Minden fájl|*.*",
+      "found": "Megtaláltuk: {0}",
+      "missing": "Nincs offline katalógus – az égbolt azonosítása interneten keresztül működik (ha a szerver válaszol).",
+      "invalid": "Ez a fájl nem Siril HEALPix asztrometriai katalógus (siril_cat_healpix8_astro.dat).",
+      "sirilNote": "Ha a Sirilben már beállítottad, onnan automatikusan átvesszük."
+    },
     "starnet": {
       "title": "StarNet2 beállítása",
       "whatTitle": "Mi ez, és miért kell?",

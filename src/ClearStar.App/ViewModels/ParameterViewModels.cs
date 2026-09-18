@@ -60,6 +60,8 @@ public partial class SliderParameterViewModel : ParameterViewModel
     {
         get
         {
+            // A numeric format (e.g. "{0:0.0}°") shows the value itself instead of the nearest tick label.
+            if (Definition.ValueFormat is { } format) return string.Format(System.Globalization.CultureInfo.CurrentCulture, format, Value);
             if (TickLabels.Length == 0 || Maximum <= Minimum) return "";
             double t = (Value - Minimum) / (Maximum - Minimum);
             int i = (int)Math.Round(t * (TickLabels.Length - 1));

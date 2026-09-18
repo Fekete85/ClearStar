@@ -38,7 +38,7 @@ public sealed class PlateSolveStep : StepBase
         return stars;
     }
 
-    public static IStarCatalog Catalog { get; set; } = new GaiaOnlineCatalog();
+    public static IStarCatalog Catalog { get; set; } = new AutoStarCatalog();
 
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
         StepId.PlateSolve, StepGroup.Basics, S,
