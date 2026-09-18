@@ -443,3 +443,35 @@ public class DeconvolutionTests
         Assert.All(outp.Data, v => Assert.False(float.IsNaN(v)));
     }
 }
+
+public class DenoiseTests
+{
+    [Fact]
+    public void TilingGeometryMatchesGraXpert()
+    {
+        var t = new ClearStar.Core.AI.Tiling(256, 128, 1000, 700);
+        Assert.Equal(64, t.Offset);
+        Assert.Equal(6, t.Rows);      // 700/128 + 1
+        Assert.Equal(8, t.Cols);      // 1000/128 + 1
+        Assert.Equal(768 + 128, t.PaddedHeight);
+        Assert.Equal(1024 + 128, t.PaddedWidth);
+        var rows = t.RowMap();
+        Assert.Equal(0, rows[64]);
+        Assert.Equal(699, rows[64 + 699]);
+        Assert.Equal(700 - 68, rows[64 + 700]); // the last 68 rows are repeated
+    }
+
+    [Fact]
+    public void DenoiseRunsWithLocalModelIfPresent()
+    {
+        var model = ClearStar.Core.AI.AiModelStore.Resolve(ClearStar.Core.AI.AiModelKind.Denoise);
+        if (model is null) return;
+        var rnd = new Random(1);
+        var img = new AstroImage(300, 200, 3);
+        for (int i = 0; i < img.Data.Length; i++) img.Data[i] = 0.1f + (rnd.NextSingle() - 0.5f) * 0.02f;
+        var outp = ClearStar.Core.AI.DenoiseModel.Denoise(img, model.Path, 1f);
+        float madIn = ImageStats.Compute(img.Channel(0).ToArray()).Mad, madOut = ImageStats.Compute(outp.Channel(0).ToArray()).Mad;
+        Assert.True(madOut < madIn * 0.7f, $"noise not reduced: {madIn} -> {madOut}");
+        Assert.InRange(ImageStats.Compute(outp.Channel(0).ToArray()).Median, 0.09f, 0.11f);
+    }
+}

@@ -32,7 +32,7 @@ foreach (var entry in wf.Steps)
     var img = wf.Current;
     string stats = img is null ? "" : string.Join(" | ", ImageStats.ComputeAll(img).Select(s => $"med {s.Median:0.0000} mad {s.Mad:0.0000} max {s.Max:0.000}"));
     Console.WriteLine($"{entry.Definition.Number,2}. {entry.Definition.Name,-28} {sw.ElapsedMilliseconds,6} ms  {r.Summary}  {stats}");
-    if (img is not null && entry.Id is StepId.Stack or StepId.BackgroundExtraction or StepId.Deconvolution or StepId.StarlessStretch or StepId.Saturation)
+    if (img is not null && entry.Id is StepId.Stack or StepId.BackgroundExtraction or StepId.Deconvolution or StepId.Denoise or StepId.StarlessStretch or StepId.Saturation)
     {
         // Előnézet-kép a képernyőn látható formában (lineárisnál autostretch-csel)
         var view = img.Clone();

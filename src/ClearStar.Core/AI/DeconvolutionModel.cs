@@ -35,15 +35,7 @@ public static class DeconvolutionModel
     /// strides by repeating its last rows/columns, then an <see cref="Offset"/>-wide border is added
     /// by repeating the first and last rows/columns of that extended image (GraXpert's scheme).
     /// </summary>
-    public static int PadIndex(int padded, int size, int extended)
-    {
-        int r = padded < Offset ? padded : padded < Offset + extended ? padded - Offset : padded - 2 * Offset;
-        r = Math.Clamp(r, 0, extended - 1);
-        int d = extended - size;
-        if (r < size) return r;
-        int m = r - d;                       // repeat the last d rows, as GraXpert does
-        return m >= 0 ? m : r % size;        // tiny images (d > size): wrap around instead
-    }
+    public static int PadIndex(int padded, int size, int extended) => Tiling.PadIndex(padded, size, extended, Offset);
 
     /// <summary>Sharpens the image with the given network. Strength 0..1, FWHM in pixels.</summary>
     public static AstroImage Deconvolve(AstroImage image, string modelPath, bool stellar, float strength, float fwhmPx,
@@ -54,25 +46,13 @@ public static class DeconvolutionModel
         float psf = NormalizedPsf(stellar, version, fwhmPx);
         strength = Math.Clamp(strength, 0f, 1f) * 0.95f; // strength 1.0 gives no result in the nets (GraXpert quirk)
 
-        int ith = h / Stride + 1, itw = w / Stride + 1;
-        int eh = ith * Stride, ew = itw * Stride;          // extended to whole strides
-        int ph = eh + 2 * Offset, pw = ew + 2 * Offset;    // plus border
+        var tiling = new Tiling(Window, Stride, w, h);
+        int ith = tiling.Rows, itw = tiling.Cols, pw = tiling.PaddedWidth;
 
         // Padded copies of every channel (row/column index maps are shared).
-        var rowMap = new int[ph]; for (int y = 0; y < ph; y++) rowMap[y] = PadIndex(y, h, eh);
-        var colMap = new int[pw]; for (int x = 0; x < pw; x++) colMap[x] = PadIndex(x, w, ew);
+        var rowMap = tiling.RowMap(); var colMap = tiling.ColMap();
         var padded = new float[ch][];
-        for (int c = 0; c < ch; c++)
-        {
-            var dst = padded[c] = new float[ph * pw];
-            int channelOffset = c * image.PixelsPerChannel;
-            var data = image.Data;
-            Parallel.For(0, ph, y =>
-            {
-                int srow = channelOffset + rowMap[y] * w;
-                for (int x = 0; x < pw; x++) dst[y * pw + x] = data[srow + colMap[x]];
-            });
-        }
+        for (int c = 0; c < ch; c++) padded[c] = tiling.Pad(image.Data, c * image.PixelsPerChannel, rowMap, colMap);
         var output = new float[ch][];
         for (int c = 0; c < ch; c++) output[c] = (float[])padded[c].Clone();
 
@@ -155,12 +135,7 @@ public static class DeconvolutionModel
         }
 
         var result = new AstroImage(w, h, ch, null, new Dictionary<string, string>(image.Header, StringComparer.OrdinalIgnoreCase));
-        for (int c = 0; c < ch; c++)
-        {
-            var src = output[c]; var dst = result.Channel(c);
-            for (int y = 0; y < h; y++)
-                src.AsSpan((y + Offset) * pw + Offset, w).CopyTo(dst.Slice(y * w, w));
-        }
+        for (int c = 0; c < ch; c++) tiling.Unpad(output[c], result.Channel(c));
         result.Clamp01();
         return result;
     }

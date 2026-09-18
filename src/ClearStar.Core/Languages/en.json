@@ -54,7 +54,12 @@
       "autoPsf": { "label": "Measure star size automatically", "help": "The model needs to know how large the stars are (FWHM). When off, set it with the slider." },
       "psf": { "label": "Star size (FWHM, pixels)", "ticks": ["Small (2 px)", "Medium (6 px)", "Large (12 px)"] }
     },
-    "denoise": { "name": "Reduce noise", "desc": "Long exposures and high ISO make the image grainy. Here it is smoothed while keeping the details." },
+    "denoise": {
+      "name": "Reduce noise",
+      "desc": "Long exposures and high ISO make the image grainy. The AI model smooths the grain while stars and fine detail are kept.",
+      "strength": { "label": "Strength", "ticks": ["Gentle", "Medium", "Full"], "help": "How much of the denoised version is mixed into the original. Full: only the model output; lower values leave a more natural grain." },
+      "model": { "label": "AI model", "help": "Leave empty to use the newest model available." }
+    },
     "platesolve": { "name": "Identify the sky", "tech": "plate solving", "desc": "From the star pattern we work out exactly where the image points. Needed for accurate colour calibration." },
     "colorcal": { "name": "Calibrate colours", "desc": "Colours are matched to the known colours of the stars so nebulae look true to life." },
     "starremoval": { "name": "Separate stars", "desc": "The stars are moved to a separate image temporarily, so nebula and stars can be treated each in its own way." },
@@ -175,6 +180,12 @@
       "summary": "Sharpened ({0}) · star size {1:0.0} px"
     },
     "ai": { "gpu": " · GPU", "cpu": " · CPU" },
+    "denoise": {
+      "nothing": "Strength is zero – the image is unchanged",
+      "noModel": "No denoising AI model on this computer. Pick one from the \"AI model\" list (browse or download), or install GraXpert and download it there – it will show up here too.",
+      "running": "Reducing noise…",
+      "summary": "Noise reduced · AI model {0} ({1})"
+    },
     "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },
     "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },

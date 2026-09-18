@@ -12,7 +12,7 @@ public static class StepCatalog
         new CropStep(),
         new BackgroundExtractionStep(),
         new DeconvolutionStep(),
-        new NotImplementedStep(StepId.Denoise, StepGroup.Basics, "denoise"),
+        new DenoiseStep(),
         new NotImplementedStep(StepId.PlateSolve, StepGroup.Basics, "platesolve"),
         new NotImplementedStep(StepId.ColorCalibration, StepGroup.Basics, "colorcal"),
         new NotImplementedStep(StepId.StarRemoval, StepGroup.Stars, "starremoval"),

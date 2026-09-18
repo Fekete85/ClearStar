@@ -54,7 +54,12 @@
       "autoPsf": { "label": "Csillagméret automatikus mérése", "help": "A modellnek tudnia kell, mekkorák a csillagok a képen (FWHM). Kikapcsolva a csúszkával adhatod meg." },
       "psf": { "label": "Csillagméret (FWHM, pixel)", "ticks": ["Kicsi (2 px)", "Közepes (6 px)", "Nagy (12 px)"] }
     },
-    "denoise": { "name": "Zajcsökkentés", "desc": "A hosszú expozíció és a magas ISO szemcséssé teszi a képet. Itt ezt simítjuk ki a részletek megtartásával." },
+    "denoise": {
+      "name": "Zajcsökkentés",
+      "desc": "A hosszú expozíció és a magas ISO szemcséssé teszi a képet. Az AI-modell a szemcsét simítja ki úgy, hogy a csillagok és a finom részletek megmaradnak.",
+      "strength": { "label": "Erősség", "ticks": ["Finom", "Közepes", "Teljes"], "help": "Mennyire keverjük a zajmentes változatot az eredetihez. Teljes: csak a modell eredménye; kisebb érték természetesebb szemcsét hagy." },
+      "model": { "label": "AI-modell", "help": "Üresen a legfrissebb elérhető modellt használjuk." }
+    },
     "platesolve": { "name": "Égbolt azonosítása", "tech": "plate solving", "desc": "A csillagmintázatból kiderítjük, pontosan hova néz a képed. Ez kell a pontos színkalibráláshoz." },
     "colorcal": { "name": "Színek kalibrálása", "desc": "A csillagok ismert színeihez igazítjuk a kép színeit, hogy a ködök valósághűek legyenek." },
     "starremoval": { "name": "Csillagok leválasztása", "desc": "A csillagokat ideiglenesen külön képre tesszük, hogy a ködöt és a csillagokat külön-külön, a nekik megfelelő módon lehessen kezelni." },
@@ -175,6 +180,12 @@
       "summary": "Élesítve ({0}) · csillagméret {1:0.0} px"
     },
     "ai": { "gpu": " · GPU", "cpu": " · CPU" },
+    "denoise": {
+      "nothing": "Az erősség nulla – a kép változatlan",
+      "noModel": "Nincs zajcsökkentő AI-modell a gépen. Válassz egyet az „AI-modell” listából (tallózás vagy letöltés), vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik.",
+      "running": "Zajcsökkentés…",
+      "summary": "Zajcsökkentve · AI-modell {0} ({1})"
+    },
     "ghs": { "summary": "Nyújtás (háttér {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
