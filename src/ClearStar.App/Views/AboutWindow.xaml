@@ -82,6 +82,9 @@
                 <TextBox x:Name="TextPanel" Style="{x:Null}" Visibility="Collapsed" IsReadOnly="True" TextWrapping="Wrap"
                          Background="Transparent" Foreground="{StaticResource B.Text2}" BorderThickness="0"
                          FontFamily="{StaticResource F.Body}" FontSize="12.5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"/>
+                <!-- Markdown tab (third-party notices): rendered as a flow document -->
+                <FlowDocumentScrollViewer x:Name="DocPanel" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                          IsSelectionEnabled="True" Margin="0" Padding="0"/>
             </Grid>
         </Border>
 
