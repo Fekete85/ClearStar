@@ -37,6 +37,8 @@ tisztességes megoldás.
 | SixLabors.ImageSharp (TIFF/PNG/JPEG írás-olvasás) | Six Labors | Six Labors Split License → nyílt forrású projektben Apache-2.0 | NuGet-csomag |
 | Microsoft.ML.OnnxRuntime.DirectML (AI-modellek futtatása) | Microsoft | MIT | NuGet-csomag |
 | Microsoft.AI.DirectML – `DirectML.dll` (GPU-gyorsítás DirectX 12-n) | Microsoft | Microsoft Software License Terms (a DLL alkalmazással együtt terjeszthető; a fejlécek MIT) | NuGet-csomag, a program mellé kerül |
+| **Siril Astrometry Catalogue** (Gaia DR3-kivonat, `siril_cat_healpix8_astro.dat`) | Siril-csapat (team free-astro) | CC BY 4.0 (Zenodo 14692304; a Gaia-adatok CC BY-SA 3.0 IGO) | az app kérésre letölti a felhasználó gépére; a program nem tartalmazza |
+| SharpZipLib (bzip2-kicsomagolás a katalógus letöltéséhez) | ICSharpCode / SharpZipLib közreműködők | MIT | NuGet-csomag |
 | CommunityToolkit.Mvvm | .NET Foundation | MIT | NuGet-csomag |
 | .NET 10 runtime, WPF | Microsoft | MIT | keretrendszer |
 | Segoe UI betűtípus | Microsoft | Windows része | csak a rendszerből |
@@ -179,6 +181,20 @@ under the Microsoft Software License Terms for DirectX Machine Learning, which
 permit distributing it with applications that run on Windows; the headers are MIT.
 https://www.nuget.org/packages/Microsoft.AI.DirectML – it provides GPU
 acceleration for the AI models on any DirectX 12 device (with CPU fallback).
+
+### Siril Astrometry Catalogue (downloaded on request, not bundled)
+
+The offline plate-solving catalogue is the "Siril Astrometry Catalogue extracted from
+Gaia DR3" published by the Siril team on Zenodo (https://zenodo.org/records/14692304)
+under CC BY 4.0, in the Siril HEALPix Catalog Format 1.0.0 (specification:
+https://zenodo.org/records/14697486). ClearStar downloads it to the user's machine only
+when the user asks for it and verifies the published SHA-256. Gaia data: ESA/Gaia/DPAC,
+CC BY-SA 3.0 IGO.
+
+### SharpZipLib 1.4.2
+
+Copyright © 2000-2022 SharpZipLib Contributors. Licensed under the MIT License.
+https://github.com/icsharpcode/SharpZipLib – used to unpack the bzip2 catalogue download.
 
 ### CommunityToolkit.Mvvm 8.4.0
 

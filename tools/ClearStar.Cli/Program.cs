@@ -5,6 +5,15 @@ using ClearStar.Core.Steps;
 
 if (args.Length >= 2 && args[0] == "bench") { ClearStar.Cli.Bench.Run(args[1]); return; }
 if (args.Length >= 2 && args[0] == "onnx") { ClearStar.Cli.OnnxProbe.Run(args[1]); return; }
+if (args.Length >= 1 && args[0] == "catalog-download")
+{
+    // Downloads the offline Gaia catalogue exactly as the app does (progress on stderr).
+    var sw0 = System.Diagnostics.Stopwatch.StartNew();
+    var prog = new Progress<ClearStar.Core.Astrometry.CatalogDownloader.Progress>(p => Console.Error.WriteLine($"{p.BytesDownloaded / 1048576} / {p.BytesTotal / 1048576} MB  {p.Fraction:P0}"));
+    string path = await ClearStar.Core.Astrometry.CatalogDownloader.DownloadAsync(prog, default);
+    Console.WriteLine($"OK {path} in {sw0.Elapsed.TotalSeconds:0} s");
+    return;
+}
 // --lang <kód> (alapértelmezés: a settings.json nyelve, különben magyar)
 int li = Array.IndexOf(args, "--lang");
 bool linkedPreview = Array.IndexOf(args, "--linked") >= 0; // preview JPEGs with a channel-linked stretch (keeps colour balance visible)
