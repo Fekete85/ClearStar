@@ -204,6 +204,8 @@
       "split": "Before / after",
       "boost": "Boost preview",
       "boostTip": "The raw image is almost black – this only brightens the screen preview, the image itself is unchanged.",
+      "stretchMenuTip": "Strength of the boost",
+      "stretchMenuTitle": "Boost preview – strength",
       "helpTip": "Help: work through the steps from top to bottom. You can click back to any finished step.",
       "about": "About, language and licences"
     },
@@ -302,6 +304,7 @@
       "fewLeft": "Nice work! Only {0} steps left.",
       "progress": "{0} steps done."
     },
+    "stretch": { "off": "No boost", "bg10": "Gentle (10% background, 3σ)", "bg15": "Medium (15% background, 3σ)", "bg20": "Strong (20% background, 3σ)", "bg30": "Very strong (30% background, 2σ)" },
     "drop": { "title": "Drop your images here", "sub": "or choose a folder on the left · FITS, TIFF, PNG, JPEG" },
     "welcome": {
       "title": "Welcome to ClearStar!",

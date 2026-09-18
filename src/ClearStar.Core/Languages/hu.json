@@ -204,6 +204,8 @@
       "split": "Előtte / utána",
       "boost": "Előnézet felerősítése",
       "boostTip": "A nyers kép szinte fekete – ez csak a képernyőn erősíti fel, a képet nem változtatja.",
+      "stretchMenuTip": "A felerősítés mértéke",
+      "stretchMenuTitle": "Előnézet felerősítése – mérték",
       "helpTip": "Súgó: menj végig a lépéseken fentről lefelé. Bármelyik kész lépésre visszakattinthatsz.",
       "about": "Névjegy, nyelv és licencek"
     },
@@ -302,6 +304,7 @@
       "fewLeft": "Szép munka! Már csak {0} lépés van hátra.",
       "progress": "{0} lépés kész."
     },
+    "stretch": { "off": "Nincs felerősítés", "bg10": "Gyenge (10% háttér, 3σ)", "bg15": "Közepes (15% háttér, 3σ)", "bg20": "Erős (20% háttér, 3σ)", "bg30": "Nagyon erős (30% háttér, 2σ)" },
     "drop": { "title": "Húzd ide a képeidet", "sub": "vagy válassz mappát bal oldalt · FITS, TIFF, PNG, JPEG" },
     "welcome": {
       "title": "Üdv a ClearStarban!",

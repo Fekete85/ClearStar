@@ -19,9 +19,14 @@ public static class PreviewRenderer
         }
     }
 
+    /// <summary>The screen-stretch preset used whenever <c>autoStretch</c> is requested (set from the toolbar).</summary>
+    public static DisplayStretch.Preset Preset { get; set; } = DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey);
+
     /// <summary>Háttérszálon futtatható: csak byte-tömböt állít elő.</summary>
     public static Frame Render(AstroImage image, bool autoStretch, CancellationToken ct = default, int maxWidth = MaxPreviewWidth)
     {
+        var preset = Preset;
+        autoStretch &= !preset.IsOff;
         int factor = Math.Max(1, (int)Math.Ceiling(Math.Max(image.Width, image.Height) / (double)maxWidth));
         var small = factor > 1 ? Downsample(image, factor) : image;
         ct.ThrowIfCancellationRequested();
@@ -29,7 +34,7 @@ public static class PreviewRenderer
         var luts = new byte[small.Channels][];
         if (autoStretch)
         {
-            var prms = DisplayStretch.ComputeAll(small, linked: false);
+            var prms = DisplayStretch.ComputeAll(small, preset, linked: false);
             for (int c = 0; c < small.Channels; c++) luts[c] = DisplayStretch.BuildLut(prms[c]);
         }
         else

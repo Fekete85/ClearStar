@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ClearStar.App.Services;
+using ClearStar.Core;
 using ClearStar.Core.Imaging;
 using ClearStar.Core.IO;
 using ClearStar.Core.Localization;
@@ -86,6 +87,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         _workflow = StepCatalog.CreateWorkflow();
         _workflow.Changed += OnWorkflowChanged;
+        InitStretchPreset();
 
         StepGroup? group = null;
         foreach (var entry in _workflow.Steps)
@@ -286,7 +288,42 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void ShowAbout() => Views.AboutWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
 
     partial void OnShowOriginalChanged(bool value) => RefreshPreview();
-    partial void OnAutoStretchChanged(bool value) => RefreshPreview();
+    // ----- Screen-stretch presets (toolbar toggle + dropdown), persisted in the settings -----
+    public sealed record StretchPresetItem(string Key, string Label);
+    public IReadOnlyList<StretchPresetItem> StretchPresets { get; } =
+        DisplayStretch.Presets.Select(p => new StretchPresetItem(p.Key, L.T("ui.stretch." + p.Key))).ToList();
+    [ObservableProperty] private StretchPresetItem? _selectedStretchPreset;
+    [ObservableProperty] private bool _isStretchMenuOpen;
+    private string _lastStretchKey = DisplayStretch.DefaultPresetKey;
+    private const string StretchSettingKey = "preview.stretch";
+
+    private void InitStretchPreset()
+    {
+        var preset = DisplayStretch.PresetByKey(UserSettings.Get(StretchSettingKey));
+        _lastStretchKey = preset.Key;
+        PreviewRenderer.Preset = preset;
+        SelectedStretchPreset = StretchPresets.First(i => i.Key == preset.Key);
+    }
+
+    partial void OnSelectedStretchPresetChanged(StretchPresetItem? value)
+    {
+        if (value is null) return;
+        IsStretchMenuOpen = false;
+        if (value.Key == "off") { AutoStretch = false; return; }
+        _lastStretchKey = value.Key;
+        PreviewRenderer.Preset = DisplayStretch.PresetByKey(value.Key);
+        UserSettings.Set(StretchSettingKey, value.Key);
+        if (!AutoStretch) AutoStretch = true; else RefreshPreview();
+    }
+
+    partial void OnAutoStretchChanged(bool value)
+    {
+        // Keep the dropdown in sync: off ↔ the last chosen strength.
+        string wanted = value ? _lastStretchKey : "off";
+        if (SelectedStretchPreset?.Key != wanted) SelectedStretchPreset = StretchPresets.First(i => i.Key == wanted);
+        RefreshPreview();
+    }
+
     partial void OnSplitViewChanged(bool value) => RefreshPreview();
 
     // ----- Képlista-nézet (1–2. lépés) -----

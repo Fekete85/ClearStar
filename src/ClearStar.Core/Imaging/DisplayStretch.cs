@@ -10,6 +10,29 @@ public static class DisplayStretch
     public const float DefaultTargetBackground = 0.25f;
     public const float DefaultShadowsClipping = -2.8f;
 
+    /// <summary>
+    /// A screen-stretch preset: target background brightness and the shadow clipping point in
+    /// MAD units below the median, matching GraXpert's "10% Bg, 3 sigma" style options.
+    /// </summary>
+    public sealed record Preset(string Key, float Background, float ShadowsMad)
+    {
+        public bool IsOff => Background <= 0f;
+    }
+
+    public static readonly IReadOnlyList<Preset> Presets =
+    [
+        new("off", 0f, 0f),
+        new("bg10", 0.10f, 3f),
+        new("bg15", 0.15f, 3f),
+        new("bg20", 0.20f, 3f),
+        new("bg30", 0.30f, 2f),
+    ];
+
+    public const string DefaultPresetKey = "bg20";
+
+    public static Preset PresetByKey(string? key) =>
+        Presets.FirstOrDefault(p => p.Key == key) ?? Presets.First(p => p.Key == DefaultPresetKey);
+
     /// <summary>Midtones transfer function.</summary>
     public static float Mtf(float x, float m)
     {
@@ -44,6 +67,25 @@ public static class DisplayStretch
     /// vinne). Az összekapcsolt (linked) mód a midtones-t osztja meg, így az objektumok
     /// színaránya megmarad.
     /// </summary>
+    /// <summary>Per-channel parameters for a preset (shadows = median − ShadowsMad·MAD, like GraXpert).</summary>
+    public static Params[] ComputeAll(AstroImage image, Preset preset, bool linked = false)
+    {
+        var stats = ImageStats.ComputeAll(image);
+        var result = new Params[image.Channels];
+        for (int c = 0; c < image.Channels; c++)
+        {
+            float shadows = Math.Clamp(stats[c].Median - preset.ShadowsMad * stats[c].Mad, 0f, 1f);
+            float x0 = Math.Clamp((stats[c].Median - shadows) / (1f - shadows), 1e-6f, 1f);
+            result[c] = new Params(shadows, Math.Clamp(Mtf(x0, preset.Background), 1e-4f, 1f - 1e-4f));
+        }
+        if (linked && image.Channels == 3)
+        {
+            float midtones = result.Average(p => p.Midtones);
+            for (int c = 0; c < image.Channels; c++) result[c] = result[c] with { Midtones = midtones };
+        }
+        return result;
+    }
+
     public static Params[] ComputeAll(AstroImage image, bool linked = false, float targetBackground = DefaultTargetBackground)
     {
         var stats = ImageStats.ComputeAll(image);
