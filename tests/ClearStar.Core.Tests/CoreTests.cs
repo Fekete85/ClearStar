@@ -401,7 +401,7 @@ public class LocalizationTests
     {
         ClearStar.Core.Localization.L.Load("en");
         var steps = StepCatalog.CreateAll();
-        Assert.Equal(17, steps.Count);
+        Assert.Equal(16, steps.Count);
         foreach (var step in steps)
         {
             Assert.DoesNotContain("step.", step.Definition.Name);
@@ -689,14 +689,17 @@ public class StarLayerTests
     }
 
     [Fact]
-    public void ScreenBlendNeverClipsAndKeepsBackground()
+    public void AddStarsIsExactAtFullStrengthAndFadesFaintStarsFirst()
     {
-        var a = new AstroImage(8, 8, 3); Array.Fill(a.Data, 0.2f);
-        var b = new AstroImage(8, 8, 3); b[0, 1, 1] = 1f; b[1, 1, 1] = 0.5f;
-        var s = RecombineStep.Screen(a, b, 1f, default);
-        Assert.Equal(0.2f, s[0, 0, 0], 3);
-        Assert.Equal(1f, s[0, 1, 1], 3);
-        Assert.Equal(0.6f, s[1, 1, 1], 3);
+        var starless = new AstroImage(8, 8, 3); Array.Fill(starless.Data, 0.2f);
+        var stars = new AstroImage(8, 8, 3); stars[0, 1, 1] = 0.8f; stars[1, 1, 1] = 0.05f;
+        var full = StarStretchStep.AddStars(starless, stars, 1f, default);
+        Assert.Equal(0.2f, full[0, 0, 0], 3);
+        Assert.Equal(1f, full[0, 1, 1], 3);          // 0.2 + 0.8, clamped
+        Assert.Equal(0.25f, full[1, 1, 1], 3);
+        var half = StarStretchStep.AddStars(starless, stars, 0.5f, default);
+        Assert.Equal(0.2f + 0.64f, half[0, 1, 1], 3);  // bright star: squared, still bright
+        Assert.Equal(0.2f + 0.0025f, half[1, 1, 1], 3); // faint star: practically gone
     }
 
     [Fact]

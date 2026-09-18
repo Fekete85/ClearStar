@@ -32,7 +32,7 @@ tisztességes megoldás.
 | **GraXpert** – AI háttérkivonás előfeldolgozása (256×256, normálás MAD-dal, padding, simítás), polinomos háttérillesztés ötlete, a tervezett zajcsökkentés/élesítés modellkezelése | GraXpert Development Team | GPL-3.0 | tanulmányozott forrás, saját újraírás |
 | **GraXpert AI-modellek** (háttérkivonás, zajcsökkentés, élesítés – `model.onnx` fájlok) | GraXpert Development Team és a tanítóképeket beküldő közösség (névsor lent) | **CC BY-NC-SA 4.0** | a ClearStar **nem tartalmazza** őket; a GraXpert által letöltött vagy a felhasználó által beszerzett fájlokat használja |
 | **StarNet2** (csillagleválasztás) | Nikita Misiura / starnetastro.com | saját licenc: ingyenes asztrofotó-feldolgozásra, kereskedelmi szoftverbe nem építhető, nem terjeszthető | a felhasználó saját példányát hívja meg külső programként; a ClearStar nem tartalmazza |
-| **AbdurAstro – „Processing in Siril 1.4”** leírás | AbdurAstro | a szerzőé | a 17 lépés sorrendjének mintája; szöveget nem vettünk át |
+| **AbdurAstro – „Processing in Siril 1.4”** leírás | AbdurAstro | a szerzőé | a 16 lépés sorrendjének mintája; szöveget nem vettünk át |
 | **Gaia DR3 katalógus** (ESA Gaia-archívum, VizieR) és a **CDS Sesame** névfeloldó – online lekérdezés a plate solvinghoz | ESA/Gaia/DPAC, CDS Strasbourg | Gaia-adatok: CC BY-SA 3.0 IGO; a CDS-szolgáltatások szabadon használhatók, forrásmegjelöléssel | csak lekérdezés, a program nem tartalmaz katalógusadatot |
 | SixLabors.ImageSharp (TIFF/PNG/JPEG írás-olvasás) | Six Labors | Six Labors Split License → nyílt forrású projektben Apache-2.0 | NuGet-csomag |
 | Microsoft.ML.OnnxRuntime.DirectML (AI-modellek futtatása) | Microsoft | MIT | NuGet-csomag |
@@ -158,7 +158,7 @@ and launches it.
 
 ### AbdurAstro – "Processing in Siril 1.4"
 
-The order of ClearStar's 17 processing steps follows the workflow described in
+The order of ClearStar's 16 processing steps follows the workflow described in
 the AbdurAstro processing guide. No text or images from the guide are included.
 
 ### SixLabors.ImageSharp 3.1.12

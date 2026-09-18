@@ -138,55 +138,92 @@ public sealed class StarlessStretchStep : StepBase
         var input = context.RequireInput();
         var history = History(context.Parameters);
         var output = history.Count == 0 ? input.Clone() : GhsTransform.ApplyAll(input, history, context.CancellationToken);
-        // With a separated star layer the stretched starless image is kept for the recombination.
-        if (StarLayerStore.HasStarsFor(input)) StarLayerStore.SetStarlessStretched(output);
+        // With a separated star layer the stretched starless image and the stars at full strength (the
+        // original stretched the same way, minus the starless) are kept for the star step.
+        if (StarLayerStore.HasStarsFor(input) && StarLayerStore.StarsLinear is { } starsLinear)
+        {
+            StarLayerStore.SetStarlessStretched(output);
+            StarLayerStore.SetStarsStretched(StarStretchStep.FullStrengthStars(input, starsLinear, output, history, context.CancellationToken));
+        }
         string summary = history.Count == 0 ? L.T("msg.ghs.none") : L.F("msg.ghs.summary", history.Count, history[^1].Describe());
         return new StepResult(output, summary);
     }, context.CancellationToken);
 }
 
-/// <summary>11. lépés: a csillagok (vagy csillagleválasztás nélkül a teljes kép) visszafogott nyújtása MTF-fel.</summary>
+/// <summary>
+/// Step 11: puts the stars back onto the stretched starless image. The nebula stretch leaves the stars
+/// "at full strength" in the star layer store (the original stretched exactly like the starless image,
+/// minus the starless image), so the slider's maximum brings back every star as it was; lower values
+/// raise the layer to a power, which shrinks the halos and drops the faint stars first. Without a
+/// separated star layer the whole image gets a gentle MTF stretch instead.
+/// </summary>
 public sealed class StarStretchStep : StepBase
 {
     public const string AmountKey = "amount";
+    public const float DefaultAmount = 0.7f;
 
     private const string S = "starstretch";
 
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
         StepId.StarStretch, StepGroup.Stars, S,
-        [Slider(S, AmountKey, 0.4)]);
+        [Slider(S, AmountKey, DefaultAmount)]);
 
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() =>
     {
         var input = context.RequireInput();
-        float amount = context.Parameters.GetFloat(AmountKey, 0.4f);
+        float amount = context.Parameters.GetFloat(AmountKey, DefaultAmount);
 
-        // Two-layer workflow: stretch the separated (linear) star layer on its own and show it screened
-        // over the stretched starless image; the recombination step sets the final balance.
-        if (StarLayerStore.HasStretchedFor(input) && StarLayerStore.StarsLinear is { } starsLinear)
+        if (StarLayerStore.HasStretchedFor(input) && StarLayerStore.StarsStretched is { } stars)
         {
-            var stretchedStars = StretchStarLayer(starsLinear, amount, context.CancellationToken);
-            StarLayerStore.SetStarsStretched(stretchedStars);
-            var preview = RecombineStep.Screen(input, stretchedStars, 1f, context.CancellationToken);
-            return new StepResult(preview, L.T("msg.starstretch.layerSummary"));
+            var output = AddStars(input, stars, amount, context.CancellationToken);
+            return new StepResult(output, L.F("msg.starstretch.layerSummary", amount));
         }
 
         var stats = ImageStats.ComputeAll(input);
         if (stats.Average(s => s.Median) > 0.08f)
             return StepResult.Unchanged(input, L.T("msg.starstretch.already"));
 
-        float target = Lerp(0.08f, 0.25f, context.Parameters.GetFloat(AmountKey, 0.4f));
+        float target = Lerp(0.08f, 0.25f, amount);
         var prms = DisplayStretch.ComputeAll(input, linked: true, targetBackground: target);
-        var output = MapPixels(input, (v, c) => prms[c].Apply(v), context.CancellationToken);
-        output.Clamp01();
-        return new StepResult(output, L.F("msg.starstretch.summary", target));
+        var output2 = MapPixels(input, (v, c) => prms[c].Apply(v), context.CancellationToken);
+        output2.Clamp01();
+        return new StepResult(output2, L.F("msg.starstretch.summary", target));
     }, context.CancellationToken);
 
-    /// <summary>MTF stretch of a star layer (black background): the amount sets the midtones, so the stars gain size and colour gently.</summary>
-    public static AstroImage StretchStarLayer(AstroImage stars, float amount, CancellationToken ct)
+    /// <summary>Exponent applied to the full-strength star layer: 1 at the maximum (all stars back), larger below it (faint stars and halos fade first).</summary>
+    public static float Exponent(float amount) => 1f / Math.Clamp(amount, 0.05f, 1f);
+
+    /// <summary>starless + stars^(1/amount), clamped; at amount = 1 this is exactly the stretched original.</summary>
+    public static AstroImage AddStars(AstroImage starless, AstroImage stars, float amount, CancellationToken ct)
     {
-        float m = Lerp(0.15f, 0.02f, Math.Clamp(amount, 0f, 1f));
-        var output = MapPixels(stars, (v, _) => DisplayStretch.Mtf(Math.Clamp(v, 0f, 1f), m), ct);
+        float gamma = Exponent(amount);
+        var output = starless.CreateEmptyLike();
+        var a = starless.Data; var b = stars.Data; var dst = output.Data;
+        Parallel.For(0, starless.Height, new ParallelOptions { CancellationToken = ct }, y =>
+        {
+            for (int c = 0; c < starless.Channels; c++)
+            {
+                int start = c * starless.PixelsPerChannel + y * starless.Width;
+                for (int i = start; i < start + starless.Width; i++)
+                {
+                    float s = Math.Clamp(b[i], 0f, 1f);
+                    dst[i] = Math.Clamp(a[i] + (gamma == 1f ? s : MathF.Pow(s, gamma)), 0f, 1f);
+                }
+            }
+        });
         return output;
+    }
+
+    /// <summary>The star layer in the stretched domain: the original (starless + stars) stretched with the same history, minus the stretched starless image.</summary>
+    public static AstroImage FullStrengthStars(AstroImage starlessLinear, AstroImage starsLinear, AstroImage starlessStretched, IReadOnlyList<GhsParams> history, CancellationToken ct)
+    {
+        var original = starlessLinear.CreateEmptyLike();
+        var o = original.Data; var sl = starlessLinear.Data; var st = starsLinear.Data;
+        for (int i = 0; i < o.Length; i++) o[i] = sl[i] + st[i];
+        var full = GhsTransform.ApplyAll(original, history, ct);
+        var stars = starlessStretched.CreateEmptyLike();
+        var f = full.Data; var b = starlessStretched.Data; var d = stars.Data;
+        for (int i = 0; i < d.Length; i++) d[i] = Math.Clamp(f[i] - b[i], 0f, 1f);
+        return stars;
     }
 }

@@ -112,14 +112,9 @@
       "autoBright": "A kép már világos – az automatikus javaslat itt nem alkalmazható."
     },
     "starstretch": {
-      "name": "Csillagok nyújtása",
-      "desc": "A csillagokat külön, óvatosabban világosítjuk, hogy kicsik és színesek maradjanak, ne fehér foltok legyenek.",
-      "amount": { "label": "Csillagok fényessége", "ticks": ["Visszafogott", "Természetes", "Hangsúlyos"] }
-    },
-    "recombine": {
       "name": "Csillagok visszahelyezése",
-      "desc": "A külön kiemelt ködöt és a külön nyújtott csillagokat itt rakjuk újra össze. A csúszkával a csillagok súlyát állíthatod: kevesebb csillag jobban kiemeli a ködöt.",
-      "amount": { "label": "Csillagok mennyisége", "ticks": ["Kevesebb", "Természetes", "Több"] }
+      "desc": "A külön kiemelt ködre itt kerülnek vissza a csillagok. A csúszka a mennyiségüket állítja: teljesen jobbra minden csillag úgy tér vissza, ahogy csillagleválasztás nélkül, a köddel együtt nyújtva látszanának; balra haladva előbb a halvány csillagok és a nagy udvarok tűnnek el, a fényesek kisebbek, tisztábbak lesznek – így a köd jobban érvényesül.",
+      "amount": { "label": "Csillagok mennyisége", "ticks": ["Kevés", "Közepes", "Mind"] }
     },
     "green": {
       "name": "Zöld árnyalat eltávolítása",
@@ -258,12 +253,8 @@
       "running": "Csillagok leválasztása (StarNet2)…",
       "summary": "Csillagok külön rétegre téve"
     },
-    "recombine": {
-      "noLayers": "Nincs külön csillagréteg (a csillagleválasztás kimaradt) – a kép változatlan",
-      "summary": "Csillagok visszahelyezve (súly {0:0.0})"
-    },
     "ghs": { "summary": "{0} nyújtás alkalmazva · utolsó: {1}", "none": "Nincs nyújtás – a kép változatlan", "simple": "objektum {0:+0.00;−0.00;0}, háttér {1:+0.00;−0.00;0}, kontraszt {2:+0.00;−0.00;0}" },
-    "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "A csillagréteg nyújtva – az előnézet a ködre visszatett csillagokat mutatja" },
+    "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "Csillagok visszahelyezve ({0:P0})" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
     "contrast": { "summary": "Kontraszt beállítva" },
     "saturation": { "mono": "Fekete-fehér kép – nincs szín", "summary": "Színek élénkítve" },

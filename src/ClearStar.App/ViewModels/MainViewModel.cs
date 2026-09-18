@@ -679,17 +679,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
         bool liveStretch = step.Id == StepId.StarlessStretch && !ShowOriginal;
         var current = liveStretch ? StarlessStretchStep.CurrentAll(step.Entry.Parameters) : null;
         Func<AstroImage, AstroImage>? transform = current is { Count: > 0 } ? img => GhsTransform.ApplyAll(img, current, cts.Token) : null;
-        // Star stretch: the separated star layer is stretched with the slider value and screened over the (starless) base.
-        if (step.Id == StepId.StarStretch && !ShowOriginal && StarLayerStore.StarsLinear is { } starsLinear
+        // Star step: the full-strength star layer (stretched domain) is added to the starless base with the slider's strength.
+        if (step.Id == StepId.StarStretch && !ShowOriginal && StarLayerStore.StarsStretched is { } starsFull
             && _workflow.ImageBefore(step.Id) is { } starlessBase && StarLayerStore.HasStretchedFor(starlessBase))
         {
             after = starlessBase;
-            float amount = step.Entry.Parameters.GetFloat(StarStretchStep.AmountKey, 0.4f);
+            float amount = step.Entry.Parameters.GetFloat(StarStretchStep.AmountKey, StarStretchStep.DefaultAmount);
             transform = small =>
             {
-                int factor = Math.Max(1, (int)Math.Round(starsLinear.Width / (double)small.Width));
-                var stars = StarsSmall(starsLinear, factor);
-                return RecombineStep.Screen(small, StarStretchStep.StretchStarLayer(stars, amount, cts.Token), 1f, cts.Token);
+                int factor = Math.Max(1, (int)Math.Round(starsFull.Width / (double)small.Width));
+                return StarStretchStep.AddStars(small, StarsSmall(starsFull, factor), amount, cts.Token);
             };
         }
         HistogramData? histogram = null;

@@ -1,6 +1,6 @@
 # ClearStar
 
-Vezetett asztrofotó-feldolgozó Windows-alkalmazás kezdőknek: a nyers képektől a kész képig 17 lépésben,
+Vezetett asztrofotó-feldolgozó Windows-alkalmazás kezdőknek: a nyers képektől a kész képig 16 lépésben,
 minden lépésnél közérthető magyarázattal és 2–4 egyszerű beállítással.
 
 ## Futtatás
@@ -22,7 +22,7 @@ A mappában a `IMAGETYP` fejléc vagy a fájlnév/almappa (`light`, `dark`, `fla
 src/ClearStar.Core      – UI-független feldolgozó mag
   Imaging/    AstroImage (planar float32), ImageStats (medián/MAD), DisplayStretch (autostretch MTF)
   IO/         FitsReader/FitsWriter, ImageFiles (TIFF/PNG/JPEG), FrameSet (mappa szétválogatása)
-  Pipeline/   StepDefinition (17 lépés + paraméterleírások), Workflow (lépések futtatása,
+  Pipeline/   StepDefinition (16 lépés + paraméterleírások), Workflow (lépések futtatása,
               lépésenkénti pillanatképek, "Frissítés szükséges" jelölés), SnapshotStore (memória+lemez)
   Registration/ StarDetector (küszöb + komponensek + súlyozott középpont), StarMatcher (eltolás-szavazás,
               iteratív legközelebbi szomszéd, zárt alakú hasonlósági illesztés), ImageWarp (bilineáris)
@@ -54,12 +54,11 @@ A felületet nem kell hozzá módosítani.
 | 8 | Színek kalibrálása | fotometriai (SPCC-jellegű): a WCS alapján a Gaia-csillagok apertúra-fotometriája R/G/B-ben, robusztus egyenes-illesztés a BP−RP színindexre, a napszerű (vagy Vega-) fehér referenciánál a vörös/kék szorzó; háttér semlegesítése (~1 s) |
 | 9 | Csillagok leválasztása | a felhasználó saját StarNet2 CLI-jét hívja (Siril-beállításból, telepítési helyről vagy tallózva; beállító ablak letöltési útmutatóval); lineáris képen automatikus MTF-előnyújtás → StarNet2 → pontos visszanyújtás; a csillagréteg (eredeti − csillagtalan) a StarLayerStore-ban |
 | 10 | Ködök kiemelése (GHS) | kezdőknek három csúszka: objektum fényessége (MTF a háttér fölötti tartományon), háttér szintje (feketepont-eltolás), kontraszt a kettő között (GHS a háttérre centrálva, a háttér helyben marad); haladó beállítás alatt a Siril GHS-dialógus vezérlői (ln(D+1), b, SP, LP, HP, típus, BP, színmodell – a ght.c portja), élő előnézet + hisztogram jelölőkkel, „Alkalmaz” = rögzítés a nyújtás-történetbe és tiszta lap (több lépcsős nyújtás), visszavonás; varázspálca = az „Előnézet felerősítése” aktuális beállítása rögzítve (csatornánkénti, kapcsolatlan MTF, árnyék = medián − k·MAD – ugyanaz, mint a GraXpert autostretch-e; az előnézettel azonos, lekicsinyített képen mérve); pipetta az SP-hez |
-| 11 | Csillagok nyújtása | külön csillagréteg esetén a réteg MTF-nyújtása (az előnézet a ködre visszatett csillagokat mutatja); leválasztás nélkül a teljes képre |
-| 12 | Csillagok visszahelyezése | screen-keverés a nyújtott csillagtalan és csillagrétegből, a csillagok súlya állítható |
-| 13 | Zöld eltávolítása (SCNR) | kész |
-| 14 | Színes szegélyek | helyőrző |
-| 15–16 | Kontraszt, telítettség | kész |
-| 17 | Mentés | JPEG / TIFF 16 bit / FITS |
+| 11 | Csillagok visszahelyezése | a 10. lépés a csillagréteget „teljes erővel” is elkészíti (az eredeti kép ugyanazzal a nyújtás-történettel nyújtva, mínusz a csillagtalan); a csúszka ezt a réteget adja hozzá additívan, a maximumon minden csillag pontosan úgy tér vissza, mintha nem lett volna leválasztás, lejjebb a réteg 1/érték hatványra emelve (előbb a halvány csillagok és az udvarok tűnnek el); élő előnézet; leválasztás nélkül a teljes kép enyhe MTF-nyújtása |
+| 12 | Zöld eltávolítása (SCNR) | kész |
+| 13 | Színes szegélyek | helyőrző |
+| 14–15 | Kontraszt, telítettség | kész |
+| 16 | Mentés | JPEG / TIFF 16 bit / FITS |
 
 ## Licenc és jogi tudnivalók
 

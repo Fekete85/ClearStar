@@ -2,7 +2,7 @@ using ClearStar.Core.Pipeline;
 
 namespace ClearStar.Core.Steps;
 
-/// <summary>A 17 lépés a feldolgozási sorrendben. A még el nem készültek helyőrzőként vannak jelen.</summary>
+/// <summary>A 16 lépés a feldolgozási sorrendben. A még el nem készültek helyőrzőként vannak jelen.</summary>
 public static class StepCatalog
 {
     public static IReadOnlyList<IWorkflowStep> CreateAll() =>
@@ -18,7 +18,6 @@ public static class StepCatalog
         new StarRemovalStep(),
         new StarlessStretchStep(),
         new StarStretchStep(),
-        new RecombineStep(),
         new GreenRemovalStep(),
         new NotImplementedStep(StepId.ChromaticAberration, StepGroup.Refinement, "fringe"),
         new ContrastStep(),

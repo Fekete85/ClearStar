@@ -2,7 +2,7 @@ using ClearStar.Core.Localization;
 
 namespace ClearStar.Core.Pipeline;
 
-/// <summary>A 17 workflow-lépés azonosítója, a feldolgozási sorrendben.</summary>
+/// <summary>A 16 workflow-lépés azonosítója, a feldolgozási sorrendben.</summary>
 public enum StepId
 {
     LoadFrames = 1,
@@ -16,12 +16,11 @@ public enum StepId
     StarRemoval = 9,
     StarlessStretch = 10,
     StarStretch = 11,
-    StarRecombination = 12,
-    GreenRemoval = 13,
-    ChromaticAberration = 14,
-    Contrast = 15,
-    Saturation = 16,
-    Save = 17,
+    GreenRemoval = 12,
+    ChromaticAberration = 13,
+    Contrast = 14,
+    Saturation = 15,
+    Save = 16,
 }
 
 public enum StepGroup { Preparation, Basics, Stars, Refinement, Finish }
