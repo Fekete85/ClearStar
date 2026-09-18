@@ -52,7 +52,7 @@ foreach (var entry in wf.Steps)
     {
         // Előnézet-kép a képernyőn látható formában (lineárisnál autostretch-csel)
         var view = img.Clone();
-        if (Workflow.IsLinearPhase(entry.Id)) { var p = DisplayStretch.ComputeAll(view, linked: linkedPreview); for (int c = 0; c < view.Channels; c++) { var ch = view.Channel(c); for (int i = 0; i < ch.Length; i++) ch[i] = p[c].Apply(ch[i]); } }
+        if (Workflow.IsLinearPhase(entry.Id)) { var p = DisplayStretch.ComputeAll(view.Downsample(view.DownsampleFactor(DisplayStretch.PreviewWidth)), DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey), linked: linkedPreview); for (int c = 0; c < view.Channels; c++) { var ch = view.Channel(c); for (int i = 0; i < ch.Length; i++) ch[i] = p[c].Apply(ch[i]); } }
         ImageFiles.Save(Path.Combine(outDir, $"step{entry.Definition.Number:D2}.jpg"), view, ExportFormat.Jpeg);
     }
 }

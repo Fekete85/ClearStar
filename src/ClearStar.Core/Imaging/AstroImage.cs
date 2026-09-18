@@ -72,4 +72,35 @@ public sealed class AstroImage
         int n = PixelsPerChannel;
         return 0.2126f * Data[index] + 0.7152f * Data[n + index] + 0.0722f * Data[2 * n + index];
     }
+
+    /// <summary>Box average with an integer factor (the preview's downsampling).</summary>
+    public AstroImage Downsample(int factor)
+    {
+        if (factor <= 1) return this;
+        int w = Width / factor, h = Height / factor;
+        var outImg = new AstroImage(w, h, Channels);
+        float inv = 1f / (factor * factor);
+        for (int c = 0; c < Channels; c++)
+        {
+            var src = Data; var dst = outImg.Data;
+            int so = c * PixelsPerChannel, dOff = c * outImg.PixelsPerChannel;
+            Parallel.For(0, h, y =>
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    float sum = 0f;
+                    for (int yy = 0; yy < factor; yy++)
+                    {
+                        int row = so + (y * factor + yy) * Width + x * factor;
+                        for (int xx = 0; xx < factor; xx++) sum += src[row + xx];
+                    }
+                    dst[dOff + y * w + x] = sum * inv;
+                }
+            });
+        }
+        return outImg;
+    }
+
+    /// <summary>Integer factor that brings the longer side down to <paramref name="maxSide"/> pixels (1 = no downsampling).</summary>
+    public int DownsampleFactor(int maxSide) => Math.Max(1, (int)Math.Ceiling(Math.Max(Width, Height) / (double)maxSide));
 }

@@ -30,6 +30,9 @@ public static class DisplayStretch
 
     public const string DefaultPresetKey = "bg20";
 
+    /// <summary>Longer side of the downsampled image the screen stretch is measured on (also used by the wand, so it matches the preview).</summary>
+    public const int PreviewWidth = 2400;
+
     public static Preset PresetByKey(string? key) =>
         Presets.FirstOrDefault(p => p.Key == key) ?? Presets.First(p => p.Key == DefaultPresetKey);
 

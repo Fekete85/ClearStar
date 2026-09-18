@@ -11,7 +11,8 @@ public enum GhsColourModel { Independent, HumanLuminance, EvenLuminance }
 /// ln(D+1)), local intensity b, symmetry point SP, shadow/highlight protection points LP/HP, black
 /// point BP (linear type only) and the colour model.
 /// </summary>
-public sealed record GhsParams(GhsType Type, float D, float B, float LP, float SP, float HP, float BP, GhsColourModel Colour)
+public sealed record GhsParams(GhsType Type, float D, float B, float LP, float SP, float HP, float BP, GhsColourModel Colour,
+    float[]? ChannelMidtones = null, float[]? ChannelShadows = null)
 {
     public static readonly GhsParams Identity = new(GhsType.Ghs, 0f, 0f, 0f, 0f, 1f, 0f, GhsColourModel.Independent);
 
@@ -259,9 +260,22 @@ public sealed class GhsTransform
     /// <summary>Applies the stretch to a whole image with the chosen colour model.</summary>
     public static AstroImage Apply(AstroImage input, GhsParams p, CancellationToken ct = default)
     {
-        var t = new GhsTransform(p);
         var output = input.CreateEmptyLike();
         int n = input.PixelsPerChannel, w = input.Width;
+        // Auto stretch with per-channel MTF parameters (unlinked, like the screen boost and GraXpert's autostretch).
+        if (p.Type == GhsType.Mtf && p.ChannelMidtones is { } cm && p.ChannelShadows is { } cs)
+        {
+            Parallel.For(0, input.Height * input.Channels, new ParallelOptions { CancellationToken = ct }, row =>
+            {
+                int c = row / input.Height, y = row % input.Height;
+                var prm = new DisplayStretch.Params(cs[Math.Min(c, cs.Length - 1)], cm[Math.Min(c, cm.Length - 1)]);
+                int start = c * n + y * w;
+                var s = input.Data; var d = output.Data;
+                for (int i = start; i < start + w; i++) d[i] = Math.Clamp(prm.Apply(Math.Clamp(s[i], 0f, 1f)), 0f, 1f);
+            });
+            return output;
+        }
+        var t = new GhsTransform(p);
         var src = input.Data; var dst = output.Data;
         if (p.Colour == GhsColourModel.Independent || input.Channels != 3)
         {

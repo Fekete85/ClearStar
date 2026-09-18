@@ -202,7 +202,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             var baseImage = step.IsDone ? _workflow.ImageAfter(step.Id) : _workflow.ImageBefore(step.Id);
             if (baseImage is null) return;
-            if (!StarlessStretchStep.CommitAuto(step.Entry.Parameters, baseImage)) { StatusText = L.T("step.ghs.autoBright"); return; }
+            var preset = PreviewRenderer.Preset.IsOff ? DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey) : PreviewRenderer.Preset;
+            if (!StarlessStretchStep.CommitAuto(step.Entry.Parameters, baseImage, preset)) { StatusText = L.T("step.ghs.autoBright"); return; }
             await ApplyAsync(step);
             // The sliders now refine the auto-stretched image: move the symmetry point to its background.
             if (_workflow.ImageAfter(step.Id) is { } stretched)

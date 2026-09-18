@@ -7,7 +7,7 @@ namespace ClearStar.App.Services;
 /// <summary>Előnézet (BGRA32) a képből, opcionális automatikus nyújtással. A nagy képet lekicsinyíti a gyors rajzoláshoz.</summary>
 public static class PreviewRenderer
 {
-    public const int MaxPreviewWidth = 2400;
+    public const int MaxPreviewWidth = DisplayStretch.PreviewWidth;
 
     public sealed record Frame(byte[] Pixels, int Width, int Height, int SourceWidth, int SourceHeight)
     {
@@ -30,8 +30,7 @@ public static class PreviewRenderer
     {
         var preset = Preset;
         autoStretch &= !preset.IsOff;
-        int factor = Math.Max(1, (int)Math.Ceiling(Math.Max(image.Width, image.Height) / (double)maxWidth));
-        var small = factor > 1 ? Downsample(image, factor) : image;
+        var small = image.Downsample(image.DownsampleFactor(maxWidth));
         ct.ThrowIfCancellationRequested();
         var before = small;
         if (transform is not null) { small = transform(small); ct.ThrowIfCancellationRequested(); }
@@ -66,30 +65,6 @@ public static class PreviewRenderer
 
     private static byte ToByte(float v) => v <= 0f ? (byte)0 : v >= 1f ? (byte)255 : (byte)(v * 255f + 0.5f);
 
-    /// <summary>Doboz-átlagolás egész szorzóval.</summary>
-    public static AstroImage Downsample(AstroImage img, int factor)
-    {
-        int w = img.Width / factor, h = img.Height / factor;
-        var outImg = new AstroImage(w, h, img.Channels);
-        float inv = 1f / (factor * factor);
-        for (int c = 0; c < img.Channels; c++)
-        {
-            var src = img.Data; var dst = outImg.Data;
-            int so = c * img.PixelsPerChannel, dOff = c * outImg.PixelsPerChannel;
-            Parallel.For(0, h, y =>
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    float sum = 0f;
-                    for (int yy = 0; yy < factor; yy++)
-                    {
-                        int row = so + (y * factor + yy) * img.Width + x * factor;
-                        for (int xx = 0; xx < factor; xx++) sum += src[row + xx];
-                    }
-                    dst[dOff + y * w + x] = sum * inv;
-                }
-            });
-        }
-        return outImg;
-    }
+    /// <summary>Box average with an integer factor (implemented in the core, shared with the wand).</summary>
+    public static AstroImage Downsample(AstroImage img, int factor) => img.Downsample(factor);
 }

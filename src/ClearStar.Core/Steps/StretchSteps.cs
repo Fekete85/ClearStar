@@ -81,21 +81,23 @@ public sealed class StarlessStretchStep : StepBase
     }
 
     /// <summary>
-    /// "Magic wand": commits a classic auto-stretch (MTF with the shadows clipped at median − 2.8σ and the
-    /// background put at <paramref name="targetBackground"/>) into the history, so the GHS sliders can then
+    /// "Magic wand": commits the screen-boost auto-stretch (per-channel MTF of the given preset, default
+    /// 20% background / 3 MAD – the same as GraXpert's autostretch) into the history, so the GHS sliders can then
     /// refine it – the same "autostretch, then fine-tune" habit as in Siril. Returns false when the image
     /// is already bright.
     /// </summary>
-    public static bool CommitAuto(StepParameters p, AstroImage image, float targetBackground = 0.25f)
+    public static bool CommitAuto(StepParameters p, AstroImage image, DisplayStretch.Preset? preset = null)
     {
-        var stats = ImageStats.ComputeAll(image);
-        float median = stats.Average(s => s.Median), sigma = stats.Average(s => s.Sigma);
-        if (median >= targetBackground) return false;
-        float shadows = Math.Clamp(median - 2.8f * sigma, 0f, 0.99f);
-        float x0 = Math.Clamp((median - shadows) / (1f - shadows), 1e-6f, 1f);
-        float midtones = Math.Clamp(DisplayStretch.Mtf(x0, targetBackground), 1e-4f, 1f - 1e-4f);
+        preset ??= DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey);
+        // Exactly the screen boost: per-channel shadows and midtones (unlinked, which keeps the colours lively),
+        // measured on the same downsampled image as the preview (box averaging lowers the noise, so the
+        // shadow clipping lands closer to the background and the sky comes out darker and cleaner).
+        var small = image.Downsample(image.DownsampleFactor(DisplayStretch.PreviewWidth));
+        if (ImageStats.ComputeAll(small).Average(s => s.Median) >= preset.Background) return false;
+        var prms = DisplayStretch.ComputeAll(small, preset, linked: false);
         var history = History(p);
-        history.Add(new GhsParams(GhsType.Mtf, midtones, 0f, 0f, shadows, 1f, 0f, GhsColourModel.HumanLuminance));
+        history.Add(new GhsParams(GhsType.Mtf, prms.Average(x => x.Midtones), 0f, 0f, prms.Average(x => x.Shadows), 1f, 0f, GhsColourModel.Independent,
+            prms.Select(x => x.Midtones).ToArray(), prms.Select(x => x.Shadows).ToArray()));
         p[HistoryKey] = GhsParams.ListToJson(history);
         ResetCurrent(p);
         return true;
