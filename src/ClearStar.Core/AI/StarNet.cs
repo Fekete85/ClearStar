@@ -109,7 +109,15 @@ public static partial class StarNet
             process.WaitForExit(); // flush the async readers
             if (process.ExitCode != 0 || !File.Exists(output))
                 throw new InvalidOperationException(lastError ?? $"StarNet2 exit code {process.ExitCode}");
-            return ImageFiles.Load(output, debayer: false);
+            var result = ImageFiles.Load(output, debayer: false);
+            // StarNet2 (OpenCV inside) writes the colour planes of a FITS cube in BGR order: swap them back.
+            if (result.Channels == 3)
+            {
+                var red = result.Channel(0).ToArray();
+                result.Channel(2).CopyTo(result.Channel(0));
+                red.AsSpan().CopyTo(result.Channel(2));
+            }
+            return result;
         }
         finally
         {

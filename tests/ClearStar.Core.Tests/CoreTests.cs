@@ -744,3 +744,20 @@ public class FineRotationTests
         Assert.Equal(0f, r[0, 0, 0]); // empty corner
     }
 }
+
+public class StarNetChannelOrderTests
+{
+    [Fact]
+    public void ChannelOrderIsPreservedThroughStarNet()
+    {
+        string? exe = ClearStar.Core.AI.StarNet.Locate();
+        if (exe is null) return;
+        var img = new AstroImage(600, 560, 3);
+        var rnd = new Random(1);
+        for (int c = 0; c < 3; c++) { float level = 0.2f + 0.2f * c; for (int i = 0; i < img.PixelsPerChannel; i++) img.Data[c * img.PixelsPerChannel + i] = level + (rnd.NextSingle() - 0.5f) * 0.01f; }
+        var outp = ClearStar.Core.AI.StarNet.RemoveStars(img, exe);
+        var m = Enumerable.Range(0, 3).Select(c => ImageStats.Compute(outp.Channel(c).ToArray()).Median).ToArray();
+        // StarNet2 writes BGR planes; the runner must swap them back so red stays red.
+        Assert.InRange(m[0], 0.18f, 0.22f); Assert.InRange(m[1], 0.38f, 0.42f); Assert.InRange(m[2], 0.58f, 0.62f);
+    }
+}
