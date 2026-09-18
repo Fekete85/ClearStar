@@ -77,9 +77,14 @@ public static class StarMatcher
     /// mint csillagpárokra szavaznak, a legtöbb szavazatot kapó, kölcsönösen legjobb párokból
     /// hasonlósági transzformációt illesztünk.
     /// </summary>
-    public static SimilarityTransform? TriangleMatch(IReadOnlyList<Star> reference, IReadOnlyList<Star> frame, int take = 45, float tolerance = 0.006f)
+    /// <param name="takeReference">Brightest reference stars to use; defaults to <paramref name="take"/>. Plate solving passes
+    /// a larger set here because the catalogue covers more sky than the image.</param>
+    /// <param name="minScale">Lower bound of the accepted frame/reference size ratio (1 for the same instrument).</param>
+    /// <param name="maxScale">Upper bound of the accepted frame/reference size ratio.</param>
+    public static SimilarityTransform? TriangleMatch(IReadOnlyList<Star> reference, IReadOnlyList<Star> frame, int take = 45, float tolerance = 0.006f,
+        int takeReference = -1, float minScale = 0.8f, float maxScale = 1.25f)
     {
-        var r = reference.OrderByDescending(s => s.Flux).Take(take).ToList();
+        var r = reference.OrderByDescending(s => s.Flux).Take(takeReference > 0 ? takeReference : take).ToList();
         var f = frame.OrderByDescending(s => s.Flux).Take(take).ToList();
         if (r.Count < 6 || f.Count < 6) return null;
 
@@ -106,7 +111,7 @@ public static class StarMatcher
                     if (MathF.Abs(rt.Rb - t.Rb) > tolerance || MathF.Abs(rt.Rc - t.Rc) > tolerance) continue;
                     // Azonos műszer: a méretarány 1 körül van, ezzel a hamis egyezések nagy része kiesik.
                     float scale = t.A / rt.A;
-                    if (scale < 0.8f || scale > 1.25f) continue;
+                    if (scale < minScale || scale > maxScale) continue;
                     votes[rt.I0, t.I0]++; votes[rt.I1, t.I1]++; votes[rt.I2, t.I2]++;
                 }
             }
@@ -194,6 +199,9 @@ public static class StarMatcher
             if (votes.TryGetValue((best.Item1 + i, best.Item2 + j), out var v)) { sx += v.sx; sy += v.sy; n += v.count; }
         return n == 0 ? (0f, 0f) : ((float)(sx / n), (float)(sy / n));
     }
+
+    /// <summary>Nearest-neighbour pairs (reference star, frame star) within <paramref name="radius"/> px after transforming the frame.</summary>
+    public static List<(Star r, Star f)> PairStars(IReadOnlyList<Star> reference, IReadOnlyList<Star> frame, SimilarityTransform t, float radius) => Pair(reference, frame, t, radius);
 
     private static List<(Star r, Star f)> Pair(IReadOnlyList<Star> reference, IReadOnlyList<Star> frame, SimilarityTransform t, float radius)
     {

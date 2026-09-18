@@ -475,3 +475,88 @@ public class DenoiseTests
         Assert.InRange(ImageStats.Compute(outp.Channel(0).ToArray()).Median, 0.09f, 0.11f);
     }
 }
+
+public class AstrometryTests
+{
+    [Fact]
+    public void ProjectionRoundTrips()
+    {
+        var p = ClearStar.Core.Astrometry.Wcs.Project(11.2, 41.9, 10.68, 41.27)!.Value;
+        var (ra, dec) = ClearStar.Core.Astrometry.Wcs.Deproject(p.xi, p.eta, 10.68, 41.27);
+        Assert.InRange(ra, 11.2 - 1e-9, 11.2 + 1e-9);
+        Assert.InRange(dec, 41.9 - 1e-9, 41.9 + 1e-9);
+    }
+
+    [Fact]
+    public void WcsHeaderRoundTrips()
+    {
+        double s = 2.3 / 3600, rot = 25 * Math.PI / 180;
+        var wcs = new ClearStar.Core.Astrometry.Wcs(10.68, 41.27, 399.5, 299.5, -s * Math.Cos(rot), s * Math.Sin(rot), s * Math.Sin(rot), s * Math.Cos(rot));
+        var header = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        wcs.WriteTo(header, 600);
+        var back = ClearStar.Core.Astrometry.Wcs.TryRead(header, 600)!;
+        var a = wcs.PixelToSky(100, 50); var b = back.PixelToSky(100, 50);
+        Assert.InRange(b.ra, a.ra - 1e-9, a.ra + 1e-9);
+        Assert.InRange(b.dec, a.dec - 1e-9, a.dec + 1e-9);
+        Assert.InRange(wcs.ScaleArcsec, 2.299, 2.301);
+        var px = wcs.SkyToPixel(a.ra, a.dec)!.Value;
+        Assert.InRange(px.x, 99.99, 100.01); Assert.InRange(px.y, 49.99, 50.01);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SolvesSyntheticFieldWithRoughHints(bool mirrored)
+    {
+        // A true WCS (rotated 33°, optionally mirrored) generates a star field; the hints are off by
+        // 0.15° in position and 6% in scale, as a real telescope header would be.
+        const int w = 900, h = 700;
+        double s = 2.3 / 3600, rot = 33 * Math.PI / 180, sign = mirrored ? -1 : 1;
+        var truth = new ClearStar.Core.Astrometry.Wcs(10.68, 41.27, (w - 1) / 2.0, (h - 1) / 2.0,
+            sign * -s * Math.Cos(rot), s * Math.Sin(rot), sign * s * Math.Sin(rot), s * Math.Cos(rot));
+        var rnd = new Random(7);
+        var catalog = new List<ClearStar.Core.Astrometry.CatalogStar>();
+        var img = new AstroImage(w, h, 1);
+        for (int i = 0; i < img.Data.Length; i++) img.Data[i] = 0.05f + (rnd.NextSingle() - 0.5f) * 0.004f;
+        for (int i = 0; i < 400; i++)
+        {
+            double ra = 10.68 + (rnd.NextDouble() - 0.5) * 1.2, dec = 41.27 + (rnd.NextDouble() - 0.5) * 0.9;
+            float g = 8f + rnd.NextSingle() * 6f;
+            catalog.Add(new ClearStar.Core.Astrometry.CatalogStar(ra, dec, g, g + 0.3f, g - 0.4f));
+            var p = truth.SkyToPixel(ra, dec); if (p is null) continue;
+            double cx = p.Value.x, cy = p.Value.y;
+            if (cx < 10 || cy < 10 || cx > w - 11 || cy > h - 11) continue;
+            float amp = 0.9f * MathF.Pow(10f, -0.4f * (g - 8f));
+            for (int y = -6; y <= 6; y++) for (int x = -6; x <= 6; x++)
+            {
+                int px = (int)Math.Round(cx) + x, py = (int)Math.Round(cy) + y;
+                double dx = px - cx, dy = py - cy;
+                img[0, px, py] = Math.Min(1f, img[0, px, py] + amp * MathF.Exp(-(float)(dx * dx + dy * dy) / (2 * 1.5f * 1.5f)));
+            }
+        }
+        var result = ClearStar.Core.Astrometry.PlateSolver.Solve(img, catalog, 10.68 + 0.15, 41.27 - 0.1, 2.3 * 1.06);
+        Assert.NotNull(result);
+        Assert.True(result!.MatchedStars >= 30, $"matched {result.MatchedStars}");
+        var centre = result.Wcs.PixelToSky((w - 1) / 2.0, (h - 1) / 2.0);
+        Assert.InRange(Math.Abs(centre.ra - 10.68) * 3600 * Math.Cos(41.27 * Math.PI / 180), 0, 1.5);
+        Assert.InRange(Math.Abs(centre.dec - 41.27) * 3600, 0, 1.5);
+        Assert.InRange(result.Wcs.ScaleArcsec, 2.29, 2.31);
+        Assert.Equal(mirrored, result.Wcs.Flipped);
+        Assert.InRange(result.RmsArcsec, 0, 1.0);
+    }
+
+    [Fact]
+    public void ParsesVizierAndSesameFormats()
+    {
+        string tsv = "#comment\nRA_ICRS\tDE_ICRS\tGmag\tBPmag\tRPmag\ndeg\tdeg\tmag\tmag\tmag\n---\t---\t---\t---\t---\n010.80894\t+41.00948\t 8.92\t 9.43\t 8.25\n010.60875\t+41.09671\t 9.48\t\t\n";
+        var stars = ClearStar.Core.Astrometry.VizierGaiaCatalog.ParseTsv(tsv);
+        Assert.Equal(2, stars.Count);
+        Assert.InRange(stars[0].BpRp, 1.17f, 1.19f);
+        Assert.True(float.IsNaN(stars[1].Bp));
+        var pos = ClearStar.Core.Astrometry.NameResolver.Parse("# M31\n%J 10.68470833 +41.26875000 = 00 42 44.330  +41 16 07.50 \n");
+        Assert.NotNull(pos);
+        Assert.InRange(pos!.Value.dec, 41.268, 41.269);
+        Assert.InRange(ClearStar.Core.Steps.PlateSolveStep.Sexagesimal("00 42 44.3", 15.0)!.Value, 10.684, 10.685);
+        Assert.InRange(ClearStar.Core.Steps.PlateSolveStep.Sexagesimal("-05:23:28", 1.0)!.Value, -5.392, -5.391);
+    }
+}

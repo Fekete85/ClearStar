@@ -50,7 +50,8 @@ A felületet nem kell hozzá módosítani.
 | 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, DirectML GPU / CPU) vagy polinom-modell; modellválasztó tallózással/URL-letöltéssel |
 | 5 | Élesítés | GraXpert deconvolution-modellek: előbb csillagok, aztán objektum (512-es csempék, log-normálás, FWHM automatikus mérése); DirectML-lel a videokártyán (~11 s a két menet 9 MP-en), CPU-tartalékkal (~140 s) |
 | 6 | Zajcsökkentés | GraXpert denoise-modell (256-os csempék, 128-as lépés, medián/MAD-normálás, fényes pixelek megtartása, erősség szerinti keverés); GPU-n ~20 s 9 MP-en |
-| 7–9 | Plate solving, színkalibrálás, csillagleválasztás | helyőrző (a képet változatlanul adja tovább) |
+| 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok (ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár), háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
+| 8–9 | Színkalibrálás, csillagleválasztás | helyőrző (a képet változatlanul adja tovább) |
 | 10 | Ködök kiemelése (GHS) | kész – a D-t a háttér célfényességéhez keresi meg |
 | 11 | Csillagok nyújtása | MTF; csillagleválasztás nélkül a teljes képre (nyújtott képet nem nyújt újra) |
 | 12 | Csillagok visszahelyezése | helyőrző |

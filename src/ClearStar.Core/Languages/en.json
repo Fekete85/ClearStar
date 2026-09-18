@@ -60,7 +60,14 @@
       "strength": { "label": "Strength", "ticks": ["Gentle", "Medium", "Full"], "help": "How much of the denoised version is mixed into the original. Full: only the model output; lower values leave a more natural grain." },
       "model": { "label": "AI model", "help": "Leave empty to use the newest model available." }
     },
-    "platesolve": { "name": "Identify the sky", "tech": "plate solving", "desc": "From the star pattern we work out exactly where the image points. Needed for accurate colour calibration." },
+    "platesolve": {
+      "name": "Identify the sky",
+      "tech": "plate solving",
+      "desc": "From the star pattern we work out exactly where the image points: Gaia catalogue stars around the direction the telescope wrote into the header are matched to the image (needs internet). Needed for accurate colour calibration.",
+      "object": { "label": "Object name (if the header has no direction)", "help": "E.g. M 31, NGC 6992, IC 1396. Leave empty to use the image header." },
+      "scale": { "label": "Pixel scale (″/px, if the header has none)", "help": "Leave empty to compute it from the focal length and pixel size. Seestar S50: 2.3." },
+      "maglimit": { "label": "Catalogue magnitude limit", "ticks": ["Bright (11)", "Medium (14)", "Faint (16)"], "help": "Dense star fields need only the brighter stars; sparse fields need a fainter limit." }
+    },
     "colorcal": { "name": "Calibrate colours", "desc": "Colours are matched to the known colours of the stars so nebulae look true to life." },
     "starremoval": { "name": "Separate stars", "desc": "The stars are moved to a separate image temporarily, so nebula and stars can be treated each in its own way." },
     "ghs": {
@@ -185,6 +192,18 @@
       "noModel": "No denoising AI model on this computer. Pick one from the \"AI model\" list (browse or download), or install GraXpert and download it there – it will show up here too.",
       "running": "Reducing noise…",
       "summary": "Noise reduced · AI model {0} ({1})"
+    },
+    "platesolve": {
+      "resolving": "Looking up object: {0}…",
+      "unknownObject": "Object not found: {0}. Try another name (e.g. \"M 31\", \"NGC 7000\").",
+      "noCentre": "The header has no direction (RA/DEC) and no object name was given. Enter the object name in the step settings.",
+      "noScale": "The pixel scale cannot be derived from the header (FOCALLEN/XPIXSZ). Enter it in ″/px.",
+      "offline": "No network connection to the catalogue ({0}). Connect to the internet or skip this step.",
+      "catalog": "Fetching catalogue ({0})…",
+      "fewCatalogStars": "The catalogue returned too few stars for this direction – check the object name.",
+      "solving": "Matching stars…",
+      "failed": "Could not identify the sky – check the object name and the pixel scale, or skip this step.",
+      "summary": "RA {0}, Dec {1} · {2:0.00}″/px · rotation {3:0.0}° · {4} stars · ±{5:0.0}″"
     },
     "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },
