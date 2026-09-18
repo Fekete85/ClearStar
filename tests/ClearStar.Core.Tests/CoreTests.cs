@@ -689,6 +689,24 @@ public class StarLayerTests
     }
 
     [Fact]
+    public void FringeStepNeutralisesBrightVioletButKeepsBlueStarsAndDimNebula()
+    {
+        var img = new AstroImage(4, 1, 3);
+        void Set(int x, float r, float g, float b) { img[0, x, 0] = r; img[1, x, 0] = g; img[2, x, 0] = b; }
+        Set(0, 0.70f, 0.40f, 0.95f);   // bright violet fringe
+        Set(1, 0.75f, 0.85f, 1.00f);   // blue-white star (hue near cyan)
+        Set(2, 0.12f, 0.06f, 0.16f);   // dim violet nebulosity below the threshold
+        Set(3, 0.90f, 0.30f, 0.30f);   // red star
+        var p = new StepParameters();
+        var step = new FringeStep();
+        var o = step.Preview(img, p, default);
+        float Sat(AstroImage a, int x) { float mx = Math.Max(a[0, x, 0], Math.Max(a[1, x, 0], a[2, x, 0])), mn = Math.Min(a[0, x, 0], Math.Min(a[1, x, 0], a[2, x, 0])); return (mx - mn) / mx; }
+        Assert.True(Sat(o, 0) < 0.5f * Sat(img, 0), "the fringe should lose most of its colour");
+        Assert.Equal(0.2126f * 0.70f + 0.7152f * 0.40f + 0.0722f * 0.95f, 0.2126f * o[0, 0, 0] + 0.7152f * o[1, 0, 0] + 0.0722f * o[2, 0, 0], 3); // luminance kept
+        for (int x = 1; x < 4; x++) for (int c = 0; c < 3; c++) Assert.Equal(img[c, x, 0], o[c, x, 0]);
+    }
+
+    [Fact]
     public void AddStarsIsExactAtFullStrengthAndFadesFaintStarsFirst()
     {
         var starless = new AstroImage(8, 8, 3); Array.Fill(starless.Data, 0.2f);

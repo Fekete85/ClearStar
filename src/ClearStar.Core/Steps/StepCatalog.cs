@@ -19,7 +19,7 @@ public static class StepCatalog
         new StarlessStretchStep(),
         new StarStretchStep(),
         new GreenRemovalStep(),
-        new NotImplementedStep(StepId.ChromaticAberration, StepGroup.Refinement, "fringe"),
+        new FringeStep(),
         new ContrastStep(),
         new SaturationStep(),
         new SaveStep(),

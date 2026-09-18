@@ -55,6 +55,15 @@ public interface IWorkflowStep
 }
 
 /// <summary>
+/// A step whose effect is cheap and purely per pixel, so the app can preview the slider settings live
+/// on the downsampled image: <see cref="Preview"/> applies the same transform RunAsync would.
+/// </summary>
+public interface ILivePreviewStep : IWorkflowStep
+{
+    AstroImage Preview(AstroImage image, StepParameters parameters, CancellationToken ct);
+}
+
+/// <summary>
 /// Egy bemeneti kép sorsa és minősége az összeillesztésben. A mérőszámok időrendben kirajzolva
 /// megmutatják, ha az éjszaka során romlott az ég (felhő, pára, zenit közeli forgás, fényszennyezés).
 /// </summary>

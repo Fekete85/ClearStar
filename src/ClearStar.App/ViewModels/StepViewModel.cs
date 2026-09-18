@@ -86,6 +86,8 @@ public partial class StepViewModel : ObservableObject
         StepId.LoadFrames => L.T("ui.step.btnLoad"),
         StepId.Stack => L.T("ui.step.btnStack"),
         StepId.Save => L.T("ui.step.btnSave"),
+        // The stretch and star steps are previewed live and move on after Apply, so they never say "reapply".
+        StepId.StarlessStretch or StepId.StarStretch => L.T("ui.step.btnApply"),
         _ => L.T(State == StepState.Done ? "ui.step.btnReapply" : "ui.step.btnApply"),
     };
 

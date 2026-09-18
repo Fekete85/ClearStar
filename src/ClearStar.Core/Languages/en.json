@@ -121,7 +121,14 @@
       "desc": "There are no green nebulae in space – if your image looks greenish, that is the sensor. It is removed here; other colours stay untouched.",
       "amount": { "label": "Strength", "ticks": ["Weak", "Medium", "Full"] }
     },
-    "fringe": { "name": "Fix colour fringes", "tech": "chromatic aberration", "desc": "Bright stars may show a purple or blue fringe caused by the optics. Here it is faded out." },
+    "fringe": {
+      "name": "Fix colour fringes",
+      "tech": "chromatic aberration",
+      "desc": "Bright stars may show a purple or bluish-violet fringe caused by the optics. Here it is faded out: the colour of violet, saturated, bright pixels is pulled back, while blue stars and the nebulosity are left alone. The image follows the slider live.",
+      "amount": { "label": "Strength", "ticks": ["None", "Medium", "Full"] },
+      "threshold": { "label": "Only on parts brighter than", "ticks": ["Everywhere", "Medium", "Bright only"], "help": "Fringes sit at the edges of bright stars; a lower threshold also neutralises dimmer violet areas (careful with nebulae)." },
+      "hue": { "label": "Width of the colour range", "ticks": ["Violet only", "Medium", "Blue to red"], "help": "How far the treated hue range extends from violet towards pure blue and red." }
+    },
     "contrast": {
       "name": "Contrast",
       "desc": "Slightly deeper darks, slightly livelier lights – the image \"comes together\". Careful: too much contrast swallows faint nebulosity.",
@@ -256,6 +263,7 @@
     "ghs": { "summary": "{0} stretches applied · last: {1}", "none": "No stretch – the image is unchanged", "simple": "objects {0:+0.00;−0.00;0}, background {1:+0.00;−0.00;0}, contrast {2:+0.00;−0.00;0}" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})", "layerSummary": "Stars put back ({0:P0})" },
     "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },
+    "fringe": { "mono": "Monochrome image – no colour fringes", "summary": "Colour fringes faded (on {0:P1} of the image)" },
     "contrast": { "summary": "Contrast applied" },
     "saturation": { "mono": "Monochrome image – no colour", "summary": "Colours boosted" },
     "save": { "saving": "Saving…", "summary": "Saved: {0} ({1:0.#} MB)" },

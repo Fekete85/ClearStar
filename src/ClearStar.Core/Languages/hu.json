@@ -121,7 +121,14 @@
       "desc": "Az űrben nincs zöld köd – ha a képed zöldes, az a szenzor sajátja. Itt ezt vesszük ki, a többi szín érintetlen marad.",
       "amount": { "label": "Erősség", "ticks": ["Gyenge", "Közepes", "Teljes"] }
     },
-    "fringe": { "name": "Színes szegélyek javítása", "tech": "chromatic aberration", "desc": "A fényes csillagok körül lila vagy kékes szegély jelenhet meg az optika miatt. Itt ezt halványítjuk el." },
+    "fringe": {
+      "name": "Színes szegélyek javítása",
+      "tech": "chromatic aberration",
+      "desc": "A fényes csillagok körül lila vagy kékes-lilás szegély jelenhet meg az optika miatt. Itt ezt halványítjuk el: a lilás, telített, fényes pixelek színét vesszük vissza, a kék csillagok és a köd érintetlenek maradnak. A kép élőben követi a csúszkát.",
+      "amount": { "label": "Erősség", "ticks": ["Semmi", "Közepes", "Teljes"] },
+      "threshold": { "label": "Csak ennél fényesebb részeken", "ticks": ["Mindenhol", "Közepes", "Csak a fényes"], "help": "A szegélyek a fényes csillagok szélén vannak; alacsonyabb küszöbnél a halványabb, lilás részeket is semlegesíti (ködnél óvatosan)." },
+      "hue": { "label": "Színtartomány szélessége", "ticks": ["Csak lila", "Közepes", "Kékig-vörösig"], "help": "Mennyire nyúljon a kezelt színtartomány a lilától a tiszta kék és a vörös felé." }
+    },
     "contrast": {
       "name": "Kontraszt",
       "desc": "Kicsit mélyebb sötétek, kicsit élénkebb világosak – a kép \"összeáll\". Óvatosan: a túl erős kontraszt elnyeli a halvány ködöt.",
@@ -256,6 +263,7 @@
     "ghs": { "summary": "{0} nyújtás alkalmazva · utolsó: {1}", "none": "Nincs nyújtás – a kép változatlan", "simple": "objektum {0:+0.00;−0.00;0}, háttér {1:+0.00;−0.00;0}, kontraszt {2:+0.00;−0.00;0}" },
     "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "Csillagok visszahelyezve ({0:P0})" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
+    "fringe": { "mono": "Fekete-fehér kép – nincs színes szegély", "summary": "Színes szegélyek halványítva (a kép {0:P1} részén)" },
     "contrast": { "summary": "Kontraszt beállítva" },
     "saturation": { "mono": "Fekete-fehér kép – nincs szín", "summary": "Színek élénkítve" },
     "save": { "saving": "Mentés…", "summary": "Mentve: {0} ({1:0.#} MB)" },

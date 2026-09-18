@@ -60,9 +60,9 @@ A felületet nem kell hozzá módosítani.
 | 9 | Csillagok leválasztása | a felhasználó saját StarNet2 CLI-jét hívja (Siril-beállításból, telepítési helyről vagy tallózva; beállító ablak letöltési útmutatóval); lineáris képen automatikus MTF-előnyújtás → StarNet2 → pontos visszanyújtás; a csillagréteg (eredeti − csillagtalan) a StarLayerStore-ban |
 | 10 | Ködök kiemelése (GHS) | kezdőknek három csúszka: objektum fényessége (MTF a háttér fölötti tartományon), háttér szintje (feketepont-eltolás), kontraszt a kettő között (GHS a háttérre centrálva, a háttér helyben marad); haladó beállítás alatt a Siril GHS-dialógus vezérlői (ln(D+1), b, SP, LP, HP, típus, BP, színmodell – a ght.c portja), élő előnézet + hisztogram jelölőkkel, „Alkalmaz” = rögzítés a nyújtás-történetbe és tiszta lap (több lépcsős nyújtás), visszavonás; varázspálca = az „Előnézet felerősítése” aktuális beállítása rögzítve (csatornánkénti, kapcsolatlan MTF, árnyék = medián − k·MAD – ugyanaz, mint a GraXpert autostretch-e; az előnézettel azonos, lekicsinyített képen mérve); pipetta az SP-hez |
 | 11 | Csillagok visszahelyezése | a 10. lépés a csillagréteget „teljes erővel” is elkészíti (az eredeti kép ugyanazzal a nyújtás-történettel nyújtva, mínusz a csillagtalan); a csúszka ezt a réteget adja hozzá additívan, a maximumon minden csillag pontosan úgy tér vissza, mintha nem lett volna leválasztás, lejjebb a réteg 1/érték hatványra emelve (előbb a halvány csillagok és az udvarok tűnnek el); élő előnézet; leválasztás nélkül a teljes kép enyhe MTF-nyújtása |
-| 12 | Zöld eltávolítása (SCNR) | kész |
-| 13 | Színes szegélyek | helyőrző |
-| 14–15 | Kontraszt, telítettség | kész |
+| 12 | Zöld eltávolítása (SCNR) | kész, élő előnézet |
+| 13 | Színes szegélyek | lila/ibolya szegélyek semlegesítése a fényes csillagok körül (színezet-ablak ibolya–magenta, telítettség- és fényességküszöb, a fényesség megtartásával – a Siril unpurple ötlete alapján); haladó: küszöb, színtartomány szélessége; élő előnézet |
+| 14–15 | Kontraszt, telítettség | kész, élő előnézet |
 | 16 | Mentés | JPEG / TIFF 16 bit / FITS |
 
 ## Licenc és jogi tudnivalók
@@ -77,10 +77,10 @@ A szerző nevét a `Directory.Build.props` `Authors`/`Copyright` mezőiben kell 
 
 Minden felirat a nyelvi adatbázisból jön: `src/ClearStar.Core/Languages/hu.json` és `en.json` (beépítve).
 Új nyelv: másold le az `en.json`-t `xx.json` néven (a `_meta.name` a nyelv neve), fordítsd le, és tedd a
-program melletti `Languages` mappába vagy ide: `%LOCALAPPDATA%ClearStaranguages`. az azonos kódú fájl
-felülírja a beépítettet; a hiányzó kulcsok angolul jelennek meg. a nyelv a névjegy ablakban választható
-(`settings.json` → `language`), alapból a windows nyelve, ha van hozzá fájl, különben magyar.
-a csúszkafeliratok tömbök, a `{0}` helyőrzők .net formátumúak (`{1:0.0}`).
+program melletti `Languages` mappába vagy ide: `%LOCALAPPDATA%\ClearStar\Languages`. Az azonos kódú fájl
+felülírja a beépítettet; a hiányzó kulcsok angolul jelennek meg. A nyelv a Névjegy ablakban választható
+(`settings.json` → `language`), alapból a Windows nyelve, ha van hozzá fájl, különben magyar.
+A csúszkafeliratok tömbök, a `{0}` helyőrzők .NET formátumúak (`{1:0.0}`).
 
 ## Parancssori futtató
 

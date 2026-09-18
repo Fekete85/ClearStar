@@ -123,9 +123,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         var ghsStep = Steps.First(s => s.Id == StepId.StarlessStretch);
         foreach (var prm in ghsStep.Parameters.Where(x => !x.IsHidden))
             prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
-        var starStep = Steps.First(s => s.Id == StepId.StarStretch);
-        foreach (var prm in starStep.Parameters.Where(x => !x.IsHidden))
-            prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
+        // So are the star step and every per-pixel step that offers a live preview (green, fringes, contrast, saturation).
+        foreach (var live in Steps.Where(s => s.Id == StepId.StarStretch || s.Entry.Step is ILivePreviewStep))
+            foreach (var prm in live.Parameters.Where(x => !x.IsHidden))
+                prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
         // Crop orientation (quarter turns, fine angle, mirroring) is previewed live.
         foreach (var prm in cropStep.Parameters.Where(x => x.Key is CropStep.RotateKey or CropStep.AngleKey or CropStep.FlipHKey or CropStep.FlipVKey))
             prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") OnCropOrientationChanged(cropStep); };
@@ -165,7 +166,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Re-renders the live stretch preview shortly after the last slider change.</summary>
     private void ScheduleLivePreview()
     {
-        if (SelectedStep?.Id is not (StepId.StarlessStretch or StepId.StarStretch)) return;
+        if (SelectedStep is not { } sel || (sel.Id is not (StepId.StarlessStretch or StepId.StarStretch) && sel.Entry.Step is not ILivePreviewStep)) return;
         _liveTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
         _liveTimer.Stop();
         _liveTimer.Tick -= LiveTick; _liveTimer.Tick += LiveTick;
@@ -210,7 +211,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         step.NoteCommand = new RelayCommand(async () =>
         {
             if (!StarlessStretchStep.Undo(step.Entry.Parameters)) return;
-            await ApplyAsync(step);
+            await ApplyAsync(step, stay: true);   // undo: keep refining here
         });
         step.SecondaryActionText = L.T("step.ghs.auto");
         step.SecondaryCommand = new RelayCommand(async () =>
@@ -219,7 +220,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             if (baseImage is null) return;
             var preset = PreviewRenderer.Preset.IsOff ? DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey) : PreviewRenderer.Preset;
             if (!StarlessStretchStep.CommitAuto(step.Entry.Parameters, baseImage, preset)) { StatusText = L.T("step.ghs.autoBright"); return; }
-            await ApplyAsync(step);
+            await ApplyAsync(step, stay: true);   // the wand is the starting point for the sliders, not the end of the step
         });
     }
 
@@ -368,7 +369,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (step.Id == StepId.Crop) Selection = _cropBase;
     }
 
-    public async Task ApplyAsync(StepViewModel step)
+    /// <param name="stay">Keep the step selected after it ran (the stretch wand and undo) instead of moving on to the next pending step.</param>
+    public async Task ApplyAsync(StepViewModel step, bool stay = false)
     {
         if (IsBusy) return;
         // The stretch step commits the slider settings into its history and starts the next one clean.
@@ -403,9 +405,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusText = L.F("ui.status.done", step.Name, result.Summary);
             UpdateImageInfo();
             var next = Steps.FirstOrDefault(s => s.Id == _workflow.NextPending);
-            if (step.Id == StepId.StarlessStretch) { FollowBackground(step); UpdateStretchNote(step); RefreshPreview(); }
-            else if (step.Id == StepId.StarStretch) RefreshPreview();
-            else if (next is not null && next.Id > step.Id) SelectStep(next);
+            if (step.Id == StepId.StarlessStretch) { FollowBackground(step); UpdateStretchNote(step); }
+            if (!stay && next is not null && next.Id > step.Id) SelectStep(next);
             else RefreshPreview();
         }
         catch (OperationCanceledException)
@@ -690,6 +691,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 int factor = Math.Max(1, (int)Math.Round(starsFull.Width / (double)small.Width));
                 return StarStretchStep.AddStars(small, StarsSmall(starsFull, factor), amount, cts.Token);
             };
+        }
+        // Per-pixel steps: the sliders are previewed live on the step's input.
+        else if (step.Entry.Step is ILivePreviewStep live && !ShowOriginal && _workflow.ImageBefore(step.Id) is { } liveBase)
+        {
+            after = liveBase;
+            var prms = step.Entry.Parameters;
+            transform = small => live.Preview(small, prms, cts.Token);
         }
         HistogramData? histogram = null;
         _ = Task.Run(() =>
