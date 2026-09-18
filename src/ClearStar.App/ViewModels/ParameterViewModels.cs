@@ -37,6 +37,9 @@ public abstract partial class ParameterViewModel : ObservableObject
 
     /// <summary>Az alapértelmezett érték visszaállítása.</summary>
     public abstract void Reset();
+
+    /// <summary>Re-reads the value from the step parameters (after the model changed them, e.g. a committed stretch).</summary>
+    public virtual void Reload() { }
 }
 
 public partial class SliderParameterViewModel : ParameterViewModel
@@ -72,6 +75,7 @@ public partial class SliderParameterViewModel : ParameterViewModel
     partial void OnValueChanged(double value) => Parameters[Key] = value;
 
     public override void Reset() => Value = Convert.ToDouble(Definition.Default);
+    public override void Reload() => Value = Parameters.GetDouble(Key, Convert.ToDouble(Definition.Default));
 }
 
 public partial class ToggleParameterViewModel : ParameterViewModel
@@ -85,6 +89,7 @@ public partial class ToggleParameterViewModel : ParameterViewModel
 
     partial void OnIsOnChanged(bool value) => Parameters[Key] = value;
     public override void Reset() => IsOn = (bool)Definition.Default;
+    public override void Reload() => IsOn = Parameters.GetBool(Key, (bool)Definition.Default);
 }
 
 /// <summary>Egy választólista-elem: nyelvfüggetlen érték + a felhasználónak szóló felirat.</summary>
@@ -108,6 +113,7 @@ public partial class ChoiceParameterViewModel : ParameterViewModel
 
     partial void OnSelectedChanged(ChoiceItem? value) { if (value is not null) Parameters[Key] = value.Value; }
     public override void Reset() => Selected = Find(Definition.Default.ToString() ?? "");
+    public override void Reload() => Selected = Find(Parameters.GetString(Key, Definition.Default.ToString() ?? ""));
 }
 
 public partial class TextParameterViewModel : ParameterViewModel
@@ -121,6 +127,7 @@ public partial class TextParameterViewModel : ParameterViewModel
 
     partial void OnTextChanged(string value) => Parameters[Key] = value;
     public override void Reset() => Text = Definition.Default.ToString() ?? "";
+    public override void Reload() => Text = Parameters.GetString(Key, Definition.Default.ToString() ?? "");
 }
 
 public partial class FolderParameterViewModel : ParameterViewModel

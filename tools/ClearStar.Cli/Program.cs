@@ -38,6 +38,12 @@ var progress = new Progress<ProgressInfo>(_ => { });
 foreach (var entry in wf.Steps)
 {
     var sw = System.Diagnostics.Stopwatch.StartNew();
+    // The stretch step applies only committed stretches: give the CLI a default one (ln(D+1)=1.5, b=1, SP at the background median).
+    if (entry.Id == StepId.StarlessStretch && StarlessStretchStep.History(entry.Parameters).Count == 0 && wf.Current is { } cur)
+    {
+        if (entry.Parameters.GetDouble(StarlessStretchStep.LnDKey) == 0) { entry.Parameters[StarlessStretchStep.LnDKey] = 1.5; entry.Parameters[StarlessStretchStep.BKey] = 1.0; entry.Parameters[StarlessStretchStep.SpKey] = (double)ImageStats.ComputeAll(cur).Average(s => s.Median); }
+        StarlessStretchStep.Commit(entry.Parameters);
+    }
     var r = await wf.RunAsync(entry.Id, progress);
     var img = wf.Current;
     string stats = img is null ? "" : string.Join(" | ", ImageStats.ComputeAll(img).Select(s => $"med {s.Median:0.0000} mad {s.Mad:0.0000} max {s.Max:0.000}"));

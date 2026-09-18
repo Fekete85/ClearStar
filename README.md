@@ -53,7 +53,7 @@ A felületet nem kell hozzá módosítani.
 | 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok – **offline** a Siril HEALPix-katalógusból (`siril_cat_healpix8_astro.dat`, saját olvasó, ~0,5 s), különben ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár, háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
 | 8 | Színek kalibrálása | fotometriai (SPCC-jellegű): a WCS alapján a Gaia-csillagok apertúra-fotometriája R/G/B-ben, robusztus egyenes-illesztés a BP−RP színindexre, a napszerű (vagy Vega-) fehér referenciánál a vörös/kék szorzó; háttér semlegesítése (~1 s) |
 | 9 | Csillagok leválasztása | a felhasználó saját StarNet2 CLI-jét hívja (Siril-beállításból, telepítési helyről vagy tallózva; beállító ablak letöltési útmutatóval); lineáris képen automatikus MTF-előnyújtás → StarNet2 → pontos visszanyújtás; a csillagréteg (eredeti − csillagtalan) a StarLayerStore-ban |
-| 10 | Ködök kiemelése (GHS) | kész – a D-t a háttér célfényességéhez keresi meg |
+| 10 | Ködök kiemelése (GHS) | a Siril GHS-dialógus vezérlői (ln(D+1), b, SP, LP, HP, típus, BP, színmodell – a ght.c portja), élő előnézet + hisztogram jelölőkkel, „Alkalmaz” = rögzítés a nyújtás-történetbe és tiszta lap (több lépcsős nyújtás), visszavonás; az SP induláskor a háttér mediánján |
 | 11 | Csillagok nyújtása | külön csillagréteg esetén a réteg MTF-nyújtása (az előnézet a ködre visszatett csillagokat mutatja); leválasztás nélkül a teljes képre |
 | 12 | Csillagok visszahelyezése | screen-keverés a nyújtott csillagtalan és csillagrétegből, a csillagok súlya állítható |
 | 13 | Zöld eltávolítása (SCNR) | kész |

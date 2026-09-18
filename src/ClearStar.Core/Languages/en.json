@@ -93,11 +93,18 @@
     "ghs": {
       "name": "Bring out nebulae and galaxies",
       "tech": "GHS stretch",
-      "desc": "The raw image is almost black: the faint detail hides in the dark. Here it is brought out without burning out the bright parts.",
-      "amount": { "label": "Amount", "ticks": ["Gentle", "Medium", "Strong"] },
-      "focus": { "label": "Emphasis", "ticks": ["Dark areas", "Medium", "Bright areas"], "help": "Where the contrast boost should be largest: the faintest nebulosity or the brighter core." },
-      "shape": { "label": "Curve shape", "ticks": ["Soft", "Medium", "Abrupt"] },
-      "linked": { "label": "Preserve colour balance (channels together)" }
+      "desc": "The raw image is almost black: the faint detail hides in the dark. Here it is brought out – with the same sliders as Siril's GHS stretch. The image and the histogram follow the settings live; \"Apply\" commits the stretch and starts the next one from a clean slate, so you can work in several gentle passes.",
+      "lnD": { "label": "Stretch factor (ln(D+1))", "ticks": ["0", "5", "10"], "help": "How much contrast is added around the symmetry point – the main slider. Zero = no change." },
+      "b": { "label": "Local stretch intensity (b)", "ticks": ["−5", "5", "15"], "help": "How concentrated the contrast is around the symmetry point: large b = narrow, strong boost; small or negative b = wider, softer." },
+      "sp": { "label": "Symmetry point (SP)", "ticks": ["0", "0.5", "1"], "help": "The brightness where the contrast boost is largest. Small (near the background) for faint nebulosity, larger for a bright core." },
+      "lp": { "label": "Shadow protection point (LP)", "ticks": ["0", "0.5", "1"], "help": "Below this the stretch stays linear – background noise is not amplified. At most SP." },
+      "hp": { "label": "Highlight protection point (HP)", "ticks": ["0", "0.5", "1"], "help": "Above this the stretch stays linear – bright parts do not burn out. At least SP." },
+      "type": { "label": "Stretch type", "ghs": "Generalised hyperbolic (GHS)", "invghs": "Inverse GHS", "asinh": "Modified arcsinh", "invasinh": "Inverse arcsinh", "linear": "Linear (black point shift)" },
+      "bp": { "label": "Black point (BP)", "ticks": ["0", "0.5", "1"], "help": "Linear type only: this much is subtracted, the background gets darker." },
+      "colour": { "label": "Colour model", "indep": "Independent channels", "humanlum": "Human weighted luminance", "evenlum": "Even weighted luminance", "help": "The luminance models keep the colour ratios (stars and nebulae do not wash out); independent channels is Siril's classic behaviour." },
+      "applied": "{0} stretches committed · last: {1}",
+      "none": "No stretch committed yet – set the sliders and press Apply.",
+      "undo": "Undo last"
     },
     "starstretch": {
       "name": "Stretch stars",
@@ -250,7 +257,7 @@
       "noLayers": "No separate star layer (star removal was skipped) – the image is unchanged",
       "summary": "Stars put back (weight {0:0.0})"
     },
-    "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
+    "ghs": { "summary": "{0} stretches applied · last: {1}", "none": "No stretch – the image is unchanged" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})", "layerSummary": "Star layer stretched – the preview shows the stars back on the nebula" },
     "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },
     "contrast": { "summary": "Contrast applied" },

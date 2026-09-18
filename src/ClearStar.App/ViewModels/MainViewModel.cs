@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ClearStar.App.Controls;
 using ClearStar.App.Services;
 using ClearStar.Core;
 using ClearStar.Core.Imaging;
@@ -116,6 +117,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 Selection = new Rect(b.X + m * b.Width, b.Y + m * b.Height, b.Width * (1 - 2 * m), b.Height * (1 - 2 * m));
             };
         }
+        // The stretch sliders are previewed live (debounced).
+        var ghsStep = Steps.First(s => s.Id == StepId.StarlessStretch);
+        foreach (var prm in ghsStep.Parameters.Where(x => !x.IsHidden))
+            prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
         // Crop orientation (quarter turns, fine angle, mirroring) is previewed live.
         foreach (var prm in cropStep.Parameters.Where(x => x.Key is CropStep.RotateKey or CropStep.AngleKey or CropStep.FlipHKey or CropStep.FlipVKey))
             prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") OnCropOrientationChanged(cropStep); };
@@ -125,9 +130,59 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         if (SelectedStep?.Id != StepId.Crop) return;
         _cropBaseImage = null;          // the covered rectangle has to be recomputed for the new orientation
-        Selection = Rect.Empty;
+        var keep = Selection;           // the frame stays where the user put it; only the image moves underneath
         LoadCropSelection(crop);
+        if (!keep.IsEmpty) Selection = keep;
         RefreshPreview();
+    }
+
+    // ----- Stretch step: histogram panel, live preview, history note -----
+    [ObservableProperty] private HistogramData? _histogram;
+    [ObservableProperty] private bool _showHistogram;
+    private System.Windows.Threading.DispatcherTimer? _liveTimer;
+
+    private static HistogramData BuildHistogram(AstroImage input, AstroImage output, GhsParams p)
+    {
+        var t = new GhsTransform(p);
+        var curve = new float[128];
+        for (int i = 0; i < curve.Length; i++) curve[i] = t.Apply(i / (float)(curve.Length - 1));
+        return new HistogramData(ClearStar.Core.Imaging.Histogram.Compute(input, 2), ClearStar.Core.Imaging.Histogram.Compute(output, 2), curve,
+            p.LP, p.SP, p.HP, p.Type == GhsType.Linear ? p.BP : 0f, true);
+    }
+
+    /// <summary>Re-renders the live stretch preview shortly after the last slider change.</summary>
+    private void ScheduleLivePreview()
+    {
+        if (SelectedStep?.Id != StepId.StarlessStretch) return;
+        _liveTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
+        _liveTimer.Stop();
+        _liveTimer.Tick -= LiveTick; _liveTimer.Tick += LiveTick;
+        _liveTimer.Start();
+    }
+
+    private void LiveTick(object? sender, EventArgs e) { _liveTimer?.Stop(); RefreshPreview(); }
+
+    /// <summary>First visit: put the symmetry point at the background level, which is where a nebula stretch usually starts.</summary>
+    private void SuggestSymmetryPoint(StepViewModel step)
+    {
+        var p = step.Entry.Parameters;
+        if (StarlessStretchStep.History(p).Count > 0 || p.GetDouble(StarlessStretchStep.SpKey) > 0) return;
+        var img = _workflow.ImageBefore(step.Id);
+        if (img is null) return;
+        p[StarlessStretchStep.SpKey] = Math.Round(ImageStats.ComputeAll(img).Average(s => s.Median), 3);
+        step.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
+    }
+
+    private void UpdateStretchNote(StepViewModel step)
+    {
+        var history = StarlessStretchStep.History(step.Entry.Parameters);
+        step.Note = history.Count == 0 ? L.T("step.ghs.none") : L.F("step.ghs.applied", history.Count, history[^1].Describe());
+        step.NoteActionText = history.Count == 0 ? null : L.T("step.ghs.undo");
+        step.NoteCommand = new RelayCommand(async () =>
+        {
+            if (!StarlessStretchStep.Undo(step.Entry.Parameters)) return;
+            await ApplyAsync(step);
+        });
     }
 
     /// <summary>Rotates and mirrors the crop preview exactly as CropStep.Orient will (bounding-box canvas).</summary>
@@ -167,7 +222,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         SelectedStep = step;
         step.IsActive = true;
         // Lineáris fázisban automatikusan felerősítjük az előnézetet, utána már a valódi képet mutatjuk.
-        AutoStretch = step.IsDone ? Workflow.IsLinearPhase(step.Id) : step.Id <= StepId.StarlessStretch;
+        AutoStretch = step.Id == StepId.StarlessStretch ? false : step.IsDone ? Workflow.IsLinearPhase(step.Id) : step.Id < StepId.StarlessStretch;
+        if (step.Id == StepId.StarlessStretch) { SuggestSymmetryPoint(step); UpdateStretchNote(step); }
         // Vágásnál a kép a kijelölés vászna: a bemeneti (még vágatlan) képet mutatjuk, rajta a kijelöléssel.
         IsSelectionMode = step.Id == StepId.Crop;
         if (IsSelectionMode) LoadCropSelection(step); else Selection = Rect.Empty;
@@ -252,6 +308,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     public async Task ApplyAsync(StepViewModel step)
     {
         if (IsBusy) return;
+        // The stretch step commits the slider settings into its history and starts the next one clean.
+        if (step.Id == StepId.StarlessStretch)
+        {
+            StarlessStretchStep.Commit(step.Entry.Parameters);
+            foreach (var prm in step.Parameters) prm.Reload();
+        }
         _cts = new CancellationTokenSource();
         IsBusy = true;
         IsError = false;
@@ -278,7 +340,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusText = L.F("ui.status.done", step.Name, result.Summary);
             UpdateImageInfo();
             var next = Steps.FirstOrDefault(s => s.Id == _workflow.NextPending);
-            if (next is not null && next.Id > step.Id) SelectStep(next);
+            if (step.Id == StepId.StarlessStretch) { UpdateStretchNote(step); RefreshPreview(); }
+            else if (next is not null && next.Id > step.Id) SelectStep(next);
             else RefreshPreview();
         }
         catch (OperationCanceledException)
@@ -548,15 +611,23 @@ public partial class MainViewModel : ObservableObject, IDisposable
             BeforeImage = null;
             return;
         }
+        // The stretch step previews the slider settings live on top of its committed result.
+        bool liveStretch = step.Id == StepId.StarlessStretch && !ShowOriginal;
+        var current = liveStretch ? StarlessStretchStep.Current(step.Entry.Parameters) : null;
+        Func<AstroImage, AstroImage>? transform = current is { IsIdentity: false } ? img => GhsTransform.Apply(img, current, cts.Token) : null;
+        HistogramData? histogram = null;
         _ = Task.Run(() =>
         {
-            var a = PreviewRenderer.Render(after, stretch, cts.Token);
+            var a = PreviewRenderer.Render(after, stretch, cts.Token, transform: transform,
+                smallOut: liveStretch ? (src, dst) => histogram = BuildHistogram(src, dst, current!) : null);
             var b = before is not null && !ReferenceEquals(before, after) ? PreviewRenderer.Render(before, stretch, cts.Token) : null;
             return (a, b);
         }, cts.Token).ContinueWith(t =>
         {
             if (t.IsCanceled || cts.IsCancellationRequested) return;
             if (t.IsFaulted) { IsError = true; StatusText = t.Exception?.InnerException?.Message ?? L.T("ui.status.previewError"); return; }
+            Histogram = histogram;
+            ShowHistogram = liveStretch;
             PreviewScale = t.Result.a.SourceWidth / (double)t.Result.a.Width;
             PreviewImage = step.Id == StepId.Crop ? OrientPreview(t.Result.a.ToBitmap(), step) : t.Result.a.ToBitmap();
             BeforeImage = t.Result.b?.ToBitmap() ?? (SplitView ? PreviewImage : null);

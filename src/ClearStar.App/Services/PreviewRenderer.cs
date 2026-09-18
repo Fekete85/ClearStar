@@ -23,13 +23,19 @@ public static class PreviewRenderer
     public static DisplayStretch.Preset Preset { get; set; } = DisplayStretch.PresetByKey(DisplayStretch.DefaultPresetKey);
 
     /// <summary>Háttérszálon futtatható: csak byte-tömböt állít elő.</summary>
-    public static Frame Render(AstroImage image, bool autoStretch, CancellationToken ct = default, int maxWidth = MaxPreviewWidth)
+    /// <param name="transform">Optional live transform (e.g. the stretch being adjusted) applied to the downsampled image.</param>
+    /// <param name="smallOut">Receives the (transformed) downsampled image, e.g. for a histogram.</param>
+    public static Frame Render(AstroImage image, bool autoStretch, CancellationToken ct = default, int maxWidth = MaxPreviewWidth,
+        Func<AstroImage, AstroImage>? transform = null, Action<AstroImage, AstroImage>? smallOut = null)
     {
         var preset = Preset;
         autoStretch &= !preset.IsOff;
         int factor = Math.Max(1, (int)Math.Ceiling(Math.Max(image.Width, image.Height) / (double)maxWidth));
         var small = factor > 1 ? Downsample(image, factor) : image;
         ct.ThrowIfCancellationRequested();
+        var before = small;
+        if (transform is not null) { small = transform(small); ct.ThrowIfCancellationRequested(); }
+        smallOut?.Invoke(before, small);
 
         // The stretch is evaluated per pixel in float: a linear image's background occupies only a few
         // thousandths of the range, so any lookup table would posterise it into colour blotches.

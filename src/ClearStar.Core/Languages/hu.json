@@ -93,11 +93,18 @@
     "ghs": {
       "name": "Ködök, galaxis kiemelése",
       "tech": "GHS nyújtás",
-      "desc": "A nyers kép szinte fekete: a halvány részletek a sötétben lapulnak. Itt hozzuk elő őket úgy, hogy a fényes részek ne égjenek ki.",
-      "amount": { "label": "Kiemelés mértéke", "ticks": ["Finom", "Közepes", "Erős"] },
-      "focus": { "label": "Hangsúly", "ticks": ["Sötét részek", "Közepes", "Világos részek"], "help": "Hol legyen a legnagyobb a kontrasztnövelés: a leghalványabb ködöknél vagy a fényesebb magnál." },
-      "shape": { "label": "Görbe alakja", "ticks": ["Lágy", "Közepes", "Hirtelen"] },
-      "linked": { "label": "Színegyensúly megőrzése (csatornák együtt)" }
+      "desc": "A nyers kép szinte fekete: a halvány részletek a sötétben lapulnak. Itt hozzuk elő őket – ugyanazokkal a csúszkákkal, mint a Siril GHS-nyújtása. A kép és a hisztogram élőben követi a beállítást; az „Alkalmaz” rögzíti a nyújtást, és tiszta lappal jöhet a következő, így több finom lépésben is dolgozhatsz.",
+      "lnD": { "label": "Nyújtás mértéke (ln(D+1))", "ticks": ["0", "5", "10"], "help": "Mennyi kontrasztot adunk a szimmetriapont környékén – ez a fő csúszka. Nulla = nincs változás." },
+      "b": { "label": "Helyi nyújtás erőssége (b)", "ticks": ["−5", "5", "15"], "help": "Mennyire koncentrálódjon a kontraszt a szimmetriapont köré: nagy b = keskeny, erős kiemelés; kis vagy negatív b = szélesebb, lágyabb." },
+      "sp": { "label": "Szimmetriapont (SP)", "ticks": ["0", "0,5", "1"], "help": "Az a fényességérték, ahol a legnagyobb a kontrasztnövelés. Halvány ködhöz kicsi (a háttér közelében), fényes maghoz nagyobb." },
+      "lp": { "label": "Árnyékvédelem (LP)", "ticks": ["0", "0,5", "1"], "help": "Ez alatt a nyújtás lineáris marad – a háttér zaját nem emeli ki. Legfeljebb az SP értéke." },
+      "hp": { "label": "Csúcsfényvédelem (HP)", "ticks": ["0", "0,5", "1"], "help": "E fölött a nyújtás lineáris marad – a fényes részek nem égnek ki. Legalább az SP értéke." },
+      "type": { "label": "Nyújtás típusa", "ghs": "Általánosított hiperbolikus (GHS)", "invghs": "Inverz GHS", "asinh": "Módosított arcsinh", "invasinh": "Inverz arcsinh", "linear": "Lineáris (feketepont-eltolás)" },
+      "bp": { "label": "Feketepont (BP)", "ticks": ["0", "0,5", "1"], "help": "Csak a lineáris típusnál: ennyit vonunk le, a háttér sötétebb lesz." },
+      "colour": { "label": "Színmodell", "indep": "Csatornánként külön", "humanlum": "Emberi látás szerinti fényesség", "evenlum": "Egyenletes fényesség", "help": "A fényesség-alapú modellek megőrzik a színarányokat (a csillagok, ködök nem fakulnak ki); a csatornánkénti a Siril régi viselkedése." },
+      "applied": "{0} nyújtás rögzítve · utolsó: {1}",
+      "none": "Még nincs rögzített nyújtás – állítsd a csúszkákat, és nyomd meg az Alkalmazt.",
+      "undo": "Utolsó visszavonása"
     },
     "starstretch": {
       "name": "Csillagok nyújtása",
@@ -250,7 +257,7 @@
       "noLayers": "Nincs külön csillagréteg (a csillagleválasztás kimaradt) – a kép változatlan",
       "summary": "Csillagok visszahelyezve (súly {0:0.0})"
     },
-    "ghs": { "summary": "Nyújtás (háttér {0:0.00}, D={1:0.#}, b={2:0.#})" },
+    "ghs": { "summary": "{0} nyújtás alkalmazva · utolsó: {1}", "none": "Nincs nyújtás – a kép változatlan" },
     "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "A csillagréteg nyújtva – az előnézet a ködre visszatett csillagokat mutatja" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
     "contrast": { "summary": "Kontraszt beállítva" },

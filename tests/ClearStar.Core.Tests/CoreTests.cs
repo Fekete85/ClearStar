@@ -69,19 +69,29 @@ public class StretchTests
         Assert.Equal(0.25f, p.Apply(0.02f), 3);
     }
 
-    [Fact]
-    public void GhsIsMonotonicAndNormalized()
+    [Theory]
+    [InlineData(GhsType.Ghs, 1f)] [InlineData(GhsType.Ghs, 0f)] [InlineData(GhsType.Ghs, -1f)] [InlineData(GhsType.Ghs, -2f)]
+    [InlineData(GhsType.InverseGhs, 1f)] [InlineData(GhsType.InverseGhs, 0f)] [InlineData(GhsType.Asinh, 0f)] [InlineData(GhsType.InverseAsinh, 0f)]
+    public void GhsIsMonotonicAndNormalized(GhsType type, float b)
     {
-        var ghs = new StarlessStretchStep.Ghs(10f, 1f, 0.05f);
+        // Siril-style parameters: D = e^2 − 1, LP/SP/HP protection points inside the range.
+        var ghs = new GhsTransform(new GhsParams(type, GhsParams.DFromLog(2.0), b, 0.02f, 0.05f, 0.9f, 0f, GhsColourModel.Independent));
         float prev = -1f;
-        for (int i = 0; i <= 100; i++)
+        for (int i = 0; i <= 200; i++)
         {
-            float y = ghs.Apply(i / 100f);
-            Assert.True(y >= prev - 1e-6f);
+            float y = ghs.Apply(i / 200f);
+            Assert.True(y >= prev - 1e-5f, $"not monotonic at {i / 200f}: {prev} -> {y}");
+            Assert.True(float.IsFinite(y));
             prev = y;
         }
-        Assert.Equal(0f, ghs.Apply(0f), 5);
-        Assert.Equal(1f, ghs.Apply(1f), 5);
+        Assert.Equal(0f, ghs.Apply(0f), 4);
+        Assert.Equal(1f, ghs.Apply(1f), 4);
+        // The forward and inverse hyperbolic stretches undo each other.
+        if (type == GhsType.Ghs)
+        {
+            var inv = new GhsTransform(new GhsParams(GhsType.InverseGhs, GhsParams.DFromLog(2.0), b, 0.02f, 0.05f, 0.9f, 0f, GhsColourModel.Independent));
+            for (int i = 1; i < 200; i++) { float x = i / 200f; Assert.InRange(inv.Apply(ghs.Apply(x)), x - 2e-3f, x + 2e-3f); }
+        }
     }
 }
 

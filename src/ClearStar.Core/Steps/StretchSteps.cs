@@ -5,124 +5,91 @@ using ClearStar.Core.Pipeline;
 namespace ClearStar.Core.Steps;
 
 /// <summary>
-/// 10. lépés: a halvány ködök, galaxisok kiemelése általánosított hiperbolikus nyújtással (GHS).
-/// A b&gt;0 alak szimmetriapont (SP) körüli formáját használjuk, [0,1]-re normálva:
-/// x&lt;SP: (1 + D·b·(SP−x))^(−1/b), x≥SP: 2 − (1 + D·b·(x−SP))^(−1/b).
-/// Előtte az autostretch-hez hasonló árnyékvágás, hogy a háttér ne "szürküljön".
+/// Step 10: generalised hyperbolic stretch of the (starless) image with Siril's GHS controls.
+/// The step works like Siril's dialog: the sliders describe the next stretch, previewed live by the
+/// app; "Apply" commits it to a history of stretches (hidden parameter) and resets the sliders, so
+/// several gentle stretches can be layered. Running the step replays the whole history on the input.
 /// </summary>
 public sealed class StarlessStretchStep : StepBase
 {
-    public const string AmountKey = "amount";
-    public const string FocusKey = "focus";
-    public const string ShapeKey = "shape";
-    public const string LinkedKey = "linked";
-
+    public const string TypeKey = "type";
+    public const string LnDKey = "lnD";
+    public const string BKey = "b";
+    public const string SpKey = "sp";
+    public const string LpKey = "lp";
+    public const string HpKey = "hp";
+    public const string BpKey = "bp";
+    public const string ColourKey = "colour";
+    public const string HistoryKey = "history";
     private const string S = "ghs";
 
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
         StepId.StarlessStretch, StepGroup.Stars, S,
         [
-            Slider(S, AmountKey, 0.5),
-            Slider(S, FocusKey, 0.15),
-            Slider(S, ShapeKey, 0.4, advanced: true),
-            Toggle(S, LinkedKey, true, advanced: true),
+            new(LnDKey, L.T("step.ghs.lnD.label"), ParameterKind.Slider, 0.0, 0, 10, L.A("step.ghs.lnD.ticks"), Help: L.T("step.ghs.lnD.help"), ValueFormat: "{0:0.00}"),
+            new(BKey, L.T("step.ghs.b.label"), ParameterKind.Slider, 0.0, -5, 15, L.A("step.ghs.b.ticks"), Help: L.T("step.ghs.b.help"), ValueFormat: "{0:0.0}"),
+            new(SpKey, L.T("step.ghs.sp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.sp.ticks"), Help: L.T("step.ghs.sp.help"), ValueFormat: "{0:0.000}"),
+            new(LpKey, L.T("step.ghs.lp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.lp.ticks"), Help: L.T("step.ghs.lp.help"), ValueFormat: "{0:0.000}"),
+            new(HpKey, L.T("step.ghs.hp.label"), ParameterKind.Slider, 1.0, 0, 1, L.A("step.ghs.hp.ticks"), Help: L.T("step.ghs.hp.help"), ValueFormat: "{0:0.000}"),
+            Choice(S, TypeKey, "ghs", ["ghs", "invghs", "asinh", "invasinh", "linear"], advanced: true),
+            new(BpKey, L.T("step.ghs.bp.label"), ParameterKind.Slider, 0.0, 0, 1, L.A("step.ghs.bp.ticks"), Advanced: true, Help: L.T("step.ghs.bp.help"), ValueFormat: "{0:0.000}"),
+            Choice(S, ColourKey, "humanlum", ["indep", "humanlum", "evenlum"], advanced: true),
+            Hidden(HistoryKey, "[]"),
         ]);
+
+    /// <summary>The stretch described by the sliders (not yet committed).</summary>
+    public static GhsParams Current(StepParameters p)
+    {
+        var type = p.GetString(TypeKey, "ghs") switch
+        {
+            "invghs" => GhsType.InverseGhs, "asinh" => GhsType.Asinh, "invasinh" => GhsType.InverseAsinh, "linear" => GhsType.Linear, _ => GhsType.Ghs,
+        };
+        var colour = p.GetString(ColourKey, "humanlum") switch { "indep" => GhsColourModel.Independent, "evenlum" => GhsColourModel.EvenLuminance, _ => GhsColourModel.HumanLuminance };
+        float sp = Math.Clamp(p.GetFloat(SpKey), 0f, 1f);
+        float lp = Math.Min(Math.Clamp(p.GetFloat(LpKey), 0f, 1f), sp);
+        float hp = Math.Max(Math.Clamp(p.GetFloat(HpKey, 1f), 0f, 1f), sp);
+        return new GhsParams(type, GhsParams.DFromLog(p.GetDouble(LnDKey)), p.GetFloat(BKey), lp, sp, hp, Math.Clamp(p.GetFloat(BpKey), 0f, 0.999f), colour);
+    }
+
+    public static List<GhsParams> History(StepParameters p) => GhsParams.ListFromJson(p.GetString(HistoryKey, "[]"));
+
+    /// <summary>Moves the current stretch into the history and resets the sliders to the identity. Returns false when there was nothing to commit.</summary>
+    public static bool Commit(StepParameters p)
+    {
+        var current = Current(p);
+        if (current.IsIdentity) return false;
+        var history = History(p);
+        history.Add(current);
+        p[HistoryKey] = GhsParams.ListToJson(history);
+        ResetCurrent(p);
+        return true;
+    }
+
+    /// <summary>Removes the last committed stretch. Returns false when the history was empty.</summary>
+    public static bool Undo(StepParameters p)
+    {
+        var history = History(p);
+        if (history.Count == 0) return false;
+        history.RemoveAt(history.Count - 1);
+        p[HistoryKey] = GhsParams.ListToJson(history);
+        return true;
+    }
+
+    public static void ResetCurrent(StepParameters p)
+    {
+        p[LnDKey] = 0.0; p[BpKey] = 0.0;
+    }
 
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() =>
     {
         var input = context.RequireInput();
-        var p = context.Parameters;
-        float amount = p.GetFloat(AmountKey, 0.5f);
-        float focus = p.GetFloat(FocusKey, 0.3f);
-        float shape = p.GetFloat(ShapeKey, 0.4f);
-        bool linked = p.GetBool(LinkedKey, true);
-
-        // A "kiemelés mértéke" a háttér célfényessége a nyújtás után; a D-t ehhez keressük meg.
-        float targetBackground = Lerp(0.07f, 0.28f, amount);
-        float b = Lerp(0.2f, 6f, shape);
-
-        var stats = ImageStats.ComputeAll(input);
-        var output = input.CreateEmptyLike();
-        int n = input.PixelsPerChannel;
-        // Árnyékvágás csatornánként: a háttér színét semlegesíti. Összekapcsolt módban közös
-        // zajszinttel vágunk, így minden csatorna háttere ugyanoda kerül; a görbe is közös.
-        float sigmaRef = stats.Max(s => s.Sigma);
-        var shadowsPer = new float[input.Channels];
-        var bgPer = new float[input.Channels];
-        for (int c = 0; c < input.Channels; c++)
-        {
-            float sigma = linked ? sigmaRef : stats[c].Sigma;
-            shadowsPer[c] = Math.Clamp(stats[c].Median - 2.8f * sigma, 0f, 0.99f);
-            bgPer[c] = Math.Clamp((stats[c].Median - shadowsPer[c]) / (1f - shadowsPer[c]), 1e-4f, 0.5f);
-        }
-        float linkedBg = bgPer.Average();
-        float linkedSp = focus * Math.Min(0.25f, linkedBg * 6f);
-        float linkedD = SolveD(linkedBg, targetBackground, b, linkedSp);
-        float d = linkedD;
-        for (int c = 0; c < input.Channels; c++)
-        {
-            float shadows = shadowsPer[c];
-            float bg = linked ? linkedBg : bgPer[c];
-            // Szimmetriapont: "Sötét részek" = 0 (a leghalványabb köd kapja a legtöbb kontrasztot),
-            // feljebb tolva a fényesebb tartomány kap hangsúlyt, a háttér pedig sötétebb marad.
-            float sp = linked ? linkedSp : focus * Math.Min(0.25f, bg * 6f);
-            d = linked ? linkedD : SolveD(bg, targetBackground, b, sp);
-            var ghs = new Ghs(d, b, sp);
-            var src = input.Data; var dst = output.Data;
-            int off = c * n;
-            Parallel.For(0, input.Height, new ParallelOptions { CancellationToken = context.CancellationToken }, y =>
-            {
-                for (int i = off + y * input.Width; i < off + (y + 1) * input.Width; i++)
-                {
-                    float x = (src[i] - shadows) / (1f - shadows);
-                    dst[i] = ghs.Apply(x);
-                }
-            });
-        }
-        output.Clamp01();
+        var history = History(context.Parameters);
+        var output = history.Count == 0 ? input.Clone() : GhsTransform.ApplyAll(input, history, context.CancellationToken);
         // With a separated star layer the stretched starless image is kept for the recombination.
         if (StarLayerStore.HasStarsFor(input)) StarLayerStore.SetStarlessStretched(output);
-        return new StepResult(output, L.F("msg.ghs.summary", targetBackground, d, b));
+        string summary = history.Count == 0 ? L.T("msg.ghs.none") : L.F("msg.ghs.summary", history.Count, history[^1].Describe());
+        return new StepResult(output, summary);
     }, context.CancellationToken);
-
-    /// <summary>Az a D, amellyel a háttér (bg) a célértékre kerül – felezéssel, log skálán.</summary>
-    public static float SolveD(float bg, float target, float b, float sp)
-    {
-        if (bg >= target) return 0.5f;
-        float lo = -1f, hi = 4f; // log10 D ∈ [0.1, 10000]
-        for (int i = 0; i < 40; i++)
-        {
-            float mid = 0.5f * (lo + hi);
-            float y = new Ghs(MathF.Pow(10f, mid), b, sp).Apply(bg);
-            if (y < target) lo = mid; else hi = mid;
-        }
-        return MathF.Pow(10f, 0.5f * (lo + hi));
-    }
-
-    public readonly struct Ghs
-    {
-        private readonly float _d, _b, _sp, _lo, _range;
-
-        public Ghs(float d, float b, float sp)
-        {
-            _d = d; _b = b; _sp = Math.Clamp(sp, 0.001f, 0.999f);
-            _lo = Raw(0f);
-            _range = Math.Max(Raw(1f) - _lo, 1e-6f);
-        }
-
-        private float Raw(float x)
-        {
-            if (x < _sp) return MathF.Pow(1f + _d * _b * (_sp - x), -1f / _b);
-            return 2f - MathF.Pow(1f + _d * _b * (x - _sp), -1f / _b);
-        }
-
-        public float Apply(float x)
-        {
-            if (x <= 0f) return 0f;
-            if (x >= 1f) return 1f;
-            return (Raw(x) - _lo) / _range;
-        }
-    }
 }
 
 /// <summary>11. lépés: a csillagok (vagy csillagleválasztás nélkül a teljes kép) visszafogott nyújtása MTF-fel.</summary>
