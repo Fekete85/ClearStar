@@ -10,7 +10,12 @@ dotnet build
 dotnet run --project src/ClearStar.App              # üres indulás
 dotnet run --project src/ClearStar.App -- <mappa>   # azonnal betölt és összeilleszt
 dotnet test                                          # Core tesztek
+dotnet publish src/ClearStar.App -c Release -o publish   # egyetlen önálló ClearStar.exe (x64, .NET beépítve)
 ```
+
+A publish egyetlen fájl: a .NET és a program a `ClearStar.exe`-ben van, a natív könyvtárak (WPF, ONNX Runtime,
+DirectML) az első indításkor a `%TEMP%\.net\ClearStar\` gyorsítótárba csomagolódnak ki. Az exe mellé csak egy
+opcionális `Languages` mappa kerülhet.
 
 Támogatott bemenet: FITS (8/16/32 bit egész, 32/64 bit lebegő; mono, RGB és Bayer-mintás OSC nyers – `BAYERPAT` alapján debayerezve), TIFF, PNG, JPEG.
 Valódi tesztadat: Seestar S50 Pro, 63×30 s M31 (`testdata/M31`, gitignore-olva) – a teljes lánc ~30 s alatt fut le rajta.

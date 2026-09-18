@@ -155,11 +155,12 @@ public sealed class BackgroundExtractionStep : StepBase
         accepted = all;
         double[] coeffs = FitPolynomial(accepted, 1);
         int fitDegree = 1;
+        Span<double> scratch = stackalloc double[PolyTerms(MaxDegree)];   // basis terms, sized once for the largest degree
         for (int iter = 0; iter < 4; iter++)
         {
             int n = PolyTerms(fitDegree);
             var residuals = new double[all.Count];
-            Span<double> t = stackalloc double[n];
+            var t = scratch[..n];
             for (int i = 0; i < all.Count; i++)
             {
                 Basis(all[i].x, all[i].y, fitDegree, t);
@@ -182,6 +183,8 @@ public sealed class BackgroundExtractionStep : StepBase
         return coeffs;
     }
 
+    /// <summary>Highest polynomial degree the basis supports (15 terms).</summary>
+    private const int MaxDegree = 4;
     private static int PolyTerms(int degree) => (degree + 1) * (degree + 2) / 2;
 
     private static void Basis(double x, double y, int degree, Span<double> outTerms)

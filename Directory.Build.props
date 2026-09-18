@@ -9,6 +9,8 @@
     <PlatformTarget>x64</PlatformTarget>
     <!-- The UI is localised from Languages/*.json; skip the framework's own satellite resource folders (de, ja, ...). -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!-- Published builds carry their symbols inside the assemblies (no .pdb files next to the exe). -->
+    <DebugType Condition="'$(_IsPublishing)' == 'true'">embedded</DebugType>
     <Company>ClearStar</Company>
     <Product>ClearStar</Product>
     <Authors>ClearStar</Authors>

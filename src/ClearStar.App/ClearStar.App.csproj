@@ -8,6 +8,24 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\clearstar.ico</ApplicationIcon>
   </PropertyGroup>
+  <!-- Publish as one self-contained exe: the managed assemblies live inside ClearStar.exe, the native
+       libraries (WPF, ONNX Runtime, DirectML) are unpacked once into the user's temp cache on first start.
+       Optional language files still go into a Languages folder next to the exe. -->
+  <PropertyGroup Condition="'$(_IsPublishing)' == 'true'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+  <!-- The DirectML / ONNX Runtime packages ship symbol and import-library files that are of no use next to the exe. -->
+  <Target Name="RemoveStrayPublishFiles" AfterTargets="Publish">
+    <ItemGroup>
+      <_StrayPublishFile Include="$(PublishDir)*.pdb;$(PublishDir)*.lib" />
+    </ItemGroup>
+    <Delete Files="@(_StrayPublishFile)" />
+  </Target>
   <ItemGroup>
     <Resource Include="Assets\clearstar.ico" />
     <Resource Include="Assets\clearstar_icon.png" />
