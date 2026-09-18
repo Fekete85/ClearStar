@@ -104,7 +104,9 @@
       "colour": { "label": "Színmodell", "indep": "Csatornánként külön", "humanlum": "Emberi látás szerinti fényesség", "evenlum": "Egyenletes fényesség", "help": "A fényesség-alapú modellek megőrzik a színarányokat (a csillagok, ködök nem fakulnak ki); a csatornánkénti a Siril régi viselkedése." },
       "applied": "{0} nyújtás rögzítve · utolsó: {1}",
       "none": "Még nincs rögzített nyújtás – állítsd a csúszkákat, és nyomd meg az Alkalmazt.",
-      "undo": "Utolsó visszavonása"
+      "undo": "Utolsó visszavonása",
+      "auto": "✨ Automatikus nyújtás (javaslat)",
+      "autoBright": "A kép már világos – az automatikus javaslat itt nem alkalmazható."
     },
     "starstretch": {
       "name": "Csillagok nyújtása",
@@ -297,7 +299,8 @@
       "selectionHint": "Húzz egy téglalapot a megtartandó területre · a széleit, sarkait utána is húzhatod · görgő: nagyítás · középső gomb: kép mozgatása",
       "zoomOut": "Kicsinyítés",
       "zoomIn": "Nagyítás",
-      "fit": "Teljes kép"
+      "fit": "Teljes kép",
+      "eyedropperHint": "Pipetta: húzz egy kis négyzetet az üres, sötét égre – a szimmetriapont (SP) átveszi az értékét · görgő: nagyítás · középső gomb: mozgatás"
     },
     "step": {
       "notImplemented": "Ez a lépés még készül. Most még nem változtat a képen – nyugodtan kihagyhatod.",

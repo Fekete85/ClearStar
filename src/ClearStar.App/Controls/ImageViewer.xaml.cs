@@ -29,6 +29,17 @@ public partial class ImageViewer : UserControl
     public bool IsSplit { get => (bool)GetValue(IsSplitProperty); set => SetValue(IsSplitProperty, value); }
     public double SplitPosition { get => (double)GetValue(SplitPositionProperty); set => SetValue(SplitPositionProperty, value); }
     public bool IsSelectionMode { get => (bool)GetValue(IsSelectionModeProperty); set => SetValue(IsSelectionModeProperty, value); }
+
+    /// <summary>Hint shown while nothing is selected (crop and eyedropper use different texts).</summary>
+    public static readonly DependencyProperty HintTextProperty = DependencyProperty.Register(
+        nameof(HintText), typeof(string), typeof(ImageViewer), new PropertyMetadata(null, (d, _) => ((ImageViewer)d).ApplyHint()));
+    public string? HintText { get => (string?)GetValue(HintTextProperty); set => SetValue(HintTextProperty, value); }
+    private void ApplyHint() { if (HintText is { Length: > 0 } t) SelectionHintText.Text = t; }
+
+    /// <summary>Whether the area outside the selection is dimmed (crop) or not (a small sample rectangle).</summary>
+    public static readonly DependencyProperty DimOutsideProperty = DependencyProperty.Register(
+        nameof(DimOutside), typeof(bool), typeof(ImageViewer), new PropertyMetadata(true, OnSelectionChanged));
+    public bool DimOutside { get => (bool)GetValue(DimOutsideProperty); set => SetValue(DimOutsideProperty, value); }
     public Rect Selection { get => (Rect)GetValue(SelectionProperty); set => SetValue(SelectionProperty, value); }
 
     private Matrix _matrix = Matrix.Identity;
@@ -97,7 +108,7 @@ public partial class ImageViewer : UserControl
         var imgRect = new Rect(Selection.X * src.PixelWidth, Selection.Y * src.PixelHeight, Selection.Width * src.PixelWidth, Selection.Height * src.PixelHeight);
         var screen = Rect.Transform(imgRect, _matrix);
         var outer = new RectangleGeometry(new Rect(0, 0, Surface.ActualWidth, Surface.ActualHeight));
-        SelDim.Data = new CombinedGeometry(GeometryCombineMode.Exclude, outer, new RectangleGeometry(screen));
+        SelDim.Data = DimOutside ? new CombinedGeometry(GeometryCombineMode.Exclude, outer, new RectangleGeometry(screen)) : Geometry.Empty;
         Canvas.SetLeft(SelBorder, screen.X); Canvas.SetTop(SelBorder, screen.Y);
         SelBorder.Width = Math.Max(0, screen.Width); SelBorder.Height = Math.Max(0, screen.Height);
         Canvas.SetLeft(SelLabel, screen.X + 6); Canvas.SetTop(SelLabel, Math.Max(6, screen.Y - 26));

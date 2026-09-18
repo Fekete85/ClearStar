@@ -36,6 +36,9 @@ public partial class StepViewModel : ObservableObject
     /// <summary>Kiegészítő sor a kártyán (pl. a vágás aktuális kijelölése) és egy hozzá tartozó művelet.</summary>
     [ObservableProperty] private string? _note;
     [ObservableProperty] private string? _noteActionText;
+    /// <summary>Optional second action shown as a prominent button under the parameters (e.g. "Auto stretch").</summary>
+    [ObservableProperty] private string? _secondaryActionText;
+    [ObservableProperty] private IRelayCommand? _secondaryCommand;
     [ObservableProperty] private IRelayCommand? _noteCommand;
 
     [ObservableProperty] private bool _isActive;

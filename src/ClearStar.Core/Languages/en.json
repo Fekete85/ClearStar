@@ -104,7 +104,9 @@
       "colour": { "label": "Colour model", "indep": "Independent channels", "humanlum": "Human weighted luminance", "evenlum": "Even weighted luminance", "help": "The luminance models keep the colour ratios (stars and nebulae do not wash out); independent channels is Siril's classic behaviour." },
       "applied": "{0} stretches committed · last: {1}",
       "none": "No stretch committed yet – set the sliders and press Apply.",
-      "undo": "Undo last"
+      "undo": "Undo last",
+      "auto": "✨ Auto stretch (suggestion)",
+      "autoBright": "The image is already bright – the automatic suggestion does not apply here."
     },
     "starstretch": {
       "name": "Stretch stars",
@@ -297,7 +299,8 @@
       "selectionHint": "Drag a rectangle over the area to keep · you can drag its edges and corners afterwards · wheel: zoom · middle button: pan",
       "zoomOut": "Zoom out",
       "zoomIn": "Zoom in",
-      "fit": "Fit to window"
+      "fit": "Fit to window",
+      "eyedropperHint": "Eyedropper: drag a small box on empty, dark sky – the symmetry point (SP) takes its value · wheel: zoom · middle button: pan"
     },
     "step": {
       "notImplemented": "This step is still being built. It does not change the image yet – feel free to skip it.",

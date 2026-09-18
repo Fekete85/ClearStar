@@ -79,6 +79,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private string _windowTitle = L.T("ui.app.title");
     [ObservableProperty] private bool _isSelectionMode;
     [ObservableProperty] private Rect _selection = Rect.Empty;
+    [ObservableProperty] private bool _dimOutsideSelection = true;
+    [ObservableProperty] private string? _selectionHint;
     [ObservableProperty] private double _previewScale = 1.0;
 
     public int TotalSteps => Steps.Count;
@@ -121,6 +123,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
         var ghsStep = Steps.First(s => s.Id == StepId.StarlessStretch);
         foreach (var prm in ghsStep.Parameters.Where(x => !x.IsHidden))
             prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
+        var starStep = Steps.First(s => s.Id == StepId.StarStretch);
+        foreach (var prm in starStep.Parameters.Where(x => !x.IsHidden))
+            prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") ScheduleLivePreview(); };
         // Crop orientation (quarter turns, fine angle, mirroring) is previewed live.
         foreach (var prm in cropStep.Parameters.Where(x => x.Key is CropStep.RotateKey or CropStep.AngleKey or CropStep.FlipHKey or CropStep.FlipVKey))
             prm.PropertyChanged += (_, e) => { if (e.PropertyName is "Value" or "Selected" or "IsOn") OnCropOrientationChanged(cropStep); };
@@ -153,7 +158,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>Re-renders the live stretch preview shortly after the last slider change.</summary>
     private void ScheduleLivePreview()
     {
-        if (SelectedStep?.Id != StepId.StarlessStretch) return;
+        if (SelectedStep?.Id is not (StepId.StarlessStretch or StepId.StarStretch)) return;
         _liveTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(60) };
         _liveTimer.Stop();
         _liveTimer.Tick -= LiveTick; _liveTimer.Tick += LiveTick;
@@ -161,6 +166,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
     }
 
     private void LiveTick(object? sender, EventArgs e) { _liveTimer?.Stop(); RefreshPreview(); }
+
+    private (AstroImage source, int factor, AstroImage small)? _starsSmall;
+    private AstroImage StarsSmall(AstroImage stars, int factor)
+    {
+        if (_starsSmall is { } c && ReferenceEquals(c.source, stars) && c.factor == factor) return c.small;
+        var small = factor > 1 ? PreviewRenderer.Downsample(stars, factor) : stars;
+        _starsSmall = (stars, factor, small);
+        return small;
+    }
 
     /// <summary>First visit: put the symmetry point at the background level, which is where a nebula stretch usually starts.</summary>
     private void SuggestSymmetryPoint(StepViewModel step)
@@ -182,6 +196,20 @@ public partial class MainViewModel : ObservableObject, IDisposable
         {
             if (!StarlessStretchStep.Undo(step.Entry.Parameters)) return;
             await ApplyAsync(step);
+        });
+        step.SecondaryActionText = L.T("step.ghs.auto");
+        step.SecondaryCommand = new RelayCommand(async () =>
+        {
+            var baseImage = step.IsDone ? _workflow.ImageAfter(step.Id) : _workflow.ImageBefore(step.Id);
+            if (baseImage is null) return;
+            if (!StarlessStretchStep.CommitAuto(step.Entry.Parameters, baseImage)) { StatusText = L.T("step.ghs.autoBright"); return; }
+            await ApplyAsync(step);
+            // The sliders now refine the auto-stretched image: move the symmetry point to its background.
+            if (_workflow.ImageAfter(step.Id) is { } stretched)
+            {
+                step.Entry.Parameters[StarlessStretchStep.SpKey] = Math.Round(ImageStats.ComputeAll(stretched).Average(s => s.Median), 3);
+                step.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
+            }
         });
     }
 
@@ -239,8 +267,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AutoStretch = step.Id == StepId.StarlessStretch ? false : step.IsDone ? Workflow.IsLinearPhase(step.Id) : step.Id < StepId.StarlessStretch;
         if (step.Id == StepId.StarlessStretch) { SuggestSymmetryPoint(step); UpdateStretchNote(step); }
         // Vágásnál a kép a kijelölés vászna: a bemeneti (még vágatlan) képet mutatjuk, rajta a kijelöléssel.
-        IsSelectionMode = step.Id == StepId.Crop;
-        if (IsSelectionMode) LoadCropSelection(step); else Selection = Rect.Empty;
+        IsSelectionMode = step.Id is StepId.Crop or StepId.StarlessStretch;
+        DimOutsideSelection = step.Id == StepId.Crop;
+        SelectionHint = L.T(step.Id == StepId.StarlessStretch ? "ui.viewer.eyedropperHint" : "ui.viewer.selectionHint");
+        if (step.Id == StepId.Crop) LoadCropSelection(step); else Selection = Rect.Empty;
         if (step.Id == StepId.StarRemoval) UpdateStarNetNote(step);
         if (step.Id == StepId.PlateSolve) UpdateCatalogNote(step);
         UpdateFramesView(step);
@@ -305,6 +335,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     partial void OnSelectionChanged(Rect value)
     {
+        if (SelectedStep is { Id: StepId.StarlessStretch } ghs && !value.IsEmpty && value.Width > 0.002 && value.Height > 0.002)
+        {
+            var baseImage = ghs.IsDone ? _workflow.ImageAfter(ghs.Id) : _workflow.ImageBefore(ghs.Id);
+            if (baseImage is null) return;
+            float sp = StarlessStretchStep.RegionMedian(baseImage, value.X, value.Y, value.Width, value.Height);
+            ghs.Entry.Parameters[StarlessStretchStep.SpKey] = Math.Round(sp, 3);
+            ghs.Parameters.FirstOrDefault(x => x.Key == StarlessStretchStep.SpKey)?.Reload();
+            return;
+        }
         if (SelectedStep is not { Id: StepId.Crop } step) return;
         var p = step.Entry.Parameters;
         p[CropStep.SelLeftKey] = value.IsEmpty ? 0.0 : value.X;
@@ -355,6 +394,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             UpdateImageInfo();
             var next = Steps.FirstOrDefault(s => s.Id == _workflow.NextPending);
             if (step.Id == StepId.StarlessStretch) { UpdateStretchNote(step); RefreshPreview(); }
+            else if (step.Id == StepId.StarStretch) RefreshPreview();
             else if (next is not null && next.Id > step.Id) SelectStep(next);
             else RefreshPreview();
         }
@@ -629,6 +669,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
         bool liveStretch = step.Id == StepId.StarlessStretch && !ShowOriginal;
         var current = liveStretch ? StarlessStretchStep.Current(step.Entry.Parameters) : null;
         Func<AstroImage, AstroImage>? transform = current is { IsIdentity: false } ? img => GhsTransform.Apply(img, current, cts.Token) : null;
+        // Star stretch: the separated star layer is stretched with the slider value and screened over the (starless) base.
+        if (step.Id == StepId.StarStretch && !ShowOriginal && StarLayerStore.StarsLinear is { } starsLinear
+            && _workflow.ImageBefore(step.Id) is { } starlessBase && StarLayerStore.HasStretchedFor(starlessBase))
+        {
+            after = starlessBase;
+            float amount = step.Entry.Parameters.GetFloat(StarStretchStep.AmountKey, 0.4f);
+            transform = small =>
+            {
+                int factor = Math.Max(1, (int)Math.Round(starsLinear.Width / (double)small.Width));
+                var stars = StarsSmall(starsLinear, factor);
+                return RecombineStep.Screen(small, StarStretchStep.StretchStarLayer(stars, amount, cts.Token), 1f, cts.Token);
+            };
+        }
         HistogramData? histogram = null;
         _ = Task.Run(() =>
         {

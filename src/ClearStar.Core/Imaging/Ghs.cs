@@ -3,7 +3,7 @@ using System.Text.Json;
 
 namespace ClearStar.Core.Imaging;
 
-public enum GhsType { Ghs, InverseGhs, Asinh, InverseAsinh, Linear }
+public enum GhsType { Ghs, InverseGhs, Asinh, InverseAsinh, Linear, Mtf }
 public enum GhsColourModel { Independent, HumanLuminance, EvenLuminance }
 
 /// <summary>
@@ -17,7 +17,8 @@ public sealed record GhsParams(GhsType Type, float D, float B, float LP, float S
 
     /// <summary>ln(D+1) → D.</summary>
     public static float DFromLog(double lnD1) => (float)(Math.Exp(lnD1) - 1.0);
-    public bool IsIdentity => Type == GhsType.Linear ? BP <= 0f : D <= 0f;
+    /// <summary>For <see cref="GhsType.Mtf"/> (auto stretch) D holds the midtones balance and SP the shadow clipping point.</summary>
+    public bool IsIdentity => Type == GhsType.Linear ? BP <= 0f : Type == GhsType.Mtf ? false : D <= 0f;
 
     public string ToJson() => JsonSerializer.Serialize(this);
     public static GhsParams? FromJson(string json)
@@ -35,6 +36,7 @@ public sealed record GhsParams(GhsType Type, float D, float B, float LP, float S
     public string Describe() => Type switch
     {
         GhsType.Linear => string.Format(CultureInfo.CurrentCulture, "BP {0:0.000}", BP),
+        GhsType.Mtf => string.Format(CultureInfo.CurrentCulture, "auto (MTF m={0:0.000}, shadows {1:0.000})", D, SP),
         _ => string.Format(CultureInfo.CurrentCulture, "ln(D+1) {0:0.00}, b {1:0.0}, SP {2:0.000}", Math.Log(D + 1), B, SP),
     };
 }
@@ -213,6 +215,8 @@ public sealed class GhsTransform
         {
             case GhsType.Linear:
                 return Math.Max(0f, (x - p.BP) / (1f - p.BP));
+            case GhsType.Mtf:
+                return DisplayStretch.Mtf(Math.Max(0f, (x - p.SP) / (1f - p.SP)), p.D);
             case GhsType.Ghs:
             {
                 if (p.D == 0f) return x;

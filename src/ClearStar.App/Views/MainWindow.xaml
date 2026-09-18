@@ -104,7 +104,7 @@
             <!-- Képnézet -->
             <Grid Grid.Row="1" Background="{StaticResource B.View}">
                 <controls:ImageViewer x:Name="Viewer" Source="{Binding PreviewImage}" BeforeSource="{Binding BeforeImage}" IsSplit="{Binding SplitView}"
-                                      IsSelectionMode="{Binding IsSelectionMode}" Selection="{Binding Selection, Mode=TwoWay}" SourceScale="{Binding PreviewScale}"
+                                      IsSelectionMode="{Binding IsSelectionMode}" Selection="{Binding Selection, Mode=TwoWay}" DimOutside="{Binding DimOutsideSelection}" HintText="{Binding SelectionHint}" SourceScale="{Binding PreviewScale}"
                                       Visibility="{Binding PreviewImage, Converter={StaticResource NullToVis}}"/>
 
                 <!-- Betöltött fájlok (amíg nincs kép) -->

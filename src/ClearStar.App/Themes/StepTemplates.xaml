@@ -151,6 +151,9 @@
                                 Visibility="{Binding NoteActionText, Converter={StaticResource NullToVis}}"/>
                     </Grid>
 
+                    <Button Style="{StaticResource Btn.Secondary}" Content="{Binding SecondaryActionText}" Command="{Binding SecondaryCommand}" Height="30" Padding="12,0" FontWeight="Normal" HorizontalAlignment="Left" Margin="0,0,0,14"
+                            Visibility="{Binding SecondaryActionText, Converter={StaticResource NullToVis}}"/>
+
                     <ItemsControl ItemsSource="{Binding BasicParameters}"/>
 
                     <StackPanel Visibility="{Binding HasAdvanced, Converter={StaticResource BoolToVis}}">

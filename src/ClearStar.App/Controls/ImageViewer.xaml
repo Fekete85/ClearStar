@@ -40,7 +40,7 @@
             </Border>
         </Canvas>
         <Border x:Name="SelectionHint" Visibility="Collapsed" IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="16" Padding="12,6" CornerRadius="6" Background="#B3202023" BorderBrush="{StaticResource B.StrokeStrong}" BorderThickness="1">
-            <TextBlock Text="{l:T ui.viewer.selectionHint}" FontSize="12" Foreground="{StaticResource B.Text2}"/>
+            <TextBlock x:Name="SelectionHintText" Text="{l:T ui.viewer.selectionHint}" FontSize="12" Foreground="{StaticResource B.Text2}"/>
         </Border>
 
         <!-- Nagyítás -->

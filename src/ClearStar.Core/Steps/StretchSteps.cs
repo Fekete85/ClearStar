@@ -80,6 +80,39 @@ public sealed class StarlessStretchStep : StepBase
         p[LnDKey] = 0.0; p[BpKey] = 0.0;
     }
 
+    /// <summary>
+    /// "Magic wand": commits a classic auto-stretch (MTF with the shadows clipped at median − 2.8σ and the
+    /// background put at <paramref name="targetBackground"/>) into the history, so the GHS sliders can then
+    /// refine it – the same "autostretch, then fine-tune" habit as in Siril. Returns false when the image
+    /// is already bright.
+    /// </summary>
+    public static bool CommitAuto(StepParameters p, AstroImage image, float targetBackground = 0.25f)
+    {
+        var stats = ImageStats.ComputeAll(image);
+        float median = stats.Average(s => s.Median), sigma = stats.Average(s => s.Sigma);
+        if (median >= targetBackground) return false;
+        float shadows = Math.Clamp(median - 2.8f * sigma, 0f, 0.99f);
+        float x0 = Math.Clamp((median - shadows) / (1f - shadows), 1e-6f, 1f);
+        float midtones = Math.Clamp(DisplayStretch.Mtf(x0, targetBackground), 1e-4f, 1f - 1e-4f);
+        var history = History(p);
+        history.Add(new GhsParams(GhsType.Mtf, midtones, 0f, 0f, shadows, 1f, 0f, GhsColourModel.HumanLuminance));
+        p[HistoryKey] = GhsParams.ListToJson(history);
+        ResetCurrent(p);
+        return true;
+    }
+
+    /// <summary>Median of a normalised rectangle of the image (all channels) – the "eyedropper" for the symmetry point.</summary>
+    public static float RegionMedian(AstroImage image, double x, double y, double w, double h)
+    {
+        int x0 = Math.Clamp((int)(x * image.Width), 0, image.Width - 1), y0 = Math.Clamp((int)(y * image.Height), 0, image.Height - 1);
+        int x1 = Math.Clamp((int)((x + w) * image.Width), x0 + 1, image.Width), y1 = Math.Clamp((int)((y + h) * image.Height), y0 + 1, image.Height);
+        var values = new List<float>();
+        for (int c = 0; c < image.Channels; c++)
+            for (int yy = y0; yy < y1; yy++)
+                for (int xx = x0; xx < x1; xx++) values.Add(image[c, xx, yy]);
+        return values.Count == 0 ? 0f : ImageStats.Median(values.ToArray());
+    }
+
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() =>
     {
         var input = context.RequireInput();
