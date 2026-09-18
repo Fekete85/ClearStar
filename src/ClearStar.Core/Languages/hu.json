@@ -399,7 +399,9 @@
       "s1": "Töltsd be a képeidet", "s1sub": "Egy mappa elég, a többit intézzük.",
       "s2": "Menj végig a lépéseken", "s2sub": "Jó alapbeállításokkal, egy kattintással.",
       "s3": "Mentsd el", "s3sub": "Megosztáshoz, nyomtatáshoz vagy tovább szerkesztéshez.",
-      "start": "Kezdjük!"
+      "start": "Kezdjük!",
+      "support": "A ClearStar ingyenes és nyílt forráskódú – egy amatőr csillagász hobbiprojektje, aki a saját Seestar-képeihez keresett egyszerű utat, és úgy gondolta, másnak is jól jöhet. Ha hasznosnak találod, és teheted, egy kávé árával támogathatod a további fejlesztést. Köszönöm, és tiszta eget!",
+      "supportButton": "☕ Támogatom a fejlesztést"
     },
     "dialog": { "ok": "Rendben", "cancel": "Mégse", "close": "Bezárás" },
     "catalog": {

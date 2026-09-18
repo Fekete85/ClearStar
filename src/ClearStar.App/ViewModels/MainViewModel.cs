@@ -448,6 +448,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void CloseWelcome() => ShowWelcome = false;
 
+    /// <summary>Where a grateful user can buy the author a coffee (shown on the welcome screen).</summary>
+    public string SupportUrl => "https://revolut.me/laszlohmy";
+
+    [RelayCommand]
+    private void OpenSupport()
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(SupportUrl) { UseShellExecute = true }); }
+        catch (Exception ex) { StatusText = ex.Message; }
+    }
+
     [RelayCommand]
     private void ShowAbout() => Views.AboutWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
 

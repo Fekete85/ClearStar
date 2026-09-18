@@ -399,7 +399,9 @@
       "s1": "Load your images", "s1sub": "One folder is enough; we handle the rest.",
       "s2": "Work through the steps", "s2sub": "Good defaults, one click each.",
       "s3": "Save it", "s3sub": "For sharing, printing or further editing.",
-      "start": "Let's go!"
+      "start": "Let's go!",
+      "support": "ClearStar is free and open source – the hobby project of an amateur astronomer who wanted a simple path for his own Seestar images and figured others might use it too. If you find it useful and can spare it, the price of a coffee helps keep the development going. Thank you, and clear skies!",
+      "supportButton": "☕ Support the development"
     },
     "dialog": { "ok": "OK", "cancel": "Cancel", "close": "Close" },
     "catalog": {

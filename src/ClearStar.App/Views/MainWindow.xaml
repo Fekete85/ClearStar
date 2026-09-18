@@ -307,7 +307,18 @@
                             </StackPanel>
                         </Border>
                     </UniformGrid>
-                    <Button Style="{StaticResource Btn.Primary}" Content="{l:T ui.welcome.start}" Command="{Binding CloseWelcomeCommand}" HorizontalAlignment="Right" Height="38" Padding="22,0" Margin="0,28,0,0"/>
+                    <!-- Support note: the app is a free hobby project; a link to say thanks. -->
+                    <Border CornerRadius="10" Background="{StaticResource B.AmberSoft}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,12" Margin="0,20,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{l:T ui.welcome.support}" Style="{StaticResource T.Secondary}" FontSize="12.5" TextWrapping="Wrap"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Style="{StaticResource Btn.Secondary}" Content="{l:T ui.welcome.supportButton}" Command="{Binding OpenSupportCommand}" Height="30" Padding="14,0" FontWeight="Normal"
+                                        AutomationProperties.AutomationId="SupportButton"/>
+                                <TextBlock Text="{Binding SupportUrl}" Style="{StaticResource T.Secondary}" FontSize="12" VerticalAlignment="Center" Margin="12,0,0,0" Foreground="{StaticResource B.Text3}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Button Style="{StaticResource Btn.Primary}" Content="{l:T ui.welcome.start}" Command="{Binding CloseWelcomeCommand}" HorizontalAlignment="Right" Height="38" Padding="22,0" Margin="0,20,0,0"/>
                 </StackPanel>
             </Border>
         </Grid>
