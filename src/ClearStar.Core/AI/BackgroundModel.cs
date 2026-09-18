@@ -57,7 +57,7 @@ public static class BackgroundModel
                 for (int c = 0; c < 3; c++)
                     input[0, y, x, c] = Math.Clamp((small[c][y * NetSize + x] - median[c]) / mad[c] * Scale, -1f, 1f);
 
-        using var session = new InferenceSession(modelPath);
+        using var session = OnnxSessions.Create(modelPath);
         string inputName = session.InputMetadata.Keys.First();
         using var results = session.Run([NamedOnnxValue.CreateFromTensor(inputName, input)]);
         var output = results.First().AsTensor<float>();

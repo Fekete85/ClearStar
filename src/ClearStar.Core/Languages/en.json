@@ -174,6 +174,7 @@
       "objectOnly": "nebula only",
       "summary": "Sharpened ({0}) · star size {1:0.0} px"
     },
+    "ai": { "gpu": " · GPU", "cpu": " · CPU" },
     "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },
     "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },
@@ -318,6 +319,8 @@
       "language": "Interface language",
       "languageNote": "The language change takes effect when the program restarts. New language: copy an xx.json file to:",
       "languageFolder": "Open language folder",
+      "gpu": "Run AI models on the graphics card (DirectML)",
+      "gpuNote": "When on, sharpening and background extraction are many times faster on any DirectX 12 graphics card (NVIDIA, AMD, Intel). If it causes trouble, turn it off – the CPU works too, just slower.",
       "restart": "Restart now",
       "tabAbout": "About",
       "tabLicense": "Licence",

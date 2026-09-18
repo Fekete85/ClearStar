@@ -424,7 +424,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         AstroImage? after = ShowOriginal ? _workflow.Original
             : step.Id == StepId.Crop ? _workflow.ImageBefore(step.Id)
             : step.IsDone ? _workflow.ImageAfter(step.Id) : _workflow.ImageBefore(step.Id);
-        AstroImage? before = SplitView && !ShowOriginal ? _workflow.ImageBefore(step.Id) : null;
+        // Split view: a finished step compares its own input and output; a step that has not run yet
+        // compares the previous finished step's input with the current image, so right after "Apply"
+        // (the app moves on to the next step) the user still sees what the last step changed.
+        AstroImage? before = null;
+        if (SplitView && !ShowOriginal)
+            before = step.IsDone || step.Id == StepId.Crop ? _workflow.ImageBefore(step.Id)
+                : _workflow.LastImageStepBefore(step.Id) is { } prev ? _workflow.ImageBefore(prev) : null;
         bool stretch = AutoStretch;
         if (after is null)
         {

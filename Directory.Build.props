@@ -5,6 +5,8 @@
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
+    <!-- x64 only: the DirectML runtime (DirectML.dll) is copied to the output only for a concrete platform target. -->
+    <PlatformTarget>x64</PlatformTarget>
     <Company>ClearStar</Company>
     <Product>ClearStar</Product>
     <Authors>ClearStar</Authors>

@@ -56,6 +56,13 @@
                     </StackPanel>
                     <Button x:Name="RestartButton" Style="{StaticResource Btn.Primary}" Content="{l:T ui.about.restart}" Click="Restart" HorizontalAlignment="Left" Height="32" Padding="16,0" Margin="0,12,0,0" Visibility="Collapsed"/>
                     <Border Height="1" Background="{StaticResource B.Stroke}" Margin="0,16,0,12"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <TextBlock Text="{l:T ui.about.gpu}" FontSize="13.5" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <ToggleButton x:Name="GpuSwitch" Grid.Column="1" Style="{StaticResource Switch}" Checked="GpuChanged" Unchecked="GpuChanged"/>
+                    </Grid>
+                    <TextBlock Text="{l:T ui.about.gpuNote}" Style="{StaticResource T.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                    <Border Height="1" Background="{StaticResource B.Stroke}" Margin="0,16,0,12"/>
                     <TextBlock x:Name="SummaryText" Style="{StaticResource T.Secondary}" TextWrapping="Wrap" FontSize="12.5"/>
                 </StackPanel>
 

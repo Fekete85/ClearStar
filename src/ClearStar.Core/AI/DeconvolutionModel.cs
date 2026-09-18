@@ -76,7 +76,7 @@ public static class DeconvolutionModel
         var output = new float[ch][];
         for (int c = 0; c < ch; c++) output[c] = (float[])padded[c].Clone();
 
-        using var session = new InferenceSession(modelPath);
+        using var session = OnnxSessions.Create(modelPath);
         bool separateParams = session.InputMetadata.ContainsKey("sigma"); // object model v1.0.0 layout
 
         int total = ith * itw, done = 0;

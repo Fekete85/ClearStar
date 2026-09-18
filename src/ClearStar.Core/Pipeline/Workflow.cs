@@ -66,6 +66,9 @@ public sealed class Workflow : IDisposable
     /// <summary>A kép, amit az adott lépés bemenetként kapna.</summary>
     public AstroImage? ImageBefore(StepId id) => LatestDoneImageStep(id) is { } d ? _snapshots.Get((int)d) : null;
 
+    /// <summary>The most recent step before <paramref name="id"/> that produced an image (null if none).</summary>
+    public StepId? LastImageStepBefore(StepId id) => LatestDoneImageStep(id);
+
     /// <summary>A lineáris fázisban (a nyújtás előtt) a képernyőn automatikus nyújtással érdemes nézni a képet.</summary>
     public static bool IsLinearPhase(StepId id) => id < StepId.StarlessStretch;
 

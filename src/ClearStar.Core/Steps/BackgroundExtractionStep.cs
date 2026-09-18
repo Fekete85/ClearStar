@@ -67,7 +67,7 @@ public sealed class BackgroundExtractionStep : StepBase
             bool divide = p.GetString(CorrectionKey, CorrectionSubtract) == CorrectionDivide;
             var corrected = divide ? BackgroundModel.Divide(input, background) : BackgroundModel.Subtract(input, background);
             LastSamplePoints = [];
-            return new StepResult(corrected, L.F("msg.bge.summaryAi", model.Version, model.Source));
+            return new StepResult(corrected, L.F("msg.bge.summaryAi", model.Version, model.Source) + L.T(OnnxSessions.LastProvider == "GPU" ? "msg.ai.gpu" : "msg.ai.cpu"));
         }
 
         // Gyenge: a modellnél 1σ-val fényesebb cella már "objektum"; Erős: 3σ-ig még háttér.

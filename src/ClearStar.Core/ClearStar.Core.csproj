@@ -5,7 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
-    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.30.0" />
+    <!-- DirectML build: runs the AI models on any DirectX 12 GPU (NVIDIA/AMD/Intel), with CPU fallback. -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" />
   </ItemGroup>
   <ItemGroup>
     <!-- Beépített nyelvek: ClearStar.Core.Languages.<kód>.json néven ágyazódnak be. -->

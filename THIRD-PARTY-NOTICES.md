@@ -33,7 +33,8 @@ tisztességes megoldás.
 | **GraXpert AI-modellek** (háttérkivonás, zajcsökkentés, élesítés – `model.onnx` fájlok) | GraXpert Development Team és a tanítóképeket beküldő közösség (névsor lent) | **CC BY-NC-SA 4.0** | a ClearStar **nem tartalmazza** őket; a GraXpert által letöltött vagy a felhasználó által beszerzett fájlokat használja |
 | **AbdurAstro – „Processing in Siril 1.4”** leírás | AbdurAstro | a szerzőé | a 17 lépés sorrendjének mintája; szöveget nem vettünk át |
 | SixLabors.ImageSharp (TIFF/PNG/JPEG írás-olvasás) | Six Labors | Six Labors Split License → nyílt forrású projektben Apache-2.0 | NuGet-csomag |
-| Microsoft.ML.OnnxRuntime (AI-modellek futtatása) | Microsoft | MIT | NuGet-csomag |
+| Microsoft.ML.OnnxRuntime.DirectML (AI-modellek futtatása) | Microsoft | MIT | NuGet-csomag |
+| Microsoft.AI.DirectML – `DirectML.dll` (GPU-gyorsítás DirectX 12-n) | Microsoft | Microsoft Software License Terms (a DLL alkalmazással együtt terjeszthető; a fejlécek MIT) | NuGet-csomag, a program mellé kerül |
 | CommunityToolkit.Mvvm | .NET Foundation | MIT | NuGet-csomag |
 | .NET 10 runtime, WPF | Microsoft | MIT | keretrendszer |
 | Segoe UI betűtípus | Microsoft | Windows része | csak a rendszerből |
@@ -144,11 +145,19 @@ Copyright (c) Six Labors. Licensed under the Six Labors Split License, Version
 under the terms of the Apache License, Version 2.0 as granted by that license.
 https://github.com/SixLabors/ImageSharp
 
-### Microsoft.ML.OnnxRuntime 1.30.0
+### Microsoft.ML.OnnxRuntime.DirectML 1.24.4
 
 Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 https://github.com/microsoft/onnxruntime – see the package's ThirdPartyNotices.txt
 for the notices of its own dependencies.
+
+### Microsoft.AI.DirectML 1.15.4 (DirectML.dll)
+
+Copyright (c) Microsoft Corporation. The redistributable `DirectML.dll` is licensed
+under the Microsoft Software License Terms for DirectX Machine Learning, which
+permit distributing it with applications that run on Windows; the headers are MIT.
+https://www.nuget.org/packages/Microsoft.AI.DirectML – it provides GPU
+acceleration for the AI models on any DirectX 12 device (with CPU fallback).
 
 ### CommunityToolkit.Mvvm 8.4.0
 

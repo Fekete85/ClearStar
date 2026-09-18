@@ -47,8 +47,8 @@ A felületet nem kell hozzá módosítani.
 | 1 | Képek betöltése | kész |
 | 2 | Összeillesztés | kalibrálás, Bayer-debayer, képenkénti gradiens-kivonás (mint Siril `seqsubsky 1`), csillag szerinti igazítás, háttér-normálás (`norm=add`), teljes látómező (`framing=max`), szigma-vágott átlag |
 | 3 | Vágás | kész (arányos szélvágás) |
-| 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, CPU) vagy polinom-modell; modellválasztó tallózással/URL-letöltéssel |
-| 5 | Élesítés | GraXpert deconvolution-modellek: előbb csillagok, aztán objektum (512-es csempék, log-normálás, FWHM automatikus mérése); CPU-n ~2 perc/menet 9 MP-en |
+| 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, DirectML GPU / CPU) vagy polinom-modell; modellválasztó tallózással/URL-letöltéssel |
+| 5 | Élesítés | GraXpert deconvolution-modellek: előbb csillagok, aztán objektum (512-es csempék, log-normálás, FWHM automatikus mérése); DirectML-lel a videokártyán (~11 s a két menet 9 MP-en), CPU-tartalékkal (~140 s) |
 | 6–9 | Zajcsökkentés, plate solving, színkalibrálás, csillagleválasztás | helyőrző (a képet változatlanul adja tovább) |
 | 10 | Ködök kiemelése (GHS) | kész – a D-t a háttér célfényességéhez keresi meg |
 | 11 | Csillagok nyújtása | MTF; csillagleválasztás nélkül a teljes képre (nyújtott képet nem nyújt újra) |

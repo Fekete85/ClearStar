@@ -74,7 +74,7 @@ public sealed class DeconvolutionStep : StepBase
         }
 
         string what = stars && obj ? L.T("msg.deconv.both") : stars ? L.T("msg.deconv.starsOnly") : L.T("msg.deconv.objectOnly");
-        return new StepResult(image, L.F("msg.deconv.summary", what, fwhm));
+        return new StepResult(image, L.F("msg.deconv.summary", what, fwhm) + L.T(OnnxSessions.LastProvider == "GPU" ? "msg.ai.gpu" : "msg.ai.cpu"));
     }
 
     private static AiModelInfo? ResolveModel(AiModelKind kind, string explicitPath)

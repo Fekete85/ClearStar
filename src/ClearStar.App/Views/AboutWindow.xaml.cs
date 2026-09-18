@@ -23,6 +23,7 @@ public partial class AboutWindow : Window
         CopyrightText.Text = asm.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright ?? "";
         SummaryText.Text = L.T("ui.about.summary");
         LanguageFolderText.Text = L.UserLanguagesDir;
+        GpuSwitch.IsChecked = ClearStar.Core.AI.OnnxSessions.GpuEnabled;
 
         var langs = L.Available();
         LanguageList.ItemsSource = langs;
@@ -69,6 +70,8 @@ public partial class AboutWindow : Window
         UserSettings.Set(UserSettings.LanguageKey, info.Code);
         RestartButton.Visibility = string.Equals(info.Code, _startLanguage, StringComparison.OrdinalIgnoreCase) ? Visibility.Collapsed : Visibility.Visible;
     }
+
+    private void GpuChanged(object sender, RoutedEventArgs e) => ClearStar.Core.AI.OnnxSessions.GpuEnabled = GpuSwitch.IsChecked == true;
 
     private void OpenLanguageFolder(object sender, RoutedEventArgs e)
     {
