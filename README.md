@@ -101,3 +101,17 @@ modelleket automatikusan megtalálja (`%LOCALAPPDATA%\GraXpert\GraXpert\…`), e
 betallózható vagy URL-ről letölthető (`%LOCALAPPDATA%\ClearStar\ai-models`). A választás a
 `%LOCALAPPDATA%\ClearStar\settings.json`-ban marad meg. A workflow az „AbdurAstro Method for Processing in
 Siril 1.4” leírást követi.
+
+## Microsoft Store csomag (MSIX)
+
+`packaging/make-msix.ps1` egyfájlos publish-ből MSIX-et készít (Windows SDK `makeappx` kell hozzá – a
+„Windows SDK Signing Tools for Desktop Apps” komponens). Az ikonokat a `clearstar_icon.png`-ből generálja,
+a manifest (`packaging/AppxManifest.xml`) helyőrzőit a Partner Center *Product identity* értékeivel tölti ki:
+
+```
+.\packaging\make-msix.ps1 -IdentityName "<Package/Identity/Name>" -Publisher "<CN=…>" -PublisherDisplayName "<név>"
+```
+
+A kész `packaging/out/ClearStar_<verzió>_x64.msix` aláíratlanul megy a Store-ba (a Store írja alá).
+Helyi próbához `-Sign` önaláírt tanúsítványt készít; a kiírt `Import-Certificate` parancs után a
+csomag dupla kattintással telepíthető. `PRIVACY.md` a Store által kért adatvédelmi tájékoztató.
