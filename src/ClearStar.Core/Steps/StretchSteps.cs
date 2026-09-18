@@ -80,6 +80,8 @@ public sealed class StarlessStretchStep : StepBase
             });
         }
         output.Clamp01();
+        // With a separated star layer the stretched starless image is kept for the recombination.
+        if (StarLayerStore.HasStarsFor(input)) StarLayerStore.SetStarlessStretched(output);
         return new StepResult(output, L.F("msg.ghs.summary", targetBackground, d, b));
     }, context.CancellationToken);
 
@@ -137,6 +139,18 @@ public sealed class StarStretchStep : StepBase
     public override Task<StepResult> RunAsync(WorkflowContext context) => Task.Run(() =>
     {
         var input = context.RequireInput();
+        float amount = context.Parameters.GetFloat(AmountKey, 0.4f);
+
+        // Two-layer workflow: stretch the separated (linear) star layer on its own and show it screened
+        // over the stretched starless image; the recombination step sets the final balance.
+        if (StarLayerStore.HasStretchedFor(input) && StarLayerStore.StarsLinear is { } starsLinear)
+        {
+            var stretchedStars = StretchStarLayer(starsLinear, amount, context.CancellationToken);
+            StarLayerStore.SetStarsStretched(stretchedStars);
+            var preview = RecombineStep.Screen(input, stretchedStars, 1f, context.CancellationToken);
+            return new StepResult(preview, L.T("msg.starstretch.layerSummary"));
+        }
+
         var stats = ImageStats.ComputeAll(input);
         if (stats.Average(s => s.Median) > 0.08f)
             return StepResult.Unchanged(input, L.T("msg.starstretch.already"));
@@ -147,4 +161,12 @@ public sealed class StarStretchStep : StepBase
         output.Clamp01();
         return new StepResult(output, L.F("msg.starstretch.summary", target));
     }, context.CancellationToken);
+
+    /// <summary>MTF stretch of a star layer (black background): the amount sets the midtones, so the stars gain size and colour gently.</summary>
+    public static AstroImage StretchStarLayer(AstroImage stars, float amount, CancellationToken ct)
+    {
+        float m = Lerp(0.15f, 0.02f, Math.Clamp(amount, 0f, 1f));
+        var output = MapPixels(stars, (v, _) => DisplayStretch.Mtf(Math.Clamp(v, 0f, 1f), m), ct);
+        return output;
+    }
 }

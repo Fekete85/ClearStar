@@ -77,7 +77,14 @@
       "white": { "label": "Mi legyen fehér?", "galaxy": "Napszerű csillag / átlagos spirálgalaxis (ajánlott)", "vega": "Fehér csillag (A0, Vega-szerű)", "help": "A szokásos választás a napszerű fehér – ettől a galaxisok természetes, enyhén meleg tónusúak. A Vega-fehér hidegebb, kékesebb képet ad." },
       "neutral": { "label": "Háttér semlegesítése", "help": "Az égi háttér színét is kiegyenlíti, hogy sehol ne legyen színes árnyalata." }
     },
-    "starremoval": { "name": "Csillagok leválasztása", "desc": "A csillagokat ideiglenesen külön képre tesszük, hogy a ködöt és a csillagokat külön-külön, a nekik megfelelő módon lehessen kezelni." },
+    "starremoval": {
+      "name": "Csillagok leválasztása",
+      "desc": "A csillagokat ideiglenesen külön rétegre tesszük, hogy a ködöt és a csillagokat külön-külön, a nekik megfelelő módon lehessen kiemelni. Ehhez a StarNet2 nevű ingyenes programot használjuk, amit egyszer kell letöltened.",
+      "found": "StarNet2 megvan: {0}",
+      "missing": "A StarNet2 nincs telepítve vagy nem találjuk. Kattints a beállításra – elmondjuk, mi ez és honnan töltheted le.",
+      "setup": "StarNet2 beállítása…",
+      "change": "Másik…"
+    },
     "ghs": {
       "name": "Ködök, galaxis kiemelése",
       "tech": "GHS nyújtás",
@@ -92,7 +99,11 @@
       "desc": "A csillagokat külön, óvatosabban világosítjuk, hogy kicsik és színesek maradjanak, ne fehér foltok legyenek.",
       "amount": { "label": "Csillagok fényessége", "ticks": ["Visszafogott", "Természetes", "Hangsúlyos"] }
     },
-    "recombine": { "name": "Csillagok visszahelyezése", "desc": "A külön kiemelt ködöt és a külön nyújtott csillagokat itt rakjuk újra össze." },
+    "recombine": {
+      "name": "Csillagok visszahelyezése",
+      "desc": "A külön kiemelt ködöt és a külön nyújtott csillagokat itt rakjuk újra össze. A csúszkával a csillagok súlyát állíthatod: kevesebb csillag jobban kiemeli a ködöt.",
+      "amount": { "label": "Csillagok mennyisége", "ticks": ["Kevesebb", "Természetes", "Több"] }
+    },
     "green": {
       "name": "Zöld árnyalat eltávolítása",
       "desc": "Az űrben nincs zöld köd – ha a képed zöldes, az a szenzor sajátja. Itt ezt vesszük ki, a többi szín érintetlen marad.",
@@ -224,8 +235,18 @@
       "applying": "Színek beállítása…",
       "summary": "Vörös ×{0:0.00}, kék ×{1:0.00} · {2} csillag alapján"
     },
+    "starremoval": {
+      "notFound": "A StarNet2 nem található a gépen. Nyisd meg a lépés „StarNet2 beállítása…” gombját: ott elmondjuk, mi ez, és honnan töltheted le ingyen.",
+      "tooSmall": "A kép túl kicsi a csillagleválasztáshoz (legalább 512×512 képpont kell).",
+      "running": "Csillagok leválasztása (StarNet2)…",
+      "summary": "Csillagok külön rétegre téve"
+    },
+    "recombine": {
+      "noLayers": "Nincs külön csillagréteg (a csillagleválasztás kimaradt) – a kép változatlan",
+      "summary": "Csillagok visszahelyezve (súly {0:0.0})"
+    },
     "ghs": { "summary": "Nyújtás (háttér {0:0.00}, D={1:0.#}, b={2:0.#})" },
-    "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})" },
+    "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})", "layerSummary": "A csillagréteg nyújtva – az előnézet a ködre visszatett csillagokat mutatja" },
     "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
     "contrast": { "summary": "Kontraszt beállítva" },
     "saturation": { "mono": "Fekete-fehér kép – nincs szín", "summary": "Színek élénkítve" },
@@ -364,6 +385,20 @@
       "start": "Kezdjük!"
     },
     "dialog": { "ok": "Rendben", "cancel": "Mégse", "close": "Bezárás" },
+    "starnet": {
+      "title": "StarNet2 beállítása",
+      "whatTitle": "Mi ez, és miért kell?",
+      "what": "A StarNet2 egy ingyenes, mesterséges intelligenciával működő program, ami a csillagokat leválasztja a képről. Az asztrofotósok azért csinálják ezt, mert a halvány ködöt és galaxist sokkal erősebben lehet kiemelni, ha a csillagok közben nem „dagadnak” meg – a végén a csillagok külön, finoman kerülnek vissza. A ClearStar ezt a programot hívja meg a háttérben; neked csak egyszer kell letöltened.",
+      "howTitle": "Így telepítsd (kb. 2 perc)",
+      "how": "1. Nyisd meg a letöltőoldalt az alábbi gombbal, és töltsd le a Windowsos parancssori változatot (StarNet2 CLI, Windows – „ONNX” vagy „x64 cli” a fájl nevében; ez a videokártyán is fut).\n2. Csomagold ki egy állandó mappába, pl. D:\\astro\\starnet (vagy futtasd a telepítőt).\n3. Kattints a „StarNet2 kiválasztása…” gombra, és mutasd meg a kicsomagolt mappában a starnet2.exe fájlt.\n\nA program szabadon használható asztrofotó-feldolgozásra; a ClearStar nem tartalmazza és nem is terjeszti.",
+      "download": "Letöltőoldal megnyitása (starnetastro.com)",
+      "browse": "StarNet2 kiválasztása…",
+      "pickTitle": "A starnet2.exe kiválasztása",
+      "pickFilter": "StarNet2 program|starnet2.exe;*.exe|Minden fájl|*.*",
+      "found": "Megtaláltuk: {0}",
+      "missing": "Még nincs beállítva – a ClearStar a Siril beállításait és a szokásos telepítési helyeket is átnézte.",
+      "sirilNote": "Ha a Sirilben már beállítottad, onnan automatikusan átvesszük."
+    },
     "about": {
       "title": "Névjegy",
       "tagline": "Kezdőbarát asztrofotó-feldolgozó – nyers képektől a kész fotóig, lépésről lépésre.",

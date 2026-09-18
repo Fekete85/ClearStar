@@ -52,10 +52,10 @@ A felületet nem kell hozzá módosítani.
 | 6 | Zajcsökkentés | GraXpert denoise-modell (256-os csempék, 128-as lépés, medián/MAD-normálás, fényes pixelek megtartása, erősség szerinti keverés); GPU-n ~20 s 9 MP-en |
 | 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok (ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár), háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
 | 8 | Színek kalibrálása | fotometriai (SPCC-jellegű): a WCS alapján a Gaia-csillagok apertúra-fotometriája R/G/B-ben, robusztus egyenes-illesztés a BP−RP színindexre, a napszerű (vagy Vega-) fehér referenciánál a vörös/kék szorzó; háttér semlegesítése (~1 s) |
-| 9 | Csillagleválasztás | helyőrző (a képet változatlanul adja tovább) |
+| 9 | Csillagok leválasztása | a felhasználó saját StarNet2 CLI-jét hívja (Siril-beállításból, telepítési helyről vagy tallózva; beállító ablak letöltési útmutatóval); lineáris képen automatikus MTF-előnyújtás → StarNet2 → pontos visszanyújtás; a csillagréteg (eredeti − csillagtalan) a StarLayerStore-ban |
 | 10 | Ködök kiemelése (GHS) | kész – a D-t a háttér célfényességéhez keresi meg |
-| 11 | Csillagok nyújtása | MTF; csillagleválasztás nélkül a teljes képre (nyújtott képet nem nyújt újra) |
-| 12 | Csillagok visszahelyezése | helyőrző |
+| 11 | Csillagok nyújtása | külön csillagréteg esetén a réteg MTF-nyújtása (az előnézet a ködre visszatett csillagokat mutatja); leválasztás nélkül a teljes képre |
+| 12 | Csillagok visszahelyezése | screen-keverés a nyújtott csillagtalan és csillagrétegből, a csillagok súlya állítható |
 | 13 | Zöld eltávolítása (SCNR) | kész |
 | 14 | Színes szegélyek | helyőrző |
 | 15–16 | Kontraszt, telítettség | kész |

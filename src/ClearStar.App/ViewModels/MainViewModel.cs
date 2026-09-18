@@ -146,6 +146,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Vágásnál a kép a kijelölés vászna: a bemeneti (még vágatlan) képet mutatjuk, rajta a kijelöléssel.
         IsSelectionMode = step.Id == StepId.Crop;
         if (IsSelectionMode) LoadCropSelection(step); else Selection = Rect.Empty;
+        if (step.Id == StepId.StarRemoval) UpdateStarNetNote(step);
         UpdateFramesView(step);
         RefreshPreview();
     }
@@ -433,6 +434,19 @@ public partial class MainViewModel : ObservableObject, IDisposable
         HasFrames = Frames.Count > 0;
         WindowTitle = L.F("ui.app.titleWithFolder", Path.GetFileName(frames.Folder));
         PrefillObjectName(frames);
+    }
+
+    /// <summary>Star removal card: shows whether StarNet2 was found and offers the setup dialog.</summary>
+    private void UpdateStarNetNote(StepViewModel step)
+    {
+        string? exe = ClearStar.Core.AI.StarNet.Locate();
+        step.Note = exe is null ? L.T("step.starremoval.missing") : L.F("step.starremoval.found", Path.GetFileName(Path.GetDirectoryName(exe) ?? exe) + "\\" + Path.GetFileName(exe));
+        step.NoteActionText = L.T(exe is null ? "step.starremoval.setup" : "step.starremoval.change");
+        step.NoteCommand = new RelayCommand(() =>
+        {
+            Views.StarNetSetupWindow.ShowDialog(System.Windows.Application.Current.MainWindow);
+            UpdateStarNetNote(step);
+        });
     }
 
     /// <summary>Plate solving: pre-fill the object name from the header (or the folder name) so the user sees what will be looked up.</summary>

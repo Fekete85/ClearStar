@@ -31,6 +31,7 @@ tisztességes megoldás.
 | **Siril** – stackelés logikája (kalibrálás, képenkénti háttér-gradiens kivonás, csillagok szerinti igazítás, normálás, framing=max, szigma-vágott átlag), GHS-nyújtás képlete, SCNR, autostretch (MTF) | team free-astro, Francois Meyer és közreműködők | GPL-3.0-or-later | tanulmányozott forrás, saját újraírás |
 | **GraXpert** – AI háttérkivonás előfeldolgozása (256×256, normálás MAD-dal, padding, simítás), polinomos háttérillesztés ötlete, a tervezett zajcsökkentés/élesítés modellkezelése | GraXpert Development Team | GPL-3.0 | tanulmányozott forrás, saját újraírás |
 | **GraXpert AI-modellek** (háttérkivonás, zajcsökkentés, élesítés – `model.onnx` fájlok) | GraXpert Development Team és a tanítóképeket beküldő közösség (névsor lent) | **CC BY-NC-SA 4.0** | a ClearStar **nem tartalmazza** őket; a GraXpert által letöltött vagy a felhasználó által beszerzett fájlokat használja |
+| **StarNet2** (csillagleválasztás) | Nikita Misiura / starnetastro.com | saját licenc: ingyenes asztrofotó-feldolgozásra, kereskedelmi szoftverbe nem építhető, nem terjeszthető | a felhasználó saját példányát hívja meg külső programként; a ClearStar nem tartalmazza |
 | **AbdurAstro – „Processing in Siril 1.4”** leírás | AbdurAstro | a szerzőé | a 17 lépés sorrendjének mintája; szöveget nem vettünk át |
 | **Gaia DR3 katalógus** (ESA Gaia-archívum, VizieR) és a **CDS Sesame** névfeloldó – online lekérdezés a plate solvinghoz | ESA/Gaia/DPAC, CDS Strasbourg | Gaia-adatok: CC BY-SA 3.0 IGO; a CDS-szolgáltatások szabadon használhatók, forrásmegjelöléssel | csak lekérdezés, a program nem tartalmaz katalógusadatot |
 | SixLabors.ImageSharp (TIFF/PNG/JPEG írás-olvasás) | Six Labors | Six Labors Split License → nyílt forrású projektben Apache-2.0 | NuGet-csomag |
@@ -144,6 +145,14 @@ Gaia Data Processing and Analysis Consortium (DPAC). Gaia data are licensed unde
 CC BY-SA 3.0 IGO. VizieR and Sesame are provided by the CDS, Strasbourg
 Astronomical Data Center. No catalogue data is distributed with ClearStar; query
 results are cached locally for the user's own reuse.
+
+### StarNet2 (external program, not distributed)
+
+The star-removal step runs the user's own copy of StarNet2 (https://www.starnetastro.com)
+as an external process, the same way Siril does. StarNet2 is licensed by its author for
+astrophotography image processing; it may not be used to build commercial software and is
+not redistributed with ClearStar. The user installs it separately; ClearStar only locates
+and launches it.
 
 ### AbdurAstro – "Processing in Siril 1.4"
 

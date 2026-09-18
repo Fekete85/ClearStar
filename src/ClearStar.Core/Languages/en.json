@@ -77,7 +77,14 @@
       "white": { "label": "What should be white?", "galaxy": "Sun-like star / average spiral galaxy (recommended)", "vega": "White star (A0, Vega-like)", "help": "The usual choice is Sun-like white – galaxies look natural with a slightly warm tone. Vega-white gives a cooler, bluer image." },
       "neutral": { "label": "Neutralise background", "help": "Also balances the colour of the sky background so it has no tint anywhere." }
     },
-    "starremoval": { "name": "Separate stars", "desc": "The stars are moved to a separate image temporarily, so nebula and stars can be treated each in its own way." },
+    "starremoval": {
+      "name": "Separate stars",
+      "desc": "The stars are moved to a separate layer temporarily, so nebula and stars can each be brought out in the way that suits them. This uses the free StarNet2 program, which you download once.",
+      "found": "StarNet2 found: {0}",
+      "missing": "StarNet2 is not installed or could not be found. Click the setup button – it explains what it is and where to download it.",
+      "setup": "Set up StarNet2…",
+      "change": "Change…"
+    },
     "ghs": {
       "name": "Bring out nebulae and galaxies",
       "tech": "GHS stretch",
@@ -92,7 +99,11 @@
       "desc": "The stars are brightened separately and more gently so they stay small and colourful instead of white blobs.",
       "amount": { "label": "Star brightness", "ticks": ["Subtle", "Natural", "Bold"] }
     },
-    "recombine": { "name": "Put stars back", "desc": "The separately enhanced nebula and the separately stretched stars are combined again." },
+    "recombine": {
+      "name": "Put stars back",
+      "desc": "The separately enhanced nebula and the separately stretched stars are combined again. The slider sets the weight of the stars: fewer stars make the nebula stand out more.",
+      "amount": { "label": "Amount of stars", "ticks": ["Fewer", "Natural", "More"] }
+    },
     "green": {
       "name": "Remove green cast",
       "desc": "There are no green nebulae in space – if your image looks greenish, that is the sensor. It is removed here; other colours stay untouched.",
@@ -224,8 +235,18 @@
       "applying": "Applying colours…",
       "summary": "Red ×{0:0.00}, blue ×{1:0.00} · from {2} stars"
     },
+    "starremoval": {
+      "notFound": "StarNet2 was not found on this computer. Open the step's \"Set up StarNet2…\" button: it explains what it is and where to download it for free.",
+      "tooSmall": "The image is too small for star removal (at least 512×512 pixels are needed).",
+      "running": "Separating stars (StarNet2)…",
+      "summary": "Stars moved to a separate layer"
+    },
+    "recombine": {
+      "noLayers": "No separate star layer (star removal was skipped) – the image is unchanged",
+      "summary": "Stars put back (weight {0:0.0})"
+    },
     "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
-    "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },
+    "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})", "layerSummary": "Star layer stretched – the preview shows the stars back on the nebula" },
     "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },
     "contrast": { "summary": "Contrast applied" },
     "saturation": { "mono": "Monochrome image – no colour", "summary": "Colours boosted" },
@@ -364,6 +385,20 @@
       "start": "Let's go!"
     },
     "dialog": { "ok": "OK", "cancel": "Cancel", "close": "Close" },
+    "starnet": {
+      "title": "Set up StarNet2",
+      "whatTitle": "What is it and why is it needed?",
+      "what": "StarNet2 is a free, AI-based program that separates the stars from the image. Astrophotographers do this because faint nebulae and galaxies can be brought out much more strongly when the stars do not bloat along the way – at the end the stars are put back separately and gently. ClearStar runs this program in the background; you only need to download it once.",
+      "howTitle": "How to install it (about 2 minutes)",
+      "how": "1. Open the download page with the button below and get the Windows command-line version (StarNet2 CLI, Windows – \"ONNX\" or \"x64 cli\" in the file name; it runs on the graphics card too).\n2. Unpack it into a permanent folder, e.g. D:\\astro\\starnet (or run the installer).\n3. Click \"Choose StarNet2…\" and point to starnet2.exe in that folder.\n\nThe program is free to use for astrophoto processing; ClearStar does not include or distribute it.",
+      "download": "Open the download page (starnetastro.com)",
+      "browse": "Choose StarNet2…",
+      "pickTitle": "Select starnet2.exe",
+      "pickFilter": "StarNet2 program|starnet2.exe;*.exe|All files|*.*",
+      "found": "Found: {0}",
+      "missing": "Not set up yet – ClearStar also checked Siril's settings and the usual install locations.",
+      "sirilNote": "If you have already set it up in Siril, it is picked up automatically."
+    },
     "about": {
       "title": "About",
       "tagline": "Beginner-friendly astrophoto processing – from raw frames to the finished photo, step by step.",

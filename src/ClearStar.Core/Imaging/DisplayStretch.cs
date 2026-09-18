@@ -50,6 +50,13 @@ public static class DisplayStretch
             float t = (x - Shadows) / (1f - Shadows);
             return Mtf(t, Midtones);
         }
+
+        /// <summary>Exact inverse of <see cref="Apply"/> (the MTF is its own inverse with midtones 1−m).</summary>
+        public float Invert(float y)
+        {
+            float t = Mtf(y, 1f - Midtones);
+            return t * (1f - Shadows) + Shadows;
+        }
     }
 
     public static Params Compute(ChannelStats stats, float targetBackground = DefaultTargetBackground, float shadowsClipping = DefaultShadowsClipping)

@@ -628,3 +628,54 @@ public class ColorCalibrationTests
         Assert.InRange(outp[2, 10, 10], 0.10f + 0.41f * 1.25f - 0.01f, 0.10f + 0.41f * 1.25f + 0.01f);
     }
 }
+
+public class StarLayerTests
+{
+    [Fact]
+    public void StoreOnlyMatchesTheImageItWasMadeFor()
+    {
+        var starless = new AstroImage(64, 64, 1); Array.Fill(starless.Data, 0.1f);
+        var stars = new AstroImage(64, 64, 1);
+        StarLayerStore.SetLinear(starless, stars);
+        Assert.True(StarLayerStore.HasStarsFor(starless.Clone()));
+        var other = starless.Clone(); for (int i = 0; i < other.Data.Length; i++) other.Data[i] += 0.01f;
+        Assert.False(StarLayerStore.HasStarsFor(other));
+        StarLayerStore.Clear();
+        Assert.False(StarLayerStore.HasStarsFor(starless));
+    }
+
+    [Fact]
+    public void ScreenBlendNeverClipsAndKeepsBackground()
+    {
+        var a = new AstroImage(8, 8, 3); Array.Fill(a.Data, 0.2f);
+        var b = new AstroImage(8, 8, 3); b[0, 1, 1] = 1f; b[1, 1, 1] = 0.5f;
+        var s = RecombineStep.Screen(a, b, 1f, default);
+        Assert.Equal(0.2f, s[0, 0, 0], 3);
+        Assert.Equal(1f, s[0, 1, 1], 3);
+        Assert.Equal(0.6f, s[1, 1, 1], 3);
+    }
+
+    [Fact]
+    public void StarNetRemovesSyntheticStarsIfInstalled()
+    {
+        string? exe = ClearStar.Core.AI.StarNet.Locate();
+        if (exe is null) return; // StarNet2 is the user's own program – nothing to verify without it
+        var rnd = new Random(4);
+        var img = new AstroImage(600, 560, 3);
+        for (int i = 0; i < img.Data.Length; i++) img.Data[i] = 0.02f + (rnd.NextSingle() - 0.5f) * 0.002f;
+        var centres = new List<(int x, int y)>();
+        for (int s = 0; s < 40; s++)
+        {
+            int cx = 30 + rnd.Next(540), cy = 30 + rnd.Next(500); centres.Add((cx, cy));
+            float amp = 0.05f + rnd.NextSingle() * 0.4f;
+            for (int c = 0; c < 3; c++) for (int y = -8; y <= 8; y++) for (int x = -8; x <= 8; x++)
+                img[c, cx + x, cy + y] += amp * MathF.Exp(-(x * x + y * y) / (2 * 1.8f * 1.8f));
+        }
+        var (starless, stars) = ClearStar.Core.AI.StarNet.RemoveStarsLinear(img, exe);
+        Assert.Equal(img.Width, starless.Width);
+        float peakBefore = centres.Average(p => img[1, p.x, p.y]), peakAfter = centres.Average(p => starless[1, p.x, p.y]);
+        Assert.True(peakAfter < 0.25f * peakBefore, $"stars not removed: {peakBefore} -> {peakAfter}");
+        Assert.InRange(ImageStats.Compute(starless.Channel(1).ToArray()).Median, 0.018f, 0.022f);
+        Assert.True(stars[1, centres[0].x, centres[0].y] > 0.03f);
+    }
+}
