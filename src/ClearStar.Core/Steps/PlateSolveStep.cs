@@ -22,6 +22,22 @@ public sealed class PlateSolveStep : StepBase
     /// <summary>The most recent successful solve (for overlays and the colour calibration).</summary>
     public static PlateSolveResult? LastResult { get; private set; }
 
+    /// <summary>The catalogue cone used by the most recent solve (centre, radius, stars) – reused by the colour calibration.</summary>
+    public static (double ra, double dec, double radius, float magLimit, List<CatalogStar> stars)? LastCatalog { get; private set; }
+
+    /// <summary>Catalogue stars around a position, from the last solve's cone when it covers it, otherwise a fresh (cached) query.</summary>
+    public static async Task<List<CatalogStar>> CatalogAroundAsync(double ra, double dec, double radius, float magLimit, CancellationToken ct)
+    {
+        if (LastCatalog is { } c && c.magLimit >= magLimit)
+        {
+            var d = Wcs.Project(ra, dec, c.ra, c.dec);
+            if (d is not null && Math.Sqrt(d.Value.xi * d.Value.xi + d.Value.eta * d.Value.eta) + radius <= c.radius + 1e-6) return c.stars;
+        }
+        var stars = await Catalog.ConeAsync(ra, dec, radius, magLimit, 4000, ct);
+        LastCatalog = (ra, dec, radius, magLimit, stars);
+        return stars;
+    }
+
     public static IStarCatalog Catalog { get; set; } = new GaiaOnlineCatalog();
 
     public override StepDefinition Definition { get; } = StepDefinition.FromLanguage(
@@ -74,7 +90,7 @@ public sealed class PlateSolveStep : StepBase
         float magLimit = p.GetFloat(MagLimitKey, 14f);
         context.Report(0.1, L.F("msg.platesolve.catalog", Catalog.Name));
         List<CatalogStar> stars;
-        try { stars = await Catalog.ConeAsync(ra, dec, radius, magLimit, 4000, ct); }
+        try { stars = await CatalogAroundAsync(ra, dec, radius, magLimit, ct); }
         catch (HttpRequestException ex) { throw new InvalidOperationException(L.F("msg.platesolve.offline", ex.Message)); }
         catch (TaskCanceledException) when (!ct.IsCancellationRequested) { throw new InvalidOperationException(L.F("msg.platesolve.offline", "timeout")); }
         if (stars.Count < 10) throw new InvalidOperationException(L.T("msg.platesolve.fewCatalogStars"));

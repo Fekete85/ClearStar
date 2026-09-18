@@ -7,6 +7,7 @@ if (args.Length >= 2 && args[0] == "bench") { ClearStar.Cli.Bench.Run(args[1]); 
 if (args.Length >= 2 && args[0] == "onnx") { ClearStar.Cli.OnnxProbe.Run(args[1]); return; }
 // --lang <kód> (alapértelmezés: a settings.json nyelve, különben magyar)
 int li = Array.IndexOf(args, "--lang");
+bool linkedPreview = Array.IndexOf(args, "--linked") >= 0; // preview JPEGs with a channel-linked stretch (keeps colour balance visible)
 ClearStar.Core.Localization.L.Load(li >= 0 && li + 1 < args.Length ? args[li + 1] : ClearStar.Core.UserSettings.Get(ClearStar.Core.UserSettings.LanguageKey) ?? ClearStar.Core.Localization.L.DefaultLanguage);
 string folder = args[0], outDir = args[1];
 Directory.CreateDirectory(outDir);
@@ -32,11 +33,11 @@ foreach (var entry in wf.Steps)
     var img = wf.Current;
     string stats = img is null ? "" : string.Join(" | ", ImageStats.ComputeAll(img).Select(s => $"med {s.Median:0.0000} mad {s.Mad:0.0000} max {s.Max:0.000}"));
     Console.WriteLine($"{entry.Definition.Number,2}. {entry.Definition.Name,-28} {sw.ElapsedMilliseconds,6} ms  {r.Summary}  {stats}");
-    if (img is not null && entry.Id is StepId.Stack or StepId.BackgroundExtraction or StepId.Deconvolution or StepId.Denoise or StepId.StarlessStretch or StepId.Saturation)
+    if (img is not null && entry.Id is StepId.Stack or StepId.BackgroundExtraction or StepId.Deconvolution or StepId.Denoise or StepId.ColorCalibration or StepId.StarlessStretch or StepId.Saturation)
     {
         // Előnézet-kép a képernyőn látható formában (lineárisnál autostretch-csel)
         var view = img.Clone();
-        if (Workflow.IsLinearPhase(entry.Id)) { var p = DisplayStretch.ComputeAll(view); for (int c = 0; c < view.Channels; c++) { var ch = view.Channel(c); for (int i = 0; i < ch.Length; i++) ch[i] = p[c].Apply(ch[i]); } }
+        if (Workflow.IsLinearPhase(entry.Id)) { var p = DisplayStretch.ComputeAll(view, linked: linkedPreview); for (int c = 0; c < view.Channels; c++) { var ch = view.Channel(c); for (int i = 0; i < ch.Length; i++) ch[i] = p[c].Apply(ch[i]); } }
         ImageFiles.Save(Path.Combine(outDir, $"step{entry.Definition.Number:D2}.jpg"), view, ExportFormat.Jpeg);
     }
 }

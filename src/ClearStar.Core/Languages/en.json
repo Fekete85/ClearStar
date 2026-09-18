@@ -71,7 +71,12 @@
       "scale": { "label": "Pixel scale (″/px, if the header has none)", "help": "Leave empty to compute it from the focal length and pixel size. Seestar S50: 2.3." },
       "maglimit": { "label": "Catalogue magnitude limit", "ticks": ["Bright (11)", "Medium (14)", "Faint (16)"], "help": "Dense star fields need only the brighter stars; sparse fields need a fainter limit." }
     },
-    "colorcal": { "name": "Calibrate colours", "desc": "Colours are matched to the known colours of the stars so nebulae look true to life." },
+    "colorcal": {
+      "name": "Calibrate colours",
+      "desc": "The stars on the image are compared with their colours measured by the Gaia catalogue, and the red and blue channels are scaled so that a Sun-like star comes out white. Nebulae and galaxies then show their true colours. Needs the sky identification step.",
+      "white": { "label": "What should be white?", "galaxy": "Sun-like star / average spiral galaxy (recommended)", "vega": "White star (A0, Vega-like)", "help": "The usual choice is Sun-like white – galaxies look natural with a slightly warm tone. Vega-white gives a cooler, bluer image." },
+      "neutral": { "label": "Neutralise background", "help": "Also balances the colour of the sky background so it has no tint anywhere." }
+    },
     "starremoval": { "name": "Separate stars", "desc": "The stars are moved to a separate image temporarily, so nebula and stars can be treated each in its own way." },
     "ghs": {
       "name": "Bring out nebulae and galaxies",
@@ -209,6 +214,15 @@
       "solving": "Matching stars…",
       "failed": "Could not identify the sky – check the object name and the pixel scale, or skip this step.",
       "summary": "RA {0}, Dec {1} · {2:0.00}″/px · rotation {3:0.0}° · {4} stars · ±{5:0.0}″"
+    },
+    "colorcal": {
+      "mono": "Monochrome image – nothing to calibrate",
+      "noWcs": "The sky must be identified first (step 7) – that tells us which star is which.",
+      "catalog": "Catalogue stars…",
+      "measuring": "Measuring star colours…",
+      "fewStars": "Too few well-measurable stars – try cropping less, or skip this step.",
+      "applying": "Applying colours…",
+      "summary": "Red ×{0:0.00}, blue ×{1:0.00} · from {2} stars"
     },
     "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },

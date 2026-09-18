@@ -586,3 +586,45 @@ public class OrientationTests
         Assert.Null(ClearStar.Core.IO.ObjectNameGuess.FromText("2026-09-18 session"));
     }
 }
+
+public class ColorCalibrationTests
+{
+    [Fact]
+    public void FitRecoversFactorsFromSyntheticColours()
+    {
+        // Instrument: red channel 1.3× too strong, blue 0.8× too weak; colour dependence slope 0.9 / −0.5 mag per BP−RP.
+        var rnd = new Random(5);
+        var samples = new List<ClearStar.Core.Astrometry.ColorSample>();
+        for (int i = 0; i < 80; i++)
+        {
+            float c = 0.2f + rnd.NextSingle() * 1.8f;
+            float rg = -2.5f * MathF.Log10(1.3f) + 0.9f * (c - 0.82f) + (rnd.NextSingle() - 0.5f) * 0.04f;
+            float bg = -2.5f * MathF.Log10(0.8f) - 0.5f * (c - 0.82f) + (rnd.NextSingle() - 0.5f) * 0.04f;
+            samples.Add(new(c, rg, bg));
+        }
+        samples.Add(new(1.0f, 3f, -3f)); // an outlier (blended star) that must be rejected
+        var fit = ClearStar.Core.Astrometry.ColorCalibration.Fit(samples, ClearStar.Core.Astrometry.ColorCalibration.GalaxyBpRp)!;
+        Assert.InRange(fit.RedFactor, 1f / 1.3f - 0.03f, 1f / 1.3f + 0.03f);
+        Assert.InRange(fit.BlueFactor, 1f / 0.8f - 0.04f, 1f / 0.8f + 0.04f);
+        Assert.True(fit.StarsUsed >= 70);
+    }
+
+    [Fact]
+    public void ApplyNeutralisesBackgroundAndScalesSignal()
+    {
+        var img = new AstroImage(64, 64, 3);
+        var rnd = new Random(2);
+        for (int c = 0; c < 3; c++)
+        {
+            float bg = c == 0 ? 0.12f : c == 1 ? 0.10f : 0.09f;
+            for (int i = 0; i < img.PixelsPerChannel; i++) img.Data[c * img.PixelsPerChannel + i] = bg + (rnd.NextSingle() - 0.5f) * 0.002f;
+        }
+        img[0, 10, 10] = 0.5f; img[1, 10, 10] = 0.5f; img[2, 10, 10] = 0.5f;
+        var outp = ClearStar.Core.Astrometry.ColorCalibration.Apply(img, 0.8f, 1.25f, true);
+        var s = ImageStats.ComputeAll(outp);
+        Assert.InRange(s[0].Median, 0.099f, 0.101f);
+        Assert.InRange(s[2].Median, 0.099f, 0.101f);
+        Assert.InRange(outp[0, 10, 10], 0.10f + 0.38f * 0.8f - 0.01f, 0.10f + 0.38f * 0.8f + 0.01f);
+        Assert.InRange(outp[2, 10, 10], 0.10f + 0.41f * 1.25f - 0.01f, 0.10f + 0.41f * 1.25f + 0.01f);
+    }
+}

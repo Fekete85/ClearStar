@@ -71,7 +71,12 @@
       "scale": { "label": "Képskála (″/px, ha a fejlécben nincs)", "help": "Üresen a fókusztávolságból és a pixelméretből számoljuk. Seestar S50: 2,3." },
       "maglimit": { "label": "Katalógus határfényessége", "ticks": ["Fényes (11)", "Közepes (14)", "Halvány (16)"], "help": "Sűrű csillagmezőnél elég a fényesebb, kevés csillagnál kell a halványabb határ." }
     },
-    "colorcal": { "name": "Színek kalibrálása", "desc": "A csillagok ismert színeihez igazítjuk a kép színeit, hogy a ködök valósághűek legyenek." },
+    "colorcal": {
+      "name": "Színek kalibrálása",
+      "desc": "A képen lévő csillagokat összevetjük a Gaia-katalógusban mért színükkel, és úgy állítjuk be a vörös és kék csatornát, hogy egy napszerű csillag fehér legyen. Így a ködök, galaxisok színe valósághű lesz. Az égbolt azonosítása kell hozzá.",
+      "white": { "label": "Mi legyen fehér?", "galaxy": "Napszerű csillag / átlagos spirálgalaxis (ajánlott)", "vega": "Fehér csillag (A0, Vega-szerű)", "help": "A szokásos választás a napszerű fehér – ettől a galaxisok természetes, enyhén meleg tónusúak. A Vega-fehér hidegebb, kékesebb képet ad." },
+      "neutral": { "label": "Háttér semlegesítése", "help": "Az égi háttér színét is kiegyenlíti, hogy sehol ne legyen színes árnyalata." }
+    },
     "starremoval": { "name": "Csillagok leválasztása", "desc": "A csillagokat ideiglenesen külön képre tesszük, hogy a ködöt és a csillagokat külön-külön, a nekik megfelelő módon lehessen kezelni." },
     "ghs": {
       "name": "Ködök, galaxis kiemelése",
@@ -209,6 +214,15 @@
       "solving": "Csillagok illesztése…",
       "failed": "Nem sikerült az égbolt azonosítása – ellenőrizd az objektumnevet és a képskálát, vagy hagyd ki ezt a lépést.",
       "summary": "RA {0}, Dec {1} · {2:0.00}″/px · elforgatás {3:0.0}° · {4} csillag · ±{5:0.0}″"
+    },
+    "colorcal": {
+      "mono": "Fekete-fehér kép – nincs mit kalibrálni",
+      "noWcs": "Ehhez előbb az égbolt azonosítása kell (7. lépés) – onnan tudjuk, melyik csillag melyik.",
+      "catalog": "Katalógus csillagai…",
+      "measuring": "Csillagok színének mérése…",
+      "fewStars": "Túl kevés jól mérhető csillag – próbáld a képet kevésbé vágni, vagy hagyd ki ezt a lépést.",
+      "applying": "Színek beállítása…",
+      "summary": "Vörös ×{0:0.00}, kék ×{1:0.00} · {2} csillag alapján"
     },
     "ghs": { "summary": "Nyújtás (háttér {0:0.00}, D={1:0.#}, b={2:0.#})" },
     "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})" },
