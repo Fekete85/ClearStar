@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <Company>ClearStar</Company>
+    <Product>ClearStar</Product>
+    <Authors>ClearStar</Authors>
+    <Copyright>© 2026 ClearStar</Copyright>
+    <Description>Vezetett asztrofotó-feldolgozó alkalmazás kezdőknek</Description>
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

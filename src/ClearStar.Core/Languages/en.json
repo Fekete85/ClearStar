@@ -1,0 +1,330 @@
+{
+  "_meta": { "name": "English", "code": "en", "author": "ClearStar" },
+
+  "group": {
+    "Preparation": "Preparation",
+    "Basics": "Basics",
+    "Stars": "Stars",
+    "Refinement": "Refinement",
+    "Finish": "Finish"
+  },
+
+  "step": {
+    "load": {
+      "name": "Load images",
+      "desc": "Pick the folder where your telescope or camera saved the images. Light, dark and flat frames are sorted automatically. You can also pick a single, already stacked image.",
+      "folder": { "label": "Folder or image" }
+    },
+    "stack": {
+      "name": "Stack images",
+      "tech": "stacking",
+      "desc": "Many short exposures are combined into one much cleaner image. The frames are aligned precisely on the stars; dark and flat frames remove the sensor's own flaws.",
+      "align": { "label": "Align images on the stars", "help": "Turn off if the images already line up exactly (e.g. an already stacked image)." },
+      "reject": { "label": "Skip poor frames automatically", "help": "Frames that moved, were clouded out or show too few stars are left out." },
+      "calibrate": { "label": "Use dark and flat frames" },
+      "gradient": { "label": "Remove background gradient per frame", "help": "Under light-polluted skies the gradient shifts during the night; removing it per frame gives a cleaner average." },
+      "framing": { "label": "Keep the full field of view", "help": "Rotated frames can leave darker corners – crop them in the next step. When off, the result is cut to the reference frame." },
+      "clip": { "label": "Filter outliers (satellite trails, hot pixels)", "help": "Averages in two passes: the second pass drops values far from the mean. Slower but cleaner." }
+    },
+    "crop": {
+      "name": "Crop",
+      "desc": "Drag a rectangle over the part of the image you want to keep. If you select nothing, the thin faulty band left by stacking at the edges is removed.",
+      "margin": { "label": "Trim edges", "ticks": ["None", "A little", "More"], "help": "The slider sets the selection shown on the image; you can fine-tune its edges with the mouse afterwards." }
+    },
+    "bge": {
+      "name": "Flatten background",
+      "desc": "Light pollution and the Moon leave an uneven, blotchy background. Here it is smoothed out so the sky is equally dark everywhere.",
+      "method": { "label": "Method", "help": "The AI model recognises nebulae and galaxies and removes only the true background. The polynomial is simpler but needs a careful setting when a large object fills the frame.", "ai": "AI (GraXpert model)", "polynomial": "Simple (polynomial fit)" },
+      "model": { "label": "AI model", "help": "Leave empty to use the newest model available." },
+      "smoothing": { "label": "Smoothing", "ticks": ["Fine", "Medium", "Coarse"], "help": "Fine: the model follows smaller blotches too. Coarse: only the large, slow gradient is removed." },
+      "strength": { "label": "Flattening strength (polynomial)", "ticks": ["Weak", "Medium", "Strong"], "help": "Polynomial method only: how bright an area may be and still count as background." },
+      "grid": { "label": "Sample grid density (polynomial)", "ticks": ["Sparse", "Medium", "Dense"] },
+      "correction": { "label": "Correction", "help": "Subtraction fixes light-pollution gradients; division fixes vignetting (darker corners).", "subtract": "Subtraction (recommended)", "divide": "Division (for vignetting)" }
+    },
+    "deconv": {
+      "name": "Sharpen",
+      "tech": "deconvolution",
+      "desc": "The atmosphere and the optics blur the details slightly. Sharpening reverses that as far as possible. Stars are tightened first, then the detail of nebulae and galaxies is brought out – each with its own AI model.",
+      "stars": { "label": "Sharpen stars", "help": "Stars become smaller and more point-like." },
+      "starsStrength": { "label": "Stars – strength", "ticks": ["Gentle", "Medium", "Strong"] },
+      "object": { "label": "Sharpen nebula, galaxy", "help": "Fine structure (dust lanes, spiral arms) becomes more defined." },
+      "objectStrength": { "label": "Nebula, galaxy – strength", "ticks": ["Gentle", "Medium", "Strong"], "help": "Too much also amplifies noise – if it turns grainy, back off." },
+      "starsModel": { "label": "AI model (stars)", "help": "Leave empty to use the newest model available." },
+      "objectModel": { "label": "AI model (nebula, galaxy)", "help": "Leave empty to use the newest model available." },
+      "autoPsf": { "label": "Measure star size automatically", "help": "The model needs to know how large the stars are (FWHM). When off, set it with the slider." },
+      "psf": { "label": "Star size (FWHM, pixels)", "ticks": ["Small (2 px)", "Medium (6 px)", "Large (12 px)"] }
+    },
+    "denoise": { "name": "Reduce noise", "desc": "Long exposures and high ISO make the image grainy. Here it is smoothed while keeping the details." },
+    "platesolve": { "name": "Identify the sky", "tech": "plate solving", "desc": "From the star pattern we work out exactly where the image points. Needed for accurate colour calibration." },
+    "colorcal": { "name": "Calibrate colours", "desc": "Colours are matched to the known colours of the stars so nebulae look true to life." },
+    "starremoval": { "name": "Separate stars", "desc": "The stars are moved to a separate image temporarily, so nebula and stars can be treated each in its own way." },
+    "ghs": {
+      "name": "Bring out nebulae and galaxies",
+      "tech": "GHS stretch",
+      "desc": "The raw image is almost black: the faint detail hides in the dark. Here it is brought out without burning out the bright parts.",
+      "amount": { "label": "Amount", "ticks": ["Gentle", "Medium", "Strong"] },
+      "focus": { "label": "Emphasis", "ticks": ["Dark areas", "Medium", "Bright areas"], "help": "Where the contrast boost should be largest: the faintest nebulosity or the brighter core." },
+      "shape": { "label": "Curve shape", "ticks": ["Soft", "Medium", "Abrupt"] },
+      "linked": { "label": "Preserve colour balance (channels together)" }
+    },
+    "starstretch": {
+      "name": "Stretch stars",
+      "desc": "The stars are brightened separately and more gently so they stay small and colourful instead of white blobs.",
+      "amount": { "label": "Star brightness", "ticks": ["Subtle", "Natural", "Bold"] }
+    },
+    "recombine": { "name": "Put stars back", "desc": "The separately enhanced nebula and the separately stretched stars are combined again." },
+    "green": {
+      "name": "Remove green cast",
+      "desc": "There are no green nebulae in space – if your image looks greenish, that is the sensor. It is removed here; other colours stay untouched.",
+      "amount": { "label": "Strength", "ticks": ["Weak", "Medium", "Full"] }
+    },
+    "fringe": { "name": "Fix colour fringes", "tech": "chromatic aberration", "desc": "Bright stars may show a purple or blue fringe caused by the optics. Here it is faded out." },
+    "contrast": {
+      "name": "Contrast",
+      "desc": "Slightly deeper darks, slightly livelier lights – the image \"comes together\". Careful: too much contrast swallows faint nebulosity.",
+      "amount": { "label": "Contrast", "ticks": ["Soft", "Natural", "Strong"] },
+      "black": { "label": "Darken background", "ticks": ["None", "A little", "More"] }
+    },
+    "saturation": {
+      "name": "Saturation",
+      "desc": "The reds and blues of the nebulae and the colours of the stars become a little more vivid. Brightness is unchanged.",
+      "amount": { "label": "Colour strength", "ticks": ["Subtle", "Natural", "Vivid"] }
+    },
+    "save": {
+      "name": "Save",
+      "desc": "Your image is ready! Choose what you want to use it for; we set the rest.",
+      "purpose": { "label": "What is it for?", "share": "Sharing (JPEG)", "print": "Printing (16-bit TIFF)", "edit": "Further editing (FITS)" },
+      "folder": { "label": "Where to save?" },
+      "filename": { "label": "File name" },
+      "defaultName": "ClearStar_image"
+    }
+  },
+
+  "msg": {
+    "notImplemented": "This step is still being built – the image is unchanged.",
+    "load": {
+      "chooseFolder": "Choose a folder or an image.",
+      "unsupported": "This image format cannot be opened.",
+      "searching": "Looking for images…",
+      "inspecting": "Inspecting images…",
+      "noImages": "No supported images found in this folder (FITS, TIFF, PNG, JPEG).",
+      "noLights": "No light frames found in the folder – dark and flat frames alone do not make an image.",
+      "notFound": "The given folder or file does not exist.",
+      "lights": "{0} lights",
+      "darks": "{0} darks",
+      "flats": "{0} flats",
+      "bias": "{0} bias",
+      "hours": "{0} h {1} min",
+      "minutes": "{0} min"
+    },
+    "stack": {
+      "loadFirst": "Load images first.",
+      "noLights": "No light frames to stack.",
+      "loading": "Loading image…",
+      "single": "1 image loaded (nothing to stack)",
+      "prepRef": "Preparing reference frame…",
+      "fewStars": "Only {0} stars were found on the reference frame – alignment needs at least {1}. Try turning alignment off.",
+      "sizeMismatch": "different size",
+      "alignFailed": "could not align ({0} stars)",
+      "aligning": "Aligning… {0} / {1}",
+      "noneUsable": "None of the frames could be used. {0}",
+      "stacking": "Stacking… {0} / {1}",
+      "clipping": "Filtering outliers… {0} / {1}",
+      "summaryAligned": "{0} frames aligned and averaged",
+      "summaryAveraged": "{0} frames averaged",
+      "clipped": ", filtered",
+      "gradient": ", gradient removed",
+      "calibrated": ", calibrated",
+      "rotation": " · rotation up to {0:0.0}°",
+      "skipped": " · {0} skipped",
+      "reference": "Reference frame",
+      "noAlign": "Not aligned",
+      "aligned": "Aligned · {0} stars · {1:+0.0;-0.0}°",
+      "skippedNote": "Skipped – {0}",
+      "masterDark": "Building master dark…",
+      "masterFlat": "Building master flat…",
+      "calibLoadFailed": "The calibration frames could not be loaded."
+    },
+    "crop": {
+      "size": "{0} × {1} px",
+      "tooMuch": "That would cut away too much – no image would be left."
+    },
+    "bge": {
+      "selectedSource": "selected",
+      "noModel": "No background-extraction AI model on this computer. Pick one from the step's \"AI model\" list (browse or download), or install GraXpert and download it there – it will show up here too. Until then the polynomial method works.",
+      "estimating": "Estimating background with the AI…",
+      "subtracting": "Removing background…",
+      "summaryAi": "AI model {0} ({1})",
+      "summaryPoly": "{0} background samples, {1} model",
+      "collecting": "Collecting background samples…",
+      "fitting": "Fitting background model…",
+      "degree1": "planar",
+      "degree2": "quadratic",
+      "degreeN": "fine"
+    },
+    "deconv": {
+      "nothing": "No sharpening enabled – the image is unchanged",
+      "noStarsModel": "No star-sharpening AI model on this computer. Pick one from the \"AI model (stars)\" list, or install GraXpert and download it there. Until then turn off star sharpening.",
+      "noObjectModel": "No nebula-sharpening AI model on this computer. Pick one from the \"AI model (nebula, galaxy)\" list, or install GraXpert and download it there. Until then turn off nebula sharpening.",
+      "measuring": "Measuring star size…",
+      "stars": "Sharpening stars…",
+      "object": "Sharpening nebula, galaxy…",
+      "both": "stars + nebula",
+      "starsOnly": "stars only",
+      "objectOnly": "nebula only",
+      "summary": "Sharpened ({0}) · star size {1:0.0} px"
+    },
+    "ghs": { "summary": "Stretched (background {0:0.00}, D={1:0.#}, b={2:0.#})" },
+    "starstretch": { "already": "The image is already stretched – not stretching again", "summary": "Stretched (background {0:0.00})" },
+    "green": { "mono": "Monochrome image – nothing to fix", "summary": "Green cast reduced" },
+    "contrast": { "summary": "Contrast applied" },
+    "saturation": { "mono": "Monochrome image – no colour", "summary": "Colours boosted" },
+    "save": { "saving": "Saving…", "summary": "Saved: {0} ({1:0.#} MB)" },
+    "workflow": {
+      "oneStep": "At least one step is required.",
+      "needStack": "Stacking has to be done before this step.",
+      "cannotSkip": "Loading and stacking cannot be skipped.",
+      "needImage": "This step needs an already loaded image."
+    },
+    "model": {
+      "kind": { "BackgroundExtraction": "background extraction", "Denoise": "denoising", "DeconvolutionObject": "sharpening (object)", "DeconvolutionStars": "sharpening (stars)" },
+      "ownFile": "own file",
+      "zipNoOnnx": "The zip contains no .onnx model."
+    }
+  },
+
+  "ui": {
+    "app": { "title": "ClearStar", "titleWithFolder": "ClearStar – {0}", "errorTitle": "ClearStar – error", "errorDetails": "Details: {0}" },
+    "sidebar": { "title": "Processing", "progress": "steps done" },
+    "toolbar": {
+      "original": "Original",
+      "originalHint": "hold down",
+      "originalTip": "Hold down to see the starting image",
+      "split": "Before / after",
+      "boost": "Boost preview",
+      "boostTip": "The raw image is almost black – this only brightens the screen preview, the image itself is unchanged.",
+      "helpTip": "Help: work through the steps from top to bottom. You can click back to any finished step.",
+      "about": "About, language and licences"
+    },
+    "viewer": {
+      "before": "Before",
+      "after": "After",
+      "selectionHint": "Drag a rectangle over the area to keep · you can drag its edges and corners afterwards · wheel: zoom · middle button: pan",
+      "zoomOut": "Zoom out",
+      "zoomIn": "Zoom in",
+      "fit": "Fit to window"
+    },
+    "step": {
+      "notImplemented": "This step is still being built. It does not change the image yet – feel free to skip it.",
+      "advanced": "Advanced settings",
+      "reset": "Reset",
+      "skip": "Skip",
+      "skipped": "Skipped",
+      "stale": "Needs refresh",
+      "btnLoad": "Load",
+      "btnStack": "Start stacking",
+      "btnSave": "Save",
+      "btnApply": "Apply",
+      "btnReapply": "Apply again",
+      "chooseFolder": "Choose folder",
+      "singleImage": "single image…",
+      "noPath": "Not chosen yet",
+      "pickImage": "Choose image",
+      "imageFilter": "Images|*.fit;*.fits;*.fts;*.tif;*.tiff;*.png;*.jpg;*.jpeg|All files|*.*"
+    },
+    "model": {
+      "auto": "Automatic (newest available)",
+      "fromFolder": "{0} – {1} folder",
+      "ownFile": "{0} – own file",
+      "missing": "No model on this computer. Browse to a model.onnx file, download one from a URL, or install GraXpert and download it there – it will show up here too.",
+      "using": "Model in use: {0} ({1})",
+      "refresh": "Refresh",
+      "browse": "Browse…",
+      "download": "Download from URL…",
+      "pickTitle": "Choose AI model ({0})",
+      "pickFilter": "ONNX model or zip|*.onnx;*.zip|All files|*.*",
+      "loadFailed": "Could not load: {0}",
+      "downloadTitle": "Download model",
+      "downloadPrompt": "Download address of the model (.onnx or .zip):",
+      "downloading": "Downloading…",
+      "downloadFailed": "Download failed: {0}",
+      "license": "GraXpert's AI models are licensed CC BY-NC-SA 4.0 – non-commercial use only. Details: About › Licences."
+    },
+    "frames": {
+      "loadedTitle": "Loaded images",
+      "stackTitle": "Stack images",
+      "loadedSub": "These images were found in the folder. Click an image to preview it.",
+      "stackSub": "These images go into the stack. Click an image to preview it.",
+      "stackedSub": "These images went into the stack. Click an image or a bar of the chart to preview it.",
+      "typeLight": "Light",
+      "typeDark": "Dark",
+      "typeFlat": "Flat",
+      "typeBias": "Bias",
+      "seconds": "{0:0.#} s",
+      "qualityTitle": "Data quality over time",
+      "qualityLegend": "teal: used · red: skipped · hover for the value, click for the preview",
+      "qStars": "Star count – reduced by cloud, haze, moonlight and low altitude",
+      "qSize": "Star size – the smaller the sharper (poor seeing, focus error and dew increase it)",
+      "qBackground": "Background brightness – raised by light pollution, twilight and the Moon",
+      "qAngle": "Rotation relative to the reference",
+      "starsValue": "{0:0} stars",
+      "stackDone": "The finished stack",
+      "openInCrop": "Open large in Crop ›",
+      "prev": "‹ Previous",
+      "next": "Next ›",
+      "backToList": "Back to the list",
+      "previewTitle": "{0}  ({1} / {2})",
+      "previewLoading": "Loading preview: {0}…",
+      "previewInfo": "{0} · {1} × {2} px",
+      "openFailed": "Could not open: {0}"
+    },
+    "crop": {
+      "computing": "Computing covered area…",
+      "noSelection": "No selection – the whole image is kept. Drag on the image or move the slider.",
+      "covered": "Covered area",
+      "selection": "Selection: {0} × {1} px",
+      "noCorners": " – without the empty corners from rotation",
+      "clear": "Clear selection"
+    },
+    "status": {
+      "noImage": "No image open",
+      "running": "{0}…",
+      "done": "{0}: {1}",
+      "cancelled": "Cancelled.",
+      "previewError": "Preview error",
+      "cancel": "Cancel",
+      "imageInfo": "{0} × {1} px · {2} · 32 bit",
+      "color": "colour",
+      "mono": "monochrome",
+      "allDone": "Done! You can show this image already.",
+      "lastStep": "This is the last step – almost done!",
+      "fewLeft": "Nice work! Only {0} steps left.",
+      "progress": "{0} steps done."
+    },
+    "drop": { "title": "Drop your images here", "sub": "or choose a folder on the left · FITS, TIFF, PNG, JPEG" },
+    "welcome": {
+      "title": "Welcome to ClearStar!",
+      "lead": "From raw frames to a finished astrophoto in three moves. We hold your hand all the way and explain what happens at every step.",
+      "s1": "Load your images", "s1sub": "One folder is enough; we handle the rest.",
+      "s2": "Work through the steps", "s2sub": "Good defaults, one click each.",
+      "s3": "Save it", "s3sub": "For sharing, printing or further editing.",
+      "start": "Let's go!"
+    },
+    "dialog": { "ok": "OK", "cancel": "Cancel", "close": "Close" },
+    "about": {
+      "title": "About",
+      "tagline": "Beginner-friendly astrophoto processing – from raw frames to the finished photo, step by step.",
+      "version": "Version: {0}",
+      "language": "Interface language",
+      "languageNote": "The language change takes effect when the program restarts. New language: copy an xx.json file to:",
+      "languageFolder": "Open language folder",
+      "restart": "Restart now",
+      "tabAbout": "About",
+      "tabLicense": "Licence",
+      "tabThirdParty": "Third-party works",
+      "tabModels": "AI models",
+      "openFolder": "Open",
+      "summary": "ClearStar is the author's own work; the code is free to use, modify and redistribute under the GNU GPL 3.0 (or later). The stacking, stretching and background-extraction methods were written after studying the source code of Siril and GraXpert (both GPL-3.0) – no code was copied. The AI steps use the GraXpert Development Team's models, licensed CC BY-NC-SA 4.0: they may be used for non-commercial purposes only and are not included in ClearStar. The images you create with the program are yours. The program sends no data anywhere; the network is used only for model downloads you request. Details and the list of contributors are on the other tabs."
+    }
+  }
+}

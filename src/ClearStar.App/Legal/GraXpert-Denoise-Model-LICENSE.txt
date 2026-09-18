@@ -1,0 +1,16 @@
+The provided GraXpert Denoising Models by GraXpert Development Team are licensed under CC BY-NC-SA 4.0
+We would like to thank the following people who contributed to this model by submitting training images:
+Florian  <Florian>
+Holger  <Holger> R.
+Julian  <Julian>
+Jürgen  <Jenafan>
+Kurt <ku_kro> K.
+Marc  <PapaBear_Marc> B.
+Matthias  <AstroMatz>
+Moritz  <MoMa> M.
+Rafael  <Rafael> S.
+Ronny <Ronny>
+Sabine <Sabine>
+Sebastian  <PurpleCloud>
+Steffen  <_steffens_ > S.
+Steffen  <Steffen> H.

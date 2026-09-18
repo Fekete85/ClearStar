@@ -1,0 +1,218 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+  body { margin: 0; background: #202023; color: rgba(255,255,255,0.92); font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif; font-size: 13px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+  a { color: #3ecfc0; text-decoration: none; } a:hover { color: #6fe0d4; }
+  * { box-sizing: border-box; }
+  .step { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px 0 10px; border-radius: 8px; }
+  .step .badge { width: 22px; height: 22px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+  .step .nm { flex-grow: 1; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .step .sub { color: rgba(255,255,255,0.36); font-size: 12px; }
+  .step .meta { font-size: 11px; color: rgba(255,255,255,0.36); white-space: nowrap; }
+  .st-pending .badge { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.36); }
+  .st-pending .nm, .st-pending svg.ic { color: rgba(255,255,255,0.36); }
+  .st-done .badge { background: rgba(108,203,95,0.16); color: #6ccb5f; }
+  .st-done .nm { color: rgba(255,255,255,0.60); } .st-done svg.ic { color: rgba(255,255,255,0.60); }
+  .st-skip .badge { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.36); }
+  .st-skip .nm { color: rgba(255,255,255,0.36); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.25); } .st-skip svg.ic { color: rgba(255,255,255,0.36); }
+  .st-stale .badge { background: rgba(242,184,75,0.16); color: #f2b84b; }
+  .st-stale .nm { color: rgba(255,255,255,0.60); } .st-stale svg.ic { color: rgba(255,255,255,0.60); }
+  .st-active { background: rgba(62,207,192,0.16); }
+  .st-active .badge { background: #3ecfc0; color: #0d2a27; }
+  .st-active .nm { color: rgba(255,255,255,0.92); font-weight: 600; } .st-active svg.ic { color: #3ecfc0; }
+  .grp { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.36); padding: 10px 12px 2px; }
+  .card { background: #2d2d32; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 34px; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 600; border: 1px solid transparent; white-space: nowrap; }
+  .btn-primary { background: #3ecfc0; color: #0d2a27; }
+  .btn-secondary { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.92); border-color: rgba(255,255,255,0.14); }
+  .btn-ghost { background: transparent; color: rgba(255,255,255,0.60); }
+  .tool { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px; border-radius: 6px; font-size: 12.5px; color: rgba(255,255,255,0.60); border: 1px solid transparent; }
+  .tool-on { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); border-color: rgba(255,255,255,0.14); }
+  .zoombtn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.60); }
+  .slider .lbl { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 8px; }
+  .slider .track { position: relative; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.12); }
+  .slider .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; background: #3ecfc0; }
+  .slider .thumb { position: absolute; top: -7px; width: 18px; height: 18px; border-radius: 9px; background: #3ecfc0; border: 3px solid #2d2d32; box-shadow: 0 0 0 1px rgba(0,0,0,0.4); margin-left: -9px; }
+  .slider .ticks { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.36); margin-top: 10px; }
+  .toggle { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
+  .sw { width: 38px; height: 20px; border-radius: 10px; position: relative; flex-shrink: 0; }
+  .sw-on { background: #3ecfc0; } .sw-on .knob { position: absolute; right: 3px; top: 3px; width: 14px; height: 14px; border-radius: 7px; background: #0d2a27; }
+  .sw-off { background: rgba(255,255,255,0.14); } .sw-off .knob { position: absolute; left: 3px; top: 3px; width: 14px; height: 14px; border-radius: 7px; background: rgba(255,255,255,0.60); }
+  .desc { font-size: 12.5px; color: rgba(255,255,255,0.60); margin: 0; }
+  .thumb-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+</style>
+</helmet>
+<div style="width: 1600px; height: 1280px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #202023;">
+  <div style="height: 40px; flex-shrink: 0; background: #1a1a1d; display: flex; align-items: center; justify-content: space-between; padding: 0 0 0 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="m12 2 2.2 6.4L21 9l-5.4 4.2L17.6 20 12 16.2 6.4 20l2-6.8L3 9l6.8-.6z" fill="#3ecfc0"/></svg>
+      <span style="font-size: 12.5px; font-weight: 600;">ClearStar</span>
+      <span style="font-size: 12.5px; color: rgba(255,255,255,0.36);">M31 – Andromeda</span>
+    </div>
+    <div style="display: flex;">
+      <div style="width: 46px; height: 40px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.60);"><svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor"><path d="M0 5h10"/></svg></div>
+      <div style="width: 46px; height: 40px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.60);"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor"><rect x="0.5" y="0.5" width="9" height="9"/></svg></div>
+      <div style="width: 46px; height: 40px; display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.60);"><svg width="10" height="10" viewBox="0 0 10 10" stroke="currentColor"><path d="M0 0l10 10M10 0 0 10"/></svg></div>
+    </div>
+  </div>
+  <div style="display: flex; flex-grow: 1; min-height: 0;">
+    <div style="width: 360px; flex-shrink: 0; background: #27272b; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; padding: 16px 12px 12px;">
+    <div style="padding: 0 12px 10px;">
+      <div style="display: flex; align-items: baseline; justify-content: space-between;">
+        <div style="font-size: 15px; font-weight: 600;">Feldolgozás</div>
+        <div style="font-size: 12px; color: rgba(255,255,255,0.60);">16 / 17 lépés kész</div>
+      </div>
+      <div style="height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1); margin-top: 10px;"><div style="height: 4px; border-radius: 2px; background: #3ecfc0; width: 94%;"></div></div>
+      <div style="font-size: 12.5px; color: #3ecfc0; margin-top: 10px;">Ez az utolsó lépés – mindjárt kész!</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0;"><div class="grp">Előkészítés</div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <div class="nm">Képek betöltése</div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M12 4 3 9l9 5 9-5z"/><path d="m3 14 9 5 9-5"/></svg>
+    <div class="nm">Képek összeillesztése <span class="sub">(stackelés)</span></div>
+    <div class="meta">24 kép</div>
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+    <div class="nm">Vágás</div>
+    
+  </div><div class="grp">Alapok</div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M8 3v18M13 3v18"/></svg>
+    <div class="nm">Háttér kiegyenlítése</div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3"/></svg>
+    <div class="nm">Élesítés <span class="sub">(deconvolution)</span></div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><circle cx="6" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="18" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="6" cy="18" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="18" cy="18" r="1"/></svg>
+    <div class="nm">Zajcsökkentés</div>
+    
+  </div><div class="step st-skip">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.36)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="M5 12h14"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><circle cx="12" cy="12" r="9"/><path d="m15 9-2 6-4 2 2-6z"/></svg>
+    <div class="nm">Égbolt azonosítása <span class="sub">(plate solving)</span></div>
+    <div class="meta">Kihagyva</div>
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a3 3 0 0 0 3-3 9 9 0 0 0-8-11z"/><circle cx="8" cy="10" r="1"/><circle cx="12" cy="7" r="1"/><circle cx="16" cy="10" r="1"/></svg>
+    <div class="nm">Színek kalibrálása</div>
+    
+  </div><div class="grp">Csillagok</div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="m12 3 2.6 5.4 6 .8-4.3 4.2 1 5.9L12 16.5 6.7 19.3l1-5.9L3.4 9.2l6-.8z"/><path d="M4 4l16 16"/></svg>
+    <div class="nm">Csillagok leválasztása</div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M4 16a5 5 0 0 1 3-9 6 6 0 0 1 11 1 4 4 0 0 1 1 8H7a3 3 0 0 1-3-3z"/></svg>
+    <div class="nm">Ködök, galaxis kiemelése <span class="sub">(GHS nyújtás)</span></div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="m12 3 2.6 5.4 6 .8-4.3 4.2 1 5.9L12 16.5 6.7 19.3l1-5.9L3.4 9.2l6-.8z"/></svg>
+    <div class="nm">Csillagok nyújtása</div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M6 4v6a4 4 0 0 0 4 4h4"/><path d="M18 4v16"/><path d="m15 17 3 3 3-3"/></svg>
+    <div class="nm">Csillagok visszahelyezése</div>
+    
+  </div><div class="grp">Finomítás</div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19c4-4 7-7 10-9"/></svg>
+    <div class="nm">Zöld árnyalat eltávolítása</div>
+    
+  </div><div class="step st-skip">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.36)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="M5 12h14"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="m12 3 9 17H3z"/><path d="M12 3v17"/></svg>
+    <div class="nm">Színes szegélyek javítása</div>
+    <div class="meta">Kihagyva</div>
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg>
+    <div class="nm">Kontraszt</div>
+    
+  </div><div class="step st-done">
+    <div class="badge"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6ccb5f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4"><path d="m5 12 4 4 10-10"/></svg></div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z"/></svg>
+    <div class="nm">Színtelítettség</div>
+    
+  </div><div class="grp">Befejezés</div><div class="card" style="border-color: rgba(62,207,192,0.35); background: #2a3434; padding: 4px; margin: 2px 0 6px;">
+          <div class="step st-active">
+    <div class="badge">17</div>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="ic"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h7V3"/><path d="M8 21v-7h8v7"/></svg>
+    <div class="nm">Mentés</div>
+    
+  </div>
+          <div style="display: flex; flex-direction: column; gap: 16px; padding: 12px 12px 12px;">
+    <p class="desc">Kész a képed! Válaszd ki jobb oldalt, mire szeretnéd használni, a többit beállítjuk.</p>
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div style="font-size: 12.5px;">Hova mentsük?</div>
+      <div style="display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 10px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); font-size: 12.5px; color: rgba(255,255,255,0.60);"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span style="flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">D:\Asztro\2026-09\M31\kész</span><a style="font-size: 12px;">Módosítás</a></div>
+    </div>
+    <div class="toggle"><span>Feldolgozási lépések mentése a kép mellé</span><div class="sw sw-on"><div class="knob"></div></div></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 4px;">
+    <div class="btn btn-primary">Mentés</div>
+  </div></div>
+        </div></div>
+  </div>
+    <div style="display: flex; flex-direction: column; flex-grow: 1; min-width: 0;">
+      <div style="height: 48px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <div class="tool" style="color: rgba(255,255,255,0.60);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Eredeti</span><span style="font-size: 11px; color: rgba(255,255,255,0.36);">tartsd lenyomva</span></div>
+      <div class="tool " style="color: rgba(255,255,255,0.60);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg><span>Előtte / utána</span></div>
+    </div>
+    <div class="tool" style="padding: 0 6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7"/><circle cx="12" cy="17" r=".6"/></svg></div>
+  </div>
+      <div style="position: relative; flex-grow: 1; background: #0b0b0e; overflow: hidden;">
+    <div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 24px 28px; gap: 20px;">
+      <div style="display: flex; gap: 16px;">
+        <div class="card" style="flex: 1 1 0; padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; border-color: #3ecfc0; background: #2a3434; box-shadow: 0 0 0 1px #3ecfc0;">
+    <div style="display: flex; align-items: center; justify-content: space-between;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#3ecfc0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.6M8.2 13.2l7.6 4.6"/></svg><div style="width: 18px; height: 18px; border-radius: 9px; border: 2px solid #3ecfc0; display: flex; align-items: center; justify-content: center;"><div style="width: 8px; height: 8px; border-radius: 4px; background: #3ecfc0;"></div></div></div>
+    <div><div style="font-size: 15px; font-weight: 600;">Megosztáshoz</div><div style="font-size: 12.5px; color: #3ecfc0; margin-top: 2px;">JPEG · kb. 4,2 MB</div></div>
+    <div style="font-size: 12.5px; color: rgba(255,255,255,0.60);">Telefonra, közösségi oldalakra, e-mailbe. A legkisebb fájl, mindenhol megnyílik.</div>
+  </div>
+        <div class="card" style="flex: 1 1 0; padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; ">
+    <div style="display: flex; align-items: center; justify-content: space-between;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg><div style="width: 18px; height: 18px; border-radius: 9px; border: 2px solid rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center;"></div></div>
+    <div><div style="font-size: 15px; font-weight: 600;">Nyomtatáshoz</div><div style="font-size: 12.5px; color: #3ecfc0; margin-top: 2px;">TIFF 16 bit · kb. 140 MB</div></div>
+    <div style="font-size: 12.5px; color: rgba(255,255,255,0.60);">Teljes minőség nagy nyomatokhoz és fotókönyvhöz.</div>
+  </div>
+        <div class="card" style="flex: 1 1 0; padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; ">
+    <div style="display: flex; align-items: center; justify-content: space-between;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.60)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ><path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5"/></svg><div style="width: 18px; height: 18px; border-radius: 9px; border: 2px solid rgba(255,255,255,0.14); display: flex; align-items: center; justify-content: center;"></div></div>
+    <div><div style="font-size: 15px; font-weight: 600;">További szerkesztéshez</div><div style="font-size: 12.5px; color: #3ecfc0; margin-top: 2px;">FITS 32 bit · kb. 280 MB</div></div>
+    <div style="font-size: 12.5px; color: rgba(255,255,255,0.60);">Ha más programban (pl. Siril, Photoshop) folytatnád.</div>
+  </div>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; color: rgba(255,255,255,0.60);">
+        <div>Fájlnév: <span style="color: rgba(255,255,255,0.92);">M31_Andromeda_ClearStar.jpg</span></div>
+        <div>6072 × 4048 px · sRGB</div>
+      </div>
+      <div style="position: relative; flex-grow: 1; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+        <img src="nebula.svg" class="thumb-img">
+      </div>
+    </div></div>
+      <div style="height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 12px; color: rgba(255,255,255,0.60);">
+    <div>M31_Andromeda_ClearStar.jpg · JPEG · 6072 × 4048</div><div style="display: flex; align-items: center; gap: 12px;">Mentésre kész</div>
+  </div>
+    </div>
+  </div>
+  
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+reference/
+design/clearstar-app.html
+testdata/
+publish/
+publish-cli/

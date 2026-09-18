@@ -1,0 +1,34 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- 24x24 vonalas ikonok (ugyanazok, mint a design canvason) -->
+    <Geometry x:Key="I.LoadFrames">M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z</Geometry>
+    <Geometry x:Key="I.Stack">M12 4 3 9l9 5 9-5z M3 14l9 5 9-5</Geometry>
+    <Geometry x:Key="I.Crop">M6 2v14a2 2 0 0 0 2 2h14 M18 22V8a2 2 0 0 0-2-2H2</Geometry>
+    <Geometry x:Key="I.BackgroundExtraction">M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M3 12h18 M8 3v18 M13 3v18</Geometry>
+    <Geometry x:Key="I.Deconvolution">M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3v18 M3 12h18 M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z</Geometry>
+    <Geometry x:Key="I.Denoise">M6 5a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M12 5a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M18 5a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M6 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M12 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M18 11a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M6 17a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M12 17a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M18 17a1 1 0 1 0 0 2a1 1 0 1 0 0-2z</Geometry>
+    <Geometry x:Key="I.PlateSolve">M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M15 9l-2 6-4 2 2-6z</Geometry>
+    <Geometry x:Key="I.ColorCalibration">M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s0-2 1.5-2h2a3 3 0 0 0 3-3 9 9 0 0 0-8-11z M8 9.5a.5 .5 0 1 0 0 1a.5 .5 0 1 0 0-1z M12 6.5a.5 .5 0 1 0 0 1a.5 .5 0 1 0 0-1z M16 9.5a.5 .5 0 1 0 0 1a.5 .5 0 1 0 0-1z</Geometry>
+    <Geometry x:Key="I.StarRemoval">M12 3l2.6 5.4 6 .8-4.3 4.2 1 5.9L12 16.5 6.7 19.3l1-5.9L3.4 9.2l6-.8z M4 4l16 16</Geometry>
+    <Geometry x:Key="I.StarlessStretch">M4 16a5 5 0 0 1 3-9 6 6 0 0 1 11 1 4 4 0 0 1 1 8H7a3 3 0 0 1-3-3z</Geometry>
+    <Geometry x:Key="I.StarStretch">M12 3l2.6 5.4 6 .8-4.3 4.2 1 5.9L12 16.5 6.7 19.3l1-5.9L3.4 9.2l6-.8z</Geometry>
+    <Geometry x:Key="I.StarRecombination">M6 4v6a4 4 0 0 0 4 4h4 M18 4v16 M15 17l3 3 3-3</Geometry>
+    <Geometry x:Key="I.GreenRemoval">M5 19c0-8 5-13 14-14-1 9-6 14-14 14z M5 19c4-4 7-7 10-9</Geometry>
+    <Geometry x:Key="I.ChromaticAberration">M12 3l9 17H3z M12 3v17</Geometry>
+    <Geometry x:Key="I.Contrast">M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M12 3a9 9 0 0 1 0 18z</Geometry>
+    <Geometry x:Key="I.Saturation">M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11z</Geometry>
+    <Geometry x:Key="I.Save">M5 3h11l3 3v15H5z M8 3v6h7V3 M8 21v-7h8v7</Geometry>
+
+    <Geometry x:Key="I.Check">M5 12l4 4 10-10</Geometry>
+    <Geometry x:Key="I.X">M6 6l12 12 M18 6L6 18</Geometry>
+    <Geometry x:Key="I.Chevron">M6 9l6 6 6-6</Geometry>
+    <Geometry x:Key="I.Eye">M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z M12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z</Geometry>
+    <Geometry x:Key="I.Split">M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z M12 4v16</Geometry>
+    <Geometry x:Key="I.Stretch">M4 18c4 0 6-12 16-12 M4 18h16</Geometry>
+    <Geometry x:Key="I.Plus">M12 5v14 M5 12h14</Geometry>
+    <Geometry x:Key="I.Minus">M5 12h14</Geometry>
+    <Geometry x:Key="I.Fit">M4 9V4h5 M20 9V4h-5 M4 15v5h5 M20 15v5h-5</Geometry>
+    <Geometry x:Key="I.Upload">M12 16V4 M7 9l5-5 5 5 M4 20h16</Geometry>
+    <Geometry x:Key="I.Folder">M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z</Geometry>
+    <Geometry x:Key="I.Help">M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18z M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7 M12 16.7a.4 .4 0 1 0 0 .8a.4 .4 0 1 0 0-.8z</Geometry>
+</ResourceDictionary>

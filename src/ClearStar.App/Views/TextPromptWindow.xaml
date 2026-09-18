@@ -1,0 +1,15 @@
+<Window x:Class="ClearStar.App.Views.TextPromptWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:ClearStar.App.Localization"
+        Width="520" SizeToContent="Height" WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="{StaticResource B.Layer}" FontFamily="{StaticResource F.Body}" ShowInTaskbar="False">
+    <StackPanel Margin="24,20,24,20">
+        <TextBlock x:Name="Prompt" Style="{StaticResource T.Secondary}" FontSize="13" Margin="0,0,0,10"/>
+        <TextBox x:Name="Input"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Style="{StaticResource Btn.Secondary}" Content="{l:T ui.dialog.cancel}" IsCancel="True" Margin="0,0,8,0"/>
+            <Button Style="{StaticResource Btn.Primary}" Content="{l:T ui.dialog.ok}" IsDefault="True" Click="Ok"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

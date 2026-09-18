@@ -1,0 +1,37 @@
+The provided GraXpert Background Extraction Models by GraXpert Development Team are licensed under CC BY-NC-SA 4.0
+We would like to thank the following people who contributed to this model by submitting training images:
+Alistair M.
+Axel L.
+Bernd  L.
+Christian  B.
+Christian  <chges100> G.
+Claus-Peter S.
+David S.
+Elias <TheAmazingLooser> S.
+Francis M.
+Frank <frasax> S.
+Georg I.
+Henry <Minusman> L.
+Holger R.
+Iris F.
+Jürgen <jt> T.
+Kurt K.
+Marc <PapaBear_Marc> B.
+Mark W.
+Moritz <MoMa> M.
+Niccolo C.
+Nicolas P.
+Norbert L.
+Olaf H.
+Rafael S.
+Reinhard G.
+Riccardo A.
+Roger B.
+Sherwin C.
+Steffen <_steffens_> S.
+Steffen <Steffen> H.
+Stephen R.
+Steven D.
+Thomas P.
+Thomas G.
+Ulrike <astronomy_ffm> K.

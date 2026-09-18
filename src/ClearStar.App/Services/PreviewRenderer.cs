@@ -1,0 +1,93 @@
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ClearStar.Core.Imaging;
+
+namespace ClearStar.App.Services;
+
+/// <summary>Előnézet (BGRA32) a képből, opcionális automatikus nyújtással. A nagy képet lekicsinyíti a gyors rajzoláshoz.</summary>
+public static class PreviewRenderer
+{
+    public const int MaxPreviewWidth = 2400;
+
+    public sealed record Frame(byte[] Pixels, int Width, int Height, int SourceWidth, int SourceHeight)
+    {
+        public BitmapSource ToBitmap()
+        {
+            var bmp = BitmapSource.Create(Width, Height, 96, 96, PixelFormats.Bgra32, null, Pixels, Width * 4);
+            bmp.Freeze();
+            return bmp;
+        }
+    }
+
+    /// <summary>Háttérszálon futtatható: csak byte-tömböt állít elő.</summary>
+    public static Frame Render(AstroImage image, bool autoStretch, CancellationToken ct = default, int maxWidth = MaxPreviewWidth)
+    {
+        int factor = Math.Max(1, (int)Math.Ceiling(Math.Max(image.Width, image.Height) / (double)maxWidth));
+        var small = factor > 1 ? Downsample(image, factor) : image;
+        ct.ThrowIfCancellationRequested();
+
+        var luts = new byte[small.Channels][];
+        if (autoStretch)
+        {
+            var prms = DisplayStretch.ComputeAll(small, linked: false);
+            for (int c = 0; c < small.Channels; c++) luts[c] = DisplayStretch.BuildLut(prms[c]);
+        }
+        else
+        {
+            var identity = DisplayStretch.BuildLutLinear();
+            for (int c = 0; c < small.Channels; c++) luts[c] = identity;
+        }
+        ct.ThrowIfCancellationRequested();
+
+        int w = small.Width, h = small.Height, n = w * h;
+        var pixels = new byte[n * 4];
+        var d = small.Data;
+        int lutMax = luts[0].Length - 1;
+        Parallel.For(0, h, y =>
+        {
+            for (int i = y * w; i < (y + 1) * w; i++)
+            {
+                byte r, g, b;
+                if (small.Channels == 3)
+                {
+                    r = luts[0][Index(d[i], lutMax)];
+                    g = luts[1][Index(d[n + i], lutMax)];
+                    b = luts[2][Index(d[2 * n + i], lutMax)];
+                }
+                else r = g = b = luts[0][Index(d[i], lutMax)];
+                int o = i * 4;
+                pixels[o] = b; pixels[o + 1] = g; pixels[o + 2] = r; pixels[o + 3] = 255;
+            }
+        });
+        return new Frame(pixels, w, h, image.Width, image.Height);
+    }
+
+    private static int Index(float v, int max) => v <= 0f ? 0 : v >= 1f ? max : (int)(v * max);
+
+    /// <summary>Doboz-átlagolás egész szorzóval.</summary>
+    public static AstroImage Downsample(AstroImage img, int factor)
+    {
+        int w = img.Width / factor, h = img.Height / factor;
+        var outImg = new AstroImage(w, h, img.Channels);
+        float inv = 1f / (factor * factor);
+        for (int c = 0; c < img.Channels; c++)
+        {
+            var src = img.Data; var dst = outImg.Data;
+            int so = c * img.PixelsPerChannel, dOff = c * outImg.PixelsPerChannel;
+            Parallel.For(0, h, y =>
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    float sum = 0f;
+                    for (int yy = 0; yy < factor; yy++)
+                    {
+                        int row = so + (y * factor + yy) * img.Width + x * factor;
+                        for (int xx = 0; xx < factor; xx++) sum += src[row + xx];
+                    }
+                    dst[dOff + y * w + x] = sum * inv;
+                }
+            });
+        }
+        return outImg;
+    }
+}

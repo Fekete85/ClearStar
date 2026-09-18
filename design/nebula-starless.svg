@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+<defs>
+  <filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.0022 0.0035" numOctaves="5" seed="11"/><feColorMatrix type="matrix" values="0 0 0 0 0.9  0 0 0 0 0.55  0 0 0 0 0.45  0 0 0 1.6 -0.55"/></filter>
+  <filter id="n2" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.004 0.006" numOctaves="4" seed="16"/><feColorMatrix type="matrix" values="0 0 0 0 0.35  0 0 0 0 0.55  0 0 0 0 1  0 0 0 1.4 -0.6"/></filter>
+  <radialGradient id="core" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff1d6" stop-opacity="0.95"/><stop offset="0.12" stop-color="#f0c48a" stop-opacity="0.75"/><stop offset="0.4" stop-color="#8a3d5e" stop-opacity="0.45"/><stop offset="1" stop-color="#0b0b12" stop-opacity="0"/></radialGradient>
+  <radialGradient id="mask" cx="50%" cy="50%" r="55%"><stop offset="0" stop-color="#fff"/><stop offset="0.6" stop-color="#fff" stop-opacity="0.7"/><stop offset="1" stop-color="#000"/></radialGradient>
+  <mask id="m"><rect width="100%" height="100%" fill="url(#mask)"/></mask>
+</defs>
+<rect width="100%" height="100%" fill="#07070c"/>
+<g mask="url(#m)"><rect width="100%" height="100%" filter="url(#n)" opacity="0.85"/><rect width="100%" height="100%" filter="url(#n2)" opacity="0.6"/></g>
+<ellipse cx="624" cy="384" rx="432" ry="192" fill="url(#core)" transform="rotate(-18 624 384)"/>
+
+</svg>

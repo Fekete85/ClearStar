@@ -1,0 +1,56 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "A · Induló állapot",
+      "x": 0,
+      "y": 0,
+      "w": 1600,
+      "h": 1280
+    },
+    {
+      "file": "Stackeles.dc.html",
+      "title": "B · Képek összeillesztése",
+      "x": 1760,
+      "y": 0,
+      "w": 1600,
+      "h": 1280
+    },
+    {
+      "file": "Hatter.dc.html",
+      "title": "C · Háttér kiegyenlítése",
+      "x": 0,
+      "y": 1440,
+      "w": 1600,
+      "h": 1280
+    },
+    {
+      "file": "Csillagok.dc.html",
+      "title": "D · Csillagok visszahelyezése",
+      "x": 1760,
+      "y": 1440,
+      "w": 1600,
+      "h": 1280
+    },
+    {
+      "file": "Mentes.dc.html",
+      "title": "E · Mentés",
+      "x": 0,
+      "y": 2880,
+      "w": 1600,
+      "h": 1280
+    }
+  ],
+  "annotations": [
+    {
+      "id": "brief",
+      "x": 3520,
+      "y": 2880,
+      "w": 360,
+      "text": "ClearStar – vezetett asztrofotó-feldolgozás kezdőknek.\n\nBal oldalon a 17 lépéses akkordeon: az aktív lépés nyitva, benne a beállításokkal és egy egymondatos magyarázattal. Bármelyik kész lépésre visszaugorva a későbbiek „Frissítés szükséges” jelölést kapnak (borostyán „!”), a kihagyottak áthúzva maradnak.\n\nA képnézet felett: „Eredeti” (lenyomva tartva) és „Előtte / utána” osztott nézet."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

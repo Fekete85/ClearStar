@@ -1,0 +1,330 @@
+{
+  "_meta": { "name": "Magyar", "code": "hu", "author": "ClearStar" },
+
+  "group": {
+    "Preparation": "Előkészítés",
+    "Basics": "Alapok",
+    "Stars": "Csillagok",
+    "Refinement": "Finomítás",
+    "Finish": "Befejezés"
+  },
+
+  "step": {
+    "load": {
+      "name": "Képek betöltése",
+      "desc": "Válaszd ki a mappát, ahová a távcsőről vagy fényképezőről a képeidet mentetted. A fény-, sötét- és flat-képeket magunktól szétválogatjuk. Egyetlen, már összeillesztett képet is választhatsz.",
+      "folder": { "label": "Mappa vagy kép" }
+    },
+    "stack": {
+      "name": "Képek összeillesztése",
+      "tech": "stackelés",
+      "desc": "A sok rövid felvételt egyetlen, sokkal tisztább képpé rakjuk össze. A csillagok alapján pontosan egymásra igazítjuk őket, a sötét- és flat-képek a szenzor hibáit tüntetik el.",
+      "align": { "label": "Képek igazítása a csillagok alapján", "help": "Kapcsold ki, ha a képek már pontosan egymásra illenek (pl. egy már összeillesztett kép)." },
+      "reject": { "label": "Gyenge képek automatikus kihagyása", "help": "Az elmozdult, felhős vagy túl kevés csillagot mutató képeket kihagyjuk." },
+      "calibrate": { "label": "Sötét- és flat-képek használata" },
+      "gradient": { "label": "Háttér-gradiens kivonása képenként", "help": "Fényszennyezett égnél a gradiens az éjszaka során elmozdul; képenként kivonva tisztább lesz az átlag." },
+      "framing": { "label": "Teljes látómező megtartása", "help": "Az elforgatott képek miatt a sarkok sötétebbek lehetnek – a vágásnál levághatod. Kikapcsolva a referenciakép keretére vág." },
+      "clip": { "label": "Kilógó értékek szűrése (műholdcsíkok, forró pixelek)", "help": "Két menetben átlagol: a második menetben az átlagtól nagyon eltérő értékeket kihagyja. Lassabb, de tisztább." }
+    },
+    "crop": {
+      "name": "Vágás",
+      "desc": "Húzz egy téglalapot a képen arra a részre, amit meg szeretnél tartani. Ha nem jelölsz ki semmit, a széleken lévő, összeillesztésből származó vékony hibás sávot vágjuk le.",
+      "margin": { "label": "Szélek levágása", "ticks": ["Semmi", "Kicsi", "Nagyobb"], "help": "A csúszka a képen látható kijelölést állítja; a kijelölés széleit utána egérrel is finomhangolhatod." }
+    },
+    "bge": {
+      "name": "Háttér kiegyenlítése",
+      "desc": "A fényszennyezés és a hold egyenetlen, foltos hátteret hagy. Itt ezt simítjuk ki, hogy az ég mindenhol egyformán sötét legyen.",
+      "method": { "label": "Módszer", "help": "Az AI-modell a ködöket és galaxisokat felismeri, és csak a tényleges hátteret veszi ki. A polinom egyszerűbb, de nagy, képet kitöltő objektumnál óvatosabb beállítást igényel.", "ai": "AI (GraXpert-modell)", "polynomial": "Egyszerű (polinom-illesztés)" },
+      "model": { "label": "AI-modell", "help": "Üresen a legfrissebb elérhető modellt használjuk." },
+      "smoothing": { "label": "Simítás", "ticks": ["Finom", "Közepes", "Durva"], "help": "Finom: a modell követi a kisebb foltokat is. Durva: csak a nagy, lassú átmenetet veszi ki." },
+      "strength": { "label": "Kiegyenlítés erőssége (polinom)", "ticks": ["Gyenge", "Közepes", "Erős"], "help": "Csak a polinom-módszernél: mennyire fényes területeket tekintsünk még háttérnek." },
+      "grid": { "label": "Mintavételi rács sűrűsége (polinom)", "ticks": ["Ritka", "Közepes", "Sűrű"] },
+      "correction": { "label": "Korrekció módja", "help": "A kivonás a fényszennyezés-gradienst, az osztás a vignettálás (sarok-sötétedés) jellegű hibát javítja.", "subtract": "Kivonás (ajánlott)", "divide": "Osztás (vignettálásra)" }
+    },
+    "deconv": {
+      "name": "Élesítés",
+      "tech": "deconvolution",
+      "desc": "A légkör és az optika kicsit elmossa a részleteket. Az élesítés ezt fordítja vissza, amennyire lehet. Előbb a csillagokat húzzuk össze, aztán a köd és a galaxis részleteit emeljük ki – mindkettő külön AI-modellel.",
+      "stars": { "label": "Csillagok élesítése", "help": "A csillagok kisebbek, pontszerűbbek lesznek." },
+      "starsStrength": { "label": "Csillagok – erősség", "ticks": ["Finom", "Közepes", "Erős"] },
+      "object": { "label": "Köd, galaxis élesítése", "help": "A finom szerkezet (porsávok, spirálkarok) határozottabb lesz." },
+      "objectStrength": { "label": "Köd, galaxis – erősség", "ticks": ["Finom", "Közepes", "Erős"], "help": "Túl erősen a zaj is kiemelkedik – ha szemcsés lesz, vedd vissza." },
+      "starsModel": { "label": "AI-modell (csillagok)", "help": "Üresen a legfrissebb elérhető modellt használjuk." },
+      "objectModel": { "label": "AI-modell (köd, galaxis)", "help": "Üresen a legfrissebb elérhető modellt használjuk." },
+      "autoPsf": { "label": "Csillagméret automatikus mérése", "help": "A modellnek tudnia kell, mekkorák a csillagok a képen (FWHM). Kikapcsolva a csúszkával adhatod meg." },
+      "psf": { "label": "Csillagméret (FWHM, pixel)", "ticks": ["Kicsi (2 px)", "Közepes (6 px)", "Nagy (12 px)"] }
+    },
+    "denoise": { "name": "Zajcsökkentés", "desc": "A hosszú expozíció és a magas ISO szemcséssé teszi a képet. Itt ezt simítjuk ki a részletek megtartásával." },
+    "platesolve": { "name": "Égbolt azonosítása", "tech": "plate solving", "desc": "A csillagmintázatból kiderítjük, pontosan hova néz a képed. Ez kell a pontos színkalibráláshoz." },
+    "colorcal": { "name": "Színek kalibrálása", "desc": "A csillagok ismert színeihez igazítjuk a kép színeit, hogy a ködök valósághűek legyenek." },
+    "starremoval": { "name": "Csillagok leválasztása", "desc": "A csillagokat ideiglenesen külön képre tesszük, hogy a ködöt és a csillagokat külön-külön, a nekik megfelelő módon lehessen kezelni." },
+    "ghs": {
+      "name": "Ködök, galaxis kiemelése",
+      "tech": "GHS nyújtás",
+      "desc": "A nyers kép szinte fekete: a halvány részletek a sötétben lapulnak. Itt hozzuk elő őket úgy, hogy a fényes részek ne égjenek ki.",
+      "amount": { "label": "Kiemelés mértéke", "ticks": ["Finom", "Közepes", "Erős"] },
+      "focus": { "label": "Hangsúly", "ticks": ["Sötét részek", "Közepes", "Világos részek"], "help": "Hol legyen a legnagyobb a kontrasztnövelés: a leghalványabb ködöknél vagy a fényesebb magnál." },
+      "shape": { "label": "Görbe alakja", "ticks": ["Lágy", "Közepes", "Hirtelen"] },
+      "linked": { "label": "Színegyensúly megőrzése (csatornák együtt)" }
+    },
+    "starstretch": {
+      "name": "Csillagok nyújtása",
+      "desc": "A csillagokat külön, óvatosabban világosítjuk, hogy kicsik és színesek maradjanak, ne fehér foltok legyenek.",
+      "amount": { "label": "Csillagok fényessége", "ticks": ["Visszafogott", "Természetes", "Hangsúlyos"] }
+    },
+    "recombine": { "name": "Csillagok visszahelyezése", "desc": "A külön kiemelt ködöt és a külön nyújtott csillagokat itt rakjuk újra össze." },
+    "green": {
+      "name": "Zöld árnyalat eltávolítása",
+      "desc": "Az űrben nincs zöld köd – ha a képed zöldes, az a szenzor sajátja. Itt ezt vesszük ki, a többi szín érintetlen marad.",
+      "amount": { "label": "Erősség", "ticks": ["Gyenge", "Közepes", "Teljes"] }
+    },
+    "fringe": { "name": "Színes szegélyek javítása", "tech": "chromatic aberration", "desc": "A fényes csillagok körül lila vagy kékes szegély jelenhet meg az optika miatt. Itt ezt halványítjuk el." },
+    "contrast": {
+      "name": "Kontraszt",
+      "desc": "Kicsit mélyebb sötétek, kicsit élénkebb világosak – a kép \"összeáll\". Óvatosan: a túl erős kontraszt elnyeli a halvány ködöt.",
+      "amount": { "label": "Kontraszt", "ticks": ["Lágy", "Természetes", "Erős"] },
+      "black": { "label": "Háttér sötétítése", "ticks": ["Semmi", "Kicsi", "Több"] }
+    },
+    "saturation": {
+      "name": "Színtelítettség",
+      "desc": "A ködök vörösei, kékjei és a csillagok színei kicsit élénkebbek lesznek. A fényesség nem változik.",
+      "amount": { "label": "Színek erőssége", "ticks": ["Visszafogott", "Természetes", "Élénk"] }
+    },
+    "save": {
+      "name": "Mentés",
+      "desc": "Kész a képed! Válaszd ki, mire szeretnéd használni, a többit beállítjuk.",
+      "purpose": { "label": "Mire használod?", "share": "Megosztáshoz (JPEG)", "print": "Nyomtatáshoz (TIFF 16 bit)", "edit": "További szerkesztéshez (FITS)" },
+      "folder": { "label": "Hova mentsük?" },
+      "filename": { "label": "Fájlnév" },
+      "defaultName": "ClearStar_kep"
+    }
+  },
+
+  "msg": {
+    "notImplemented": "Ez a lépés még készül – a kép változatlan.",
+    "load": {
+      "chooseFolder": "Válassz egy mappát vagy képet.",
+      "unsupported": "Ezt a képformátumot nem tudom megnyitni.",
+      "searching": "Képek keresése…",
+      "inspecting": "Képek vizsgálata…",
+      "noImages": "Ebben a mappában nem találtam támogatott képet (FITS, TIFF, PNG, JPEG).",
+      "noLights": "Nem találtam fényképet (light) a mappában – sötét- és flat-képekből önmagukban nem lesz kép.",
+      "notFound": "A megadott mappa vagy fájl nem létezik.",
+      "lights": "{0} fény",
+      "darks": "{0} sötét",
+      "flats": "{0} flat",
+      "bias": "{0} bias",
+      "hours": "{0} óra {1} perc",
+      "minutes": "{0} perc"
+    },
+    "stack": {
+      "loadFirst": "Először tölts be képeket.",
+      "noLights": "Nincs fénykép az összeillesztéshez.",
+      "loading": "Kép betöltése…",
+      "single": "1 kép betöltve (nincs mit összeilleszteni)",
+      "prepRef": "Referenciakép előkészítése…",
+      "fewStars": "A referenciaképen csak {0} csillagot találtam – az igazításhoz legalább {1} kell. Próbáld az igazítást kikapcsolni.",
+      "sizeMismatch": "eltérő méret",
+      "alignFailed": "nem sikerült igazítani ({0} csillag)",
+      "aligning": "Igazítás… {0} / {1}",
+      "noneUsable": "Egyetlen képet sem sikerült felhasználni. {0}",
+      "stacking": "Összeillesztés… {0} / {1}",
+      "clipping": "Kilógó értékek szűrése… {0} / {1}",
+      "summaryAligned": "{0} kép igazítva és átlagolva",
+      "summaryAveraged": "{0} kép átlagolva",
+      "clipped": ", szűrve",
+      "gradient": ", gradiens kivonva",
+      "calibrated": ", kalibrálva",
+      "rotation": " · elfordulás max. {0:0.0}°",
+      "skipped": " · {0} kihagyva",
+      "reference": "Referenciakép",
+      "noAlign": "Igazítás nélkül",
+      "aligned": "Igazítva · {0} csillag · {1:+0.0;-0.0}°",
+      "skippedNote": "Kihagyva – {0}",
+      "masterDark": "Mestersötét készítése…",
+      "masterFlat": "Mesterflat készítése…",
+      "calibLoadFailed": "A kalibráló képeket nem sikerült betölteni."
+    },
+    "crop": {
+      "size": "{0} × {1} px",
+      "tooMuch": "Túl sokat vágnál le – nem maradna kép."
+    },
+    "bge": {
+      "selectedSource": "kiválasztott",
+      "noModel": "Nincs háttérkivonó AI-modell a gépen. Válassz egyet a lépés „AI-modell” listájából (tallózás vagy letöltés), vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik. Addig a polinom-módszer is használható.",
+      "estimating": "Háttérmodell becslése az AI-val…",
+      "subtracting": "Háttér kivonása…",
+      "summaryAi": "AI-modell {0} ({1})",
+      "summaryPoly": "{0} háttérminta, {1} modell",
+      "collecting": "Háttérminták gyűjtése…",
+      "fitting": "Háttérmodell illesztése…",
+      "degree1": "sík",
+      "degree2": "másodfokú",
+      "degreeN": "finom"
+    },
+    "deconv": {
+      "nothing": "Nincs bekapcsolva élesítés – a kép változatlan",
+      "noStarsModel": "Nincs csillag-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (csillagok)” listából, vagy telepítsd a GraXpertet és töltsd le vele. Addig kapcsold ki a csillagok élesítését.",
+      "noObjectModel": "Nincs köd-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (köd, galaxis)” listából, vagy telepítsd a GraXpertet és töltsd le vele. Addig kapcsold ki a köd élesítését.",
+      "measuring": "Csillagméret mérése…",
+      "stars": "Csillagok élesítése…",
+      "object": "Köd, galaxis élesítése…",
+      "both": "csillagok + köd",
+      "starsOnly": "csak csillagok",
+      "objectOnly": "csak köd",
+      "summary": "Élesítve ({0}) · csillagméret {1:0.0} px"
+    },
+    "ghs": { "summary": "Nyújtás (háttér {0:0.00}, D={1:0.#}, b={2:0.#})" },
+    "starstretch": { "already": "A kép már nyújtva van – nem nyújtjuk újra", "summary": "Nyújtva (háttér {0:0.00})" },
+    "green": { "mono": "Fekete-fehér kép – nincs mit javítani", "summary": "Zöld árnyalat csökkentve" },
+    "contrast": { "summary": "Kontraszt beállítva" },
+    "saturation": { "mono": "Fekete-fehér kép – nincs szín", "summary": "Színek élénkítve" },
+    "save": { "saving": "Mentés…", "summary": "Mentve: {0} ({1:0.#} MB)" },
+    "workflow": {
+      "oneStep": "Legalább egy lépés kell.",
+      "needStack": "Ehhez a lépéshez előbb az összeillesztést kell elvégezni.",
+      "cannotSkip": "A betöltés és az összeillesztés nem hagyható ki.",
+      "needImage": "Ehhez a lépéshez már betöltött képre van szükség."
+    },
+    "model": {
+      "kind": { "BackgroundExtraction": "háttérkivonás", "Denoise": "zajcsökkentés", "DeconvolutionObject": "élesítés (objektum)", "DeconvolutionStars": "élesítés (csillagok)" },
+      "ownFile": "saját fájl",
+      "zipNoOnnx": "A zip nem tartalmaz .onnx modellt."
+    }
+  },
+
+  "ui": {
+    "app": { "title": "ClearStar", "titleWithFolder": "ClearStar – {0}", "errorTitle": "ClearStar – hiba", "errorDetails": "Részletek: {0}" },
+    "sidebar": { "title": "Feldolgozás", "progress": "lépés kész" },
+    "toolbar": {
+      "original": "Eredeti",
+      "originalHint": "tartsd lenyomva",
+      "originalTip": "Tartsd lenyomva, és a kiindulási képet látod",
+      "split": "Előtte / utána",
+      "boost": "Előnézet felerősítése",
+      "boostTip": "A nyers kép szinte fekete – ez csak a képernyőn erősíti fel, a képet nem változtatja.",
+      "helpTip": "Súgó: menj végig a lépéseken fentről lefelé. Bármelyik kész lépésre visszakattinthatsz.",
+      "about": "Névjegy, nyelv és licencek"
+    },
+    "viewer": {
+      "before": "Előtte",
+      "after": "Utána",
+      "selectionHint": "Húzz egy téglalapot a megtartandó területre · a széleit, sarkait utána is húzhatod · görgő: nagyítás · középső gomb: kép mozgatása",
+      "zoomOut": "Kicsinyítés",
+      "zoomIn": "Nagyítás",
+      "fit": "Teljes kép"
+    },
+    "step": {
+      "notImplemented": "Ez a lépés még készül. Most még nem változtat a képen – nyugodtan kihagyhatod.",
+      "advanced": "Haladó beállítások",
+      "reset": "Alaphelyzet",
+      "skip": "Kihagyás",
+      "skipped": "Kihagyva",
+      "stale": "Frissítés szükséges",
+      "btnLoad": "Betöltés",
+      "btnStack": "Összeillesztés indítása",
+      "btnSave": "Mentés",
+      "btnApply": "Alkalmaz",
+      "btnReapply": "Újra alkalmaz",
+      "chooseFolder": "Mappa választása",
+      "singleImage": "egyetlen kép…",
+      "noPath": "Még nincs kiválasztva",
+      "pickImage": "Kép kiválasztása",
+      "imageFilter": "Képek|*.fit;*.fits;*.fts;*.tif;*.tiff;*.png;*.jpg;*.jpeg|Minden fájl|*.*"
+    },
+    "model": {
+      "auto": "Automatikus (a legfrissebb elérhető)",
+      "fromFolder": "{0} – {1} mappa",
+      "ownFile": "{0} – saját fájl",
+      "missing": "Nincs modell a gépen. Tallózz be egy model.onnx fájlt, tölts le egyet URL-ről, vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik.",
+      "using": "Használt modell: {0} ({1})",
+      "refresh": "Frissítés",
+      "browse": "Tallózás…",
+      "download": "Letöltés URL-ről…",
+      "pickTitle": "AI-modell kiválasztása ({0})",
+      "pickFilter": "ONNX-modell vagy zip|*.onnx;*.zip|Minden fájl|*.*",
+      "loadFailed": "Nem sikerült betölteni: {0}",
+      "downloadTitle": "Modell letöltése",
+      "downloadPrompt": "A modell (.onnx vagy .zip) letöltési címe:",
+      "downloading": "Letöltés…",
+      "downloadFailed": "A letöltés nem sikerült: {0}",
+      "license": "A GraXpert AI-modelljei CC BY-NC-SA 4.0 licencűek – csak nem kereskedelmi célra. Részletek: Névjegy › Licencek."
+    },
+    "frames": {
+      "loadedTitle": "Betöltött képek",
+      "stackTitle": "Képek összeillesztése",
+      "loadedSub": "Ezeket a képeket találtuk a mappában. Kattints egy képre az előnézetéhez.",
+      "stackSub": "Ezek a képek kerülnek az összeillesztésbe. Kattints egy képre az előnézetéhez.",
+      "stackedSub": "Ezek a képek kerültek az összeillesztésbe. Kattints egy képre vagy a grafikon egy oszlopára az előnézetéhez.",
+      "typeLight": "Fény",
+      "typeDark": "Sötét",
+      "typeFlat": "Flat",
+      "typeBias": "Bias",
+      "seconds": "{0:0.#} mp",
+      "qualityTitle": "Adatminőség időrendben",
+      "qualityLegend": "türkiz: felhasznált · piros: kihagyott · rámutatva az érték, kattintva az előnézet",
+      "qStars": "Csillagok száma – a felhő, pára, holdfény és a nagy zenittávolság csökkenti",
+      "qSize": "Csillagok mérete – minél kisebb, annál élesebb (rossz nyugodtság, fókuszhiba, párásodás növeli)",
+      "qBackground": "Háttér fényessége – a fényszennyezés, a szürkület és a Hold emeli",
+      "qAngle": "Elfordulás a referenciához képest",
+      "starsValue": "{0:0} csillag",
+      "stackDone": "A kész összeillesztés",
+      "openInCrop": "Megnyitás nagyban a vágásnál ›",
+      "prev": "‹ Előző",
+      "next": "Következő ›",
+      "backToList": "Vissza a listához",
+      "previewTitle": "{0}  ({1} / {2})",
+      "previewLoading": "Előnézet betöltése: {0}…",
+      "previewInfo": "{0} · {1} × {2} px",
+      "openFailed": "Nem sikerült megnyitni: {0}"
+    },
+    "crop": {
+      "computing": "A lefedett terület számítása…",
+      "noSelection": "Nincs kijelölés – a teljes kép marad. Húzz a képen, vagy állítsd a csúszkát.",
+      "covered": "Lefedett terület",
+      "selection": "Kijelölés: {0} × {1} px",
+      "noCorners": " – a forgatásból üres sarkok nélkül",
+      "clear": "Kijelölés törlése"
+    },
+    "status": {
+      "noImage": "Nincs megnyitott kép",
+      "running": "{0}…",
+      "done": "{0}: {1}",
+      "cancelled": "Megszakítva.",
+      "previewError": "Előnézet hiba",
+      "cancel": "Megszakítás",
+      "imageInfo": "{0} × {1} px · {2} · 32 bit",
+      "color": "színes",
+      "mono": "fekete-fehér",
+      "allDone": "Kész! Ezt a képet már meg is mutathatod.",
+      "lastStep": "Ez az utolsó lépés – mindjárt kész!",
+      "fewLeft": "Szép munka! Már csak {0} lépés van hátra.",
+      "progress": "{0} lépés kész."
+    },
+    "drop": { "title": "Húzd ide a képeidet", "sub": "vagy válassz mappát bal oldalt · FITS, TIFF, PNG, JPEG" },
+    "welcome": {
+      "title": "Üdv a ClearStarban!",
+      "lead": "Három lépésben a nyers képektől a kész asztrofotóig. Végig kézen fogunk, és minden lépésnél elmondjuk, mi történik.",
+      "s1": "Töltsd be a képeidet", "s1sub": "Egy mappa elég, a többit intézzük.",
+      "s2": "Menj végig a lépéseken", "s2sub": "Jó alapbeállításokkal, egy kattintással.",
+      "s3": "Mentsd el", "s3sub": "Megosztáshoz, nyomtatáshoz vagy tovább szerkesztéshez.",
+      "start": "Kezdjük!"
+    },
+    "dialog": { "ok": "Rendben", "cancel": "Mégse", "close": "Bezárás" },
+    "about": {
+      "title": "Névjegy",
+      "tagline": "Kezdőbarát asztrofotó-feldolgozó – nyers képektől a kész fotóig, lépésről lépésre.",
+      "version": "Verzió: {0}",
+      "language": "A felület nyelve",
+      "languageNote": "A nyelvváltás a program újraindításakor lép életbe. Új nyelv: másolj egy xx.json fájlt ide:",
+      "languageFolder": "Nyelvi mappa megnyitása",
+      "restart": "Újraindítás most",
+      "tabAbout": "Névjegy",
+      "tabLicense": "Licenc",
+      "tabThirdParty": "Felhasznált munkák",
+      "tabModels": "AI-modellek",
+      "openFolder": "Megnyitás",
+      "summary": "A ClearStar a szerzőjének saját fejlesztése, a kód a GNU GPL 3.0 (vagy későbbi) licenc alatt szabadon használható, módosítható és továbbadható. A stackelés, a nyújtás és a háttérkivonás megoldásait a Siril és a GraXpert (mindkettő GPL-3.0) forráskódjának tanulmányozásával írtuk meg – kód nem került átvételre. Az AI-lépések a GraXpert Development Team CC BY-NC-SA 4.0 licencű modelljeit használják: ezek csak nem kereskedelmi célra használhatók, és a ClearStar nem tartalmazza őket. A képek, amiket a programmal készítesz, a tieid. A program nem küld adatot sehova; hálózatot csak az általad kért modell-letöltés használ. A részletek és a közreműködők névsora a további füleken."
+    }
+  }
+}

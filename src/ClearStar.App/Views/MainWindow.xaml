@@ -1,0 +1,290 @@
+<Window x:Class="ClearStar.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:ClearStar.App.ViewModels"
+        xmlns:controls="clr-namespace:ClearStar.App.Controls"
+        xmlns:l="clr-namespace:ClearStar.App.Localization"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DataContext="{d:DesignInstance vm:MainViewModel}"
+        Title="{Binding WindowTitle}" Icon="/Assets/clearstar.ico" Width="1600" Height="1000" MinWidth="1100" MinHeight="700"
+        WindowStartupLocation="CenterScreen" Background="{StaticResource B.Bg}"
+        FontFamily="{StaticResource F.Body}" AllowDrop="True" Drop="OnDrop" DragOver="OnDragOver"
+        TextOptions.TextFormattingMode="Ideal" UseLayoutRounding="True">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="360"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Bal oldal: vezetett lépések ===== -->
+        <Border Background="{StaticResource B.Layer}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="0,0,1,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <StackPanel Margin="24,18,24,8">
+                    <Grid>
+                        <TextBlock Text="{l:T ui.sidebar.title}" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock HorizontalAlignment="Right" Style="{StaticResource T.Secondary}" FontSize="12">
+                            <Run Text="{Binding DoneCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSteps, Mode=OneWay}"/><Run Text=" "/><Run Text="{l:T ui.sidebar.progress}"/>
+                        </TextBlock>
+                    </Grid>
+                    <ProgressBar Minimum="0" Maximum="1" Value="{Binding ProgressFraction, Mode=OneWay}" Margin="0,10,0,0"/>
+                    <TextBlock Text="{Binding Encouragement}" Foreground="{StaticResource B.Accent}" FontSize="12.5" Margin="0,10,0,0"
+                               Visibility="{Binding Encouragement, Converter={StaticResource NullToVis}}"/>
+                </StackPanel>
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="12,0,12,12">
+                    <ItemsControl ItemsSource="{Binding SidebarItems}"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+
+        <!-- ===== Jobb oldal: kép ===== -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="48"/>
+                <RowDefinition/>
+                <RowDefinition Height="32"/>
+            </Grid.RowDefinitions>
+
+            <!-- Eszközsáv -->
+            <Border BorderBrush="{StaticResource B.Stroke}" BorderThickness="0,0,0,1" Padding="16,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="OriginalButton" Style="{StaticResource Btn.Tool}" IsEnabled="{Binding CanCompare}"
+                                PreviewMouseLeftButtonDown="OriginalDown" PreviewMouseLeftButtonUp="OriginalUp" MouseLeave="OriginalUp"
+                                ToolTip="{l:T ui.toolbar.originalTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource I.Eye}" Stroke="{StaticResource B.Text2}" StrokeThickness="1.8" Width="16" Height="16" Stretch="Uniform" Margin="0,0,7,0"/>
+                                <TextBlock Text="{l:T ui.toolbar.original}" Foreground="{StaticResource B.Text2}" FontSize="12.5"/>
+                                <TextBlock Text="{l:T ui.toolbar.originalHint}" Style="{StaticResource T.Muted}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        <ToggleButton Style="{StaticResource Btn.ToolToggle}" IsChecked="{Binding SplitView}" IsEnabled="{Binding CanCompare}" Margin="6,0,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource I.Split}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" StrokeThickness="1.8" Width="16" Height="16" Stretch="Uniform" Margin="0,0,7,0"/>
+                                <TextBlock Text="{l:T ui.toolbar.split}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" FontSize="12.5"/>
+                            </StackPanel>
+                        </ToggleButton>
+                        <ToggleButton Style="{StaticResource Btn.ToolToggle}" IsChecked="{Binding AutoStretch}" IsEnabled="{Binding CanCompare}" Margin="6,0,0,0"
+                                      ToolTip="{l:T ui.toolbar.boostTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource I.Stretch}" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" StrokeThickness="1.8" Width="16" Height="16" Stretch="Uniform" Margin="0,0,7,0"/>
+                                <TextBlock Text="{l:T ui.toolbar.boost}" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ToggleButton}}" FontSize="12.5"/>
+                            </StackPanel>
+                        </ToggleButton>
+                    </StackPanel>
+                    <Button Style="{StaticResource Btn.Icon}" HorizontalAlignment="Right" ToolTip="{l:T ui.toolbar.about}" Command="{Binding ShowAboutCommand}" AutomationProperties.AutomationId="AboutButton">
+                        <Path Data="{StaticResource I.Help}" Stroke="{StaticResource B.Text2}" StrokeThickness="1.8" Width="18" Height="18" Stretch="Uniform"/>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Képnézet -->
+            <Grid Grid.Row="1" Background="{StaticResource B.View}">
+                <controls:ImageViewer x:Name="Viewer" Source="{Binding PreviewImage}" BeforeSource="{Binding BeforeImage}" IsSplit="{Binding SplitView}"
+                                      IsSelectionMode="{Binding IsSelectionMode}" Selection="{Binding Selection, Mode=TwoWay}" SourceScale="{Binding PreviewScale}"
+                                      Visibility="{Binding PreviewImage, Converter={StaticResource NullToVis}}"/>
+
+                <!-- Betöltött fájlok (amíg nincs kép) -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="24,20" Visibility="{Binding PreviewImage, Converter={StaticResource NullToVisInv}}">
+                    <StackPanel Visibility="{Binding HasFrames, Converter={StaticResource BoolToVis}}">
+                        <TextBlock Text="{Binding FramesTitle}" FontSize="15" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding FramesSubtitle}" Style="{StaticResource T.Secondary}" Margin="0,4,0,12"/>
+                        <!-- Adatminőség időrendben (az összeillesztés után) -->
+                        <Border Visibility="{Binding ShowQuality, Converter={StaticResource BoolToVis}}" CornerRadius="10" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,12" Margin="0,0,10,16">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="{l:T ui.frames.qualityTitle}" FontSize="13.5" FontWeight="SemiBold"/>
+                                    <TextBlock HorizontalAlignment="Right" Style="{StaticResource T.Muted}" Text="{l:T ui.frames.qualityLegend}"/>
+                                </Grid>
+                                <TextBlock Text="{l:T ui.frames.qStars}" Style="{StaticResource T.Secondary}" FontSize="12" Margin="0,0,0,2"/>
+                                <controls:QualityChart Items="{Binding Frames}" Metric="Stars" Version="{Binding QualityVersion}" Height="84" Margin="0,0,0,10"/>
+                                <TextBlock Text="{l:T ui.frames.qSize}" Style="{StaticResource T.Secondary}" FontSize="12" Margin="0,0,0,2"/>
+                                <controls:QualityChart Items="{Binding Frames}" Metric="StarSize" Version="{Binding QualityVersion}" Height="84" Margin="0,0,0,10"/>
+                                <TextBlock Text="{l:T ui.frames.qBackground}" Style="{StaticResource T.Secondary}" FontSize="12" Margin="0,0,0,2"/>
+                                <controls:QualityChart Items="{Binding Frames}" Metric="Background" Version="{Binding QualityVersion}" Height="84" Margin="0,0,0,10"/>
+                                <TextBlock Text="{l:T ui.frames.qAngle}" Style="{StaticResource T.Secondary}" FontSize="12" Margin="0,0,0,2"/>
+                                <controls:QualityChart Items="{Binding Frames}" Metric="Angle" Version="{Binding QualityVersion}" Height="64"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- A kész összeillesztés kicsiben; kattintva a vágás lépésre ugrik, ahol nagyban látszik -->
+                        <Border Visibility="{Binding StackThumbnail, Converter={StaticResource NullToVis}}" CornerRadius="10" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,12" Margin="0,0,10,16" HorizontalAlignment="Left">
+                            <StackPanel>
+                                <Grid Margin="0,0,0,8">
+                                    <TextBlock Text="{l:T ui.frames.stackDone}" FontSize="13.5" FontWeight="SemiBold"/>
+                                    <Button Style="{StaticResource Btn.Link}" Content="{l:T ui.frames.openInCrop}" Command="{Binding GoToCropCommand}" HorizontalAlignment="Right" Height="22"/>
+                                </Grid>
+                                <Border CornerRadius="6" Background="{StaticResource B.View}" Cursor="Hand" MaxHeight="420">
+                                    <Border.InputBindings><MouseBinding Gesture="LeftClick" Command="{Binding GoToCropCommand}"/></Border.InputBindings>
+                                    <Image Source="{Binding StackThumbnail}" Stretch="Uniform" MaxHeight="420" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                        <ItemsControl ItemsSource="{Binding Frames}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border x:Name="card" Width="190" Height="78" Margin="0,0,10,10" CornerRadius="8" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="10,8" Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" Command="{Binding PreviewCommand}"/>
+                                        </Border.InputBindings>
+                                        <StackPanel>
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Border CornerRadius="9" Background="{StaticResource B.AccentSoft}" Padding="7,1">
+                                                        <TextBlock Text="{Binding TypeName}" FontSize="10.5" Foreground="{StaticResource B.Accent}" FontWeight="SemiBold"/>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding Detail}" Style="{StaticResource T.Muted}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                                <Border x:Name="badge" Width="18" Height="18" CornerRadius="9" HorizontalAlignment="Right" Visibility="Collapsed">
+                                                    <Grid>
+                                                        <Path x:Name="badgeCheck" Data="{StaticResource I.Check}" Stroke="{StaticResource B.Green}" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Width="10" Height="10" Stretch="Uniform" Visibility="Collapsed"/>
+                                                        <Path x:Name="badgeX" Data="{StaticResource I.X}" Stroke="{StaticResource B.Red}" StrokeThickness="2.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Width="9" Height="9" Stretch="Uniform" Visibility="Collapsed"/>
+                                                    </Grid>
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock Text="{Binding FileName}" Style="{StaticResource T.Secondary}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,6,0,0"/>
+                                            <TextBlock x:Name="status" Text="{Binding Status}" Style="{StaticResource T.Muted}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" Margin="0,3,0,0"
+                                                       Visibility="{Binding Status, Converter={StaticResource NullToVis}}"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DataContext.IsStackView, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                            <Setter TargetName="status" Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsUsed}" Value="True">
+                                            <Setter TargetName="badge" Property="Visibility" Value="Visible"/>
+                                            <Setter TargetName="badge" Property="Background" Value="{StaticResource B.GreenSoft}"/>
+                                            <Setter TargetName="badgeCheck" Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding IsUsed}" Value="False">
+                                            <Setter TargetName="badge" Property="Visibility" Value="Visible"/>
+                                            <Setter TargetName="badge" Property="Background" Value="#29E5766D"/>
+                                            <Setter TargetName="badgeX" Property="Visibility" Value="Visible"/>
+                                            <Setter TargetName="card" Property="Opacity" Value="0.55"/>
+                                            <Setter TargetName="status" Property="Foreground" Value="{StaticResource B.Red}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding DataContext.IsStackView, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                                            <Setter TargetName="badge" Property="Visibility" Value="Collapsed"/>
+                                            <Setter TargetName="card" Property="Opacity" Value="1"/>
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Egy nyers kép előnézete: fejléc lapozással és visszalépéssel -->
+                <Border VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,12,0,0" CornerRadius="8" Background="#D9202023" BorderBrush="{StaticResource B.StrokeStrong}" BorderThickness="1" Padding="6,4"
+                        Visibility="{Binding IsFramePreview, Converter={StaticResource BoolToVis}}">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource Btn.Tool}" Content="{l:T ui.frames.prev}" Command="{Binding PreviousFrameCommand}"/>
+                        <TextBlock Text="{Binding FramePreviewTitle}" FontSize="12.5" VerticalAlignment="Center" Margin="10,0"/>
+                        <Button Style="{StaticResource Btn.Tool}" Content="{l:T ui.frames.next}" Command="{Binding NextFrameCommand}"/>
+                        <Rectangle Width="1" Height="18" Fill="{StaticResource B.StrokeStrong}" Margin="6,0"/>
+                        <Button Style="{StaticResource Btn.Tool}" Content="{l:T ui.frames.backToList}" Command="{Binding ExitFramePreviewCommand}" Foreground="{StaticResource B.Accent}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Üres állapot: dobd ide -->
+                <Border Margin="40" CornerRadius="16" BorderBrush="#24FFFFFF" BorderThickness="2" IsHitTestVisible="False">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding HasFrames}" Value="False"/>
+                                        <Condition Binding="{Binding HasImage}" Value="False"/>
+                                    </MultiDataTrigger.Conditions>
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </MultiDataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border Width="64" Height="64" CornerRadius="32" Background="#0DFFFFFF" HorizontalAlignment="Center">
+                            <Path Data="{StaticResource I.Upload}" Stroke="{StaticResource B.Text2}" StrokeThickness="1.8" Width="28" Height="28" Stretch="Uniform"/>
+                        </Border>
+                        <TextBlock Text="{l:T ui.drop.title}" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,6"/>
+                        <TextBlock Text="{l:T ui.drop.sub}" Style="{StaticResource T.Secondary}" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- Státuszsor -->
+            <Border Grid.Row="2" BorderBrush="{StaticResource B.Stroke}" BorderThickness="0,1,0,0" Padding="16,0">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding StatusText}" FontSize="12" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" MaxWidth="600">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="Foreground" Value="{StaticResource B.Text2}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsError}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource B.Red}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <ProgressBar Width="160" Minimum="0" Maximum="1" Value="{Binding Progress, Mode=OneWay}" Margin="0,0,10,0"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                        <Button Style="{StaticResource Btn.Link}" Content="{l:T ui.status.cancel}" Command="{Binding CancelCommand}" Height="24" Margin="0,0,12,0"
+                                Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}"/>
+                        <TextBlock Text="{Binding ImageInfo}" Style="{StaticResource T.Secondary}" FontSize="12"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ===== Üdvözlő overlay ===== -->
+        <Grid Grid.ColumnSpan="2" Background="#9E08080A" Visibility="{Binding ShowWelcome, Converter={StaticResource BoolToVis}}">
+            <Border Width="640" VerticalAlignment="Center" HorizontalAlignment="Center" CornerRadius="12" Background="{StaticResource B.Layer}"
+                    BorderBrush="{StaticResource B.StrokeStrong}" BorderThickness="1" Padding="40,36,40,32">
+                <Border.Effect><DropShadowEffect BlurRadius="60" ShadowDepth="16" Opacity="0.6"/></Border.Effect>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="/Assets/clearstar_icon.png" Width="56" Height="56" Margin="0,0,16,0" VerticalAlignment="Center" RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <TextBlock Text="{l:T ui.welcome.title}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource T.Secondary}" FontSize="14" Margin="0,6,0,28"
+                               Text="{l:T ui.welcome.lead}"/>
+                    <UniformGrid Columns="3">
+                        <Border Margin="0,0,8,0" CornerRadius="10" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,18">
+                            <StackPanel>
+                                <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource B.Accent}" HorizontalAlignment="Left"><TextBlock Text="1" FontSize="12" FontWeight="Bold" Foreground="{StaticResource B.AccentText}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <TextBlock Text="{l:T ui.welcome.s1}" FontWeight="SemiBold" FontSize="13.5" Margin="0,10,0,4"/>
+                                <TextBlock Text="{l:T ui.welcome.s1sub}" Style="{StaticResource T.Secondary}" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Margin="4,0" CornerRadius="10" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,18">
+                            <StackPanel>
+                                <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource B.Accent}" HorizontalAlignment="Left"><TextBlock Text="2" FontSize="12" FontWeight="Bold" Foreground="{StaticResource B.AccentText}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <TextBlock Text="{l:T ui.welcome.s2}" FontWeight="SemiBold" FontSize="13.5" Margin="0,10,0,4"/>
+                                <TextBlock Text="{l:T ui.welcome.s2sub}" Style="{StaticResource T.Secondary}" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Margin="8,0,0,0" CornerRadius="10" Background="{StaticResource B.Card}" BorderBrush="{StaticResource B.Stroke}" BorderThickness="1" Padding="16,18">
+                            <StackPanel>
+                                <Border Width="24" Height="24" CornerRadius="12" Background="{StaticResource B.Accent}" HorizontalAlignment="Left"><TextBlock Text="3" FontSize="12" FontWeight="Bold" Foreground="{StaticResource B.AccentText}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <TextBlock Text="{l:T ui.welcome.s3}" FontWeight="SemiBold" FontSize="13.5" Margin="0,10,0,4"/>
+                                <TextBlock Text="{l:T ui.welcome.s3sub}" Style="{StaticResource T.Secondary}" FontSize="12"/>
+                            </StackPanel>
+                        </Border>
+                    </UniformGrid>
+                    <Button Style="{StaticResource Btn.Primary}" Content="{l:T ui.welcome.start}" Command="{Binding CloseWelcomeCommand}" HorizontalAlignment="Right" Height="38" Padding="22,0" Margin="0,28,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

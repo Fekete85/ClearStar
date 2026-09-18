@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <AssemblyName>ClearStar</AssemblyName>
+    <RootNamespace>ClearStar.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\clearstar.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="Assets\clearstar.ico" />
+    <Resource Include="Assets\clearstar_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Jogi szövegek a Névjegy ablakhoz: a repó LICENSE / THIRD-PARTY-NOTICES fájljai és a GraXpert-modellek licencei. -->
+    <EmbeddedResource Include="..\..\LICENSE" LogicalName="Legal.LICENSE.txt" />
+    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="Legal.THIRD-PARTY-NOTICES.md" />
+    <EmbeddedResource Include="Legal\*.txt" LogicalName="Legal.%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <ProjectReference Include="..\ClearStar.Core\ClearStar.Core.csproj" />
+  </ItemGroup>
+</Project>
