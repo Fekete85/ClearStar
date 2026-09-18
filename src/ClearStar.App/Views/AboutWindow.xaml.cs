@@ -14,6 +14,7 @@ namespace ClearStar.App.Views;
 public partial class AboutWindow : Window
 {
     private readonly string _startLanguage = L.Language;
+    private readonly Dictionary<string, System.Windows.Documents.FlowDocument> _docs = new();
 
     public AboutWindow()
     {
@@ -42,24 +43,28 @@ public partial class AboutWindow : Window
         foreach (var other in new[] { TabAbout, TabLicense, TabThirdParty, TabModels })
             if (!ReferenceEquals(other, tb)) other.IsChecked = false;
         AboutScroll.Visibility = tag == "about" ? Visibility.Visible : Visibility.Collapsed;
-        DocPanel.Visibility = tag == "thirdparty" ? Visibility.Visible : Visibility.Collapsed;
-        TextPanel.Visibility = tag is "about" or "thirdparty" ? Visibility.Collapsed : Visibility.Visible;
-        if (tag == "thirdparty")
+        DocPanel.Visibility = tag == "about" ? Visibility.Collapsed : Visibility.Visible;
+        if (tag == "about") return;
+        // The texts are rendered as flowing documents (cached per tab): the notices from Markdown, the GPL
+        // from its hard-wrapped plain text, the model credits from the one-name-per-line files.
+        if (!_docs.TryGetValue(tag, out var document))
         {
-            // The notices are Markdown (headings, tables, links): render them instead of showing the source.
-            DocPanel.Document ??= MarkdownLite.ToDocument(ReadLegal("Legal.THIRD-PARTY-NOTICES.md"),
-                (Brush)FindResource("B.Text"), (Brush)FindResource("B.Text2"), (Brush)FindResource("B.Accent"), (Brush)FindResource("B.Stroke"), (FontFamily)FindResource("F.Body"));
-            return;
+            var text = (Brush)FindResource("B.Text"); var muted = (Brush)FindResource("B.Text2");
+            var accent = (Brush)FindResource("B.Accent"); var rule = (Brush)FindResource("B.Stroke"); var body = (FontFamily)FindResource("F.Body");
+            document = tag switch
+            {
+                "thirdparty" => MarkdownLite.ToDocument(ReadLegal("Legal.THIRD-PARTY-NOTICES.md"), text, muted, accent, rule, body),
+                "license" => MarkdownLite.PlainLicenceToDocument(ReadLegal("Legal.LICENSE.txt"), text, muted, accent, body),
+                _ => MarkdownLite.ModelCreditsToDocument(
+                [
+                    (L.T("ui.about.modelBge"), ReadLegal("Legal.GraXpert-BGE-Model-LICENSE.txt")),
+                    (L.T("ui.about.modelDenoise"), ReadLegal("Legal.GraXpert-Denoise-Model-LICENSE.txt")),
+                    (L.T("ui.about.modelDeconv"), ReadLegal("Legal.GraXpert-Deconvolution-Model-LICENSE.txt")),
+                ], text, muted, accent, rule, body),
+            };
+            _docs[tag] = document;
         }
-        TextPanel.Text = tag switch
-        {
-            "license" => ReadLegal("Legal.LICENSE.txt"),
-            "models" => string.Join("\n\n----------------------------------------\n\n",
-                new[] { "Legal.GraXpert-BGE-Model-LICENSE.txt", "Legal.GraXpert-Denoise-Model-LICENSE.txt", "Legal.GraXpert-Deconvolution-Model-LICENSE.txt" }
-                    .Select(ReadLegal)),
-            _ => "",
-        };
-        TextPanel.ScrollToHome();
+        DocPanel.Document = document;
     }
 
     private static string ReadLegal(string name)

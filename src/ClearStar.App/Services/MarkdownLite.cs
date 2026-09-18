@@ -91,6 +91,109 @@ public static class MarkdownLite
         return doc;
     }
 
+    /// <summary>
+    /// A hard-wrapped plain-text licence (the GPL text) as a flowing document: centred lines become
+    /// headings, "  1. Title." lines section titles, lettered clauses hanging-indent items, deeper
+    /// indented blocks stay preformatted, everything else is joined into wrapped paragraphs.
+    /// </summary>
+    public static FlowDocument PlainLicenceToDocument(string text, Brush textBrush, Brush muted, Brush accent, FontFamily body)
+    {
+        var doc = new FlowDocument { FontFamily = body, FontSize = 12.5, Foreground = textBrush, PagePadding = new Thickness(0), TextAlignment = TextAlignment.Left };
+        var lines = text.Replace("\r\n", "\n").Split('\n');
+        var para = new List<string>();
+        Thickness paraMargin = new(0, 0, 0, 10);
+        void Flush()
+        {
+            if (para.Count == 0) return;
+            var p = new Paragraph { Margin = paraMargin };
+            AddInlines(p.Inlines, string.Join(" ", para), accent);
+            doc.Blocks.Add(p);
+            para.Clear();
+            paraMargin = new Thickness(0, 0, 0, 10);
+        }
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string raw = lines[i].TrimEnd();
+            if (raw.Length == 0) { Flush(); continue; }
+            int indent = raw.Length - raw.TrimStart().Length;
+            string line = raw.Trim();
+            if (indent >= 10)
+            {
+                // Centred title lines (licence name, version, "Preamble", "TERMS AND CONDITIONS"…).
+                Flush();
+                bool big = i == 0;
+                doc.Blocks.Add(new Paragraph(new Run(line)) { FontWeight = FontWeights.SemiBold, FontSize = big ? 17 : 14, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, big ? 0 : 14, 0, 8) });
+                continue;
+            }
+            if (Regex.IsMatch(line, @"^\d+\.\s+\S") && indent == 2)
+            {
+                Flush();
+                doc.Blocks.Add(new Paragraph(new Run(line)) { FontWeight = FontWeights.SemiBold, FontSize = 13.5, Margin = new Thickness(0, 12, 0, 6) });
+                continue;
+            }
+            if (Regex.IsMatch(line, @"^[a-z]\)\s") && indent == 4)
+            {
+                Flush();
+                paraMargin = new Thickness(18, 0, 0, 6);
+                para.Add(line);
+                continue;
+            }
+            if (indent >= 4 && para.Count > 0 && paraMargin.Left > 0) { para.Add(line); continue; }   // continuation of a lettered clause
+            if (indent >= 4)
+            {
+                // Preformatted block (the "how to apply" sample notice).
+                Flush();
+                var pre = new Paragraph { FontFamily = new FontFamily("Cascadia Mono, Consolas"), FontSize = 11.5, Foreground = muted, Margin = new Thickness(18, 0, 0, 10) };
+                while (i < lines.Length && lines[i].TrimEnd().Length > 0 && lines[i].Length - lines[i].TrimStart().Length >= 4)
+                {
+                    if (pre.Inlines.Count > 0) pre.Inlines.Add(new LineBreak());
+                    pre.Inlines.Add(new Run(lines[i].TrimEnd()[4..]));
+                    i++;
+                }
+                i--;
+                doc.Blocks.Add(pre);
+                continue;
+            }
+            if (indent == 2 && para.Count > 0 && paraMargin.Left == 0) Flush();   // a new paragraph starts with a two-space indent
+            if (paraMargin.Left > 0 && indent < 4) Flush();
+            para.Add(line);
+        }
+        Flush();
+        return doc;
+    }
+
+    /// <summary>
+    /// The GraXpert model credit files: each is a licence line, a thank-you line and one contributor per
+    /// line. Shown as a titled section with the names flowing in one paragraph.
+    /// </summary>
+    public static FlowDocument ModelCreditsToDocument(IEnumerable<(string title, string text)> files, Brush textBrush, Brush muted, Brush accent, Brush rule, FontFamily body)
+    {
+        var doc = new FlowDocument { FontFamily = body, FontSize = 12.5, Foreground = textBrush, PagePadding = new Thickness(0), TextAlignment = TextAlignment.Left };
+        bool first = true;
+        foreach (var (title, text) in files)
+        {
+            if (!first) doc.Blocks.Add(new BlockUIContainer(new System.Windows.Controls.Border { Height = 1, Background = rule, Margin = new Thickness(0, 8, 0, 12) }));
+            first = false;
+            doc.Blocks.Add(new Paragraph(new Run(title)) { FontWeight = FontWeights.SemiBold, FontSize = 15, Margin = new Thickness(0, 0, 0, 6) });
+            var lines = text.Replace("\r\n", "\n").Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
+            var names = new List<string>();
+            foreach (var line in lines)
+            {
+                // Sentences (licence statement, thank-you) are paragraphs; short lines are contributor names.
+                if (line.Length > 60 || line.EndsWith(':'))
+                {
+                    var p = new Paragraph { Margin = new Thickness(0, 0, 0, 8) };
+                    AddInlines(p.Inlines, line, accent);
+                    doc.Blocks.Add(p);
+                }
+                else names.Add(Regex.Replace(line, @"\s{2,}", " "));
+            }
+            if (names.Count > 0)
+                doc.Blocks.Add(new Paragraph(new Run(string.Join("  ·  ", names))) { Foreground = muted, FontSize = 12, Margin = new Thickness(0, 0, 0, 10), LineHeight = 20 });
+        }
+        return doc;
+    }
+
     private static string[] SplitRow(string row)
     {
         var cells = new List<string>();

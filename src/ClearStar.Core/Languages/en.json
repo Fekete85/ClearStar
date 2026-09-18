@@ -454,6 +454,7 @@
       "tabThirdParty": "Third-party works",
       "tabModels": "AI models",
       "openFolder": "Open",
+      "modelBge": "Background extraction model", "modelDenoise": "Denoising model", "modelDeconv": "Deconvolution models (stars and object)",
       "summary": "ClearStar is the author's own work; the code is free to use, modify and redistribute under the GNU GPL 3.0 (or later). The stacking, stretching and background-extraction methods were written after studying the source code of Siril and GraXpert (both GPL-3.0) – no code was copied. The AI steps use the GraXpert Development Team's models, licensed CC BY-NC-SA 4.0: they may be used for non-commercial purposes only and are not included in ClearStar. The images you create with the program are yours. The program sends no data anywhere; the network is used only for model downloads you request. Details and the list of contributors are on the other tabs."
     }
   }

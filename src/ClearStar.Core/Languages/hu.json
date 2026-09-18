@@ -454,6 +454,7 @@
       "tabThirdParty": "Felhasznált munkák",
       "tabModels": "AI-modellek",
       "openFolder": "Megnyitás",
+      "modelBge": "Háttérkivonás-modell", "modelDenoise": "Zajcsökkentés-modell", "modelDeconv": "Élesítés-modellek (csillagok és objektum)",
       "summary": "A ClearStar a szerzőjének saját fejlesztése, a kód a GNU GPL 3.0 (vagy későbbi) licenc alatt szabadon használható, módosítható és továbbadható. A stackelés, a nyújtás és a háttérkivonás megoldásait a Siril és a GraXpert (mindkettő GPL-3.0) forráskódjának tanulmányozásával írtuk meg – kód nem került átvételre. Az AI-lépések a GraXpert Development Team CC BY-NC-SA 4.0 licencű modelljeit használják: ezek csak nem kereskedelmi célra használhatók, és a ClearStar nem tartalmazza őket. A képek, amiket a programmal készítesz, a tieid. A program nem küld adatot sehova; hálózatot csak az általad kért modell-letöltés használ. A részletek és a közreműködők névsora a további füleken."
     }
   }
