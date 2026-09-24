@@ -1,0 +1,62 @@
+/* Cookie consent banner for the static blackit.hu sites. Master copy: blackit repo,
+   server-configs/consent/. Each site maps its own colours onto the --cc-* variables. */
+.bx-consent {
+  position: fixed;
+  z-index: 2147483000;
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
+  max-width: 440px;
+  margin-left: auto;
+  padding: 18px 20px;
+  background: var(--cc-bg, #1f2330);
+  color: var(--cc-fg, #f2f4f8);
+  border: 1px solid var(--cc-border, rgba(255, 255, 255, .14));
+  border-radius: var(--cc-radius, 12px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .35);
+  font: 14px/1.5 var(--cc-font, system-ui, -apple-system, "Segoe UI", sans-serif);
+}
+.bx-consent[hidden] { display: none; }
+.bx-consent h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  font-family: inherit;
+  color: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.bx-consent p { margin: 0 0 14px; color: var(--cc-muted, rgba(255, 255, 255, .72)); }
+.bx-consent-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.bx-consent button {
+  flex: 1 1 120px;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: var(--cc-btn-radius, 8px);
+  border: 1px solid var(--cc-border, rgba(255, 255, 255, .14));
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bx-consent button:hover { background: rgba(127, 127, 127, .12); }
+.bx-consent button.bx-accept {
+  background: var(--cc-accent, #3b5bd6);
+  border-color: var(--cc-accent, #3b5bd6);
+  color: var(--cc-accent-fg, #ffffff);
+}
+.bx-consent button.bx-accept:hover { filter: brightness(1.08); }
+.bx-consent button:focus-visible { outline: 2px solid var(--cc-accent, #3b5bd6); outline-offset: 2px; }
+
+/* The "Cookie settings" trigger, usually a button in the footer that looks like a link */
+.bx-consent-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

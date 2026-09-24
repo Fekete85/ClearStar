@@ -21,6 +21,8 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/img/icon-192.png">
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/consent.css">
+<script src="/consent.js" data-ga="{{ site.Params.ga }}" defer></script>
 </head>
 <body>
 
@@ -153,6 +155,7 @@
     <a href="{{ site.Params.github }}">GitHub</a>
     <a href="{{ site.Params.privacy }}">{{ T "privacy" }}</a>
     <a href="https://blackit.hu/">blackit.hu</a>
+    <button type="button" class="bx-consent-link" data-consent-open>{{ T "cookieSettings" }}</button>
   </nav>
 </footer>
 

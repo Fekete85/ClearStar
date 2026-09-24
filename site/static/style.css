@@ -186,3 +186,16 @@ h3 { font-size: 17px; margin: 0; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 .note { color: var(--text3); font-size: 14px; margin: -8px 0 20px; }
+
+/* Cookie banner (consent.css) in the app's colours */
+:root {
+  --cc-bg: var(--card);
+  --cc-fg: var(--text);
+  --cc-muted: var(--text2);
+  --cc-border: var(--stroke-strong);
+  --cc-accent: var(--accent);
+  --cc-accent-fg: var(--accent-text);
+  --cc-font: var(--font);
+}
+.foot .bx-consent-link { color: var(--text2); text-decoration: none; }
+.foot .bx-consent-link:hover { color: var(--text); text-decoration: underline; }

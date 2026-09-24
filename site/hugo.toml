@@ -6,6 +6,7 @@ disableKinds = ["taxonomy", "term", "section", "rss"]
 enableRobotsTXT = true
 
 [params]
+  ga = "G-KSF6GQXPW9"
   store = "https://apps.microsoft.com/store/detail/9N193WDBH7KF?cid=DevShareMCLPCS"
   github = "https://github.com/Fekete85/ClearStar"
   privacy = "https://github.com/Fekete85/ClearStar/blob/main/PRIVACY.md"
