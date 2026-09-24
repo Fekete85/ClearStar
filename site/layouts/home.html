@@ -1,0 +1,159 @@
+{{- $lang := .Language.Lang -}}
+<!doctype html>
+<html lang="{{ $lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClearStar</title>
+<meta name="description" content="{{ T "metaDescription" }}">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#1A1A1D">
+<link rel="canonical" href="{{ .Permalink }}">
+{{- range .AllTranslations }}
+<link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+{{- end }}
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ T "ogTitle" }}">
+<meta property="og:description" content="{{ T "metaDescription" }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:image" content="{{ "img/og.jpg" | absURL }}">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/img/icon-192.png">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap bar-in">
+    <a class="brand" href="{{ .RelPermalink }}"><img src="/img/icon-64.png" width="28" height="28" alt=""> ClearStar</a>
+    <nav class="bar-nav">
+      <a href="{{ site.Params.github }}">GitHub</a>
+      <div class="lang" role="group" aria-label="{{ T "langGroup" }}">
+        {{- range .AllTranslations }}
+        <a href="{{ .RelPermalink }}" hreflang="{{ .Language.Lang }}" lang="{{ .Language.Lang }}"{{ if eq .Language.Lang $lang }} aria-current="true"{{ end }}>{{ .Language.LanguageName }}</a>
+        {{- end }}
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="hero wrap">
+  <div class="hero-text">
+    <p class="eyebrow">{{ T "eyebrow" }}</p>
+    <h1>{{ T "heroTitle" }}</h1>
+    <p class="lead">{{ T "heroLead" }}</p>
+    <div class="cta">
+      <a class="btn btn-accent" href="{{ site.Params.store }}">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M1 1h6.5v6.5H1zM8.5 1H15v6.5H8.5zM1 8.5h6.5V15H1zM8.5 8.5H15V15H8.5z"/></svg>
+        {{ T "ctaStore" }}
+      </a>
+      <a class="btn" href="{{ site.Params.github }}">{{ T "ctaGithub" }}</a>
+    </div>
+  </div>
+
+  <figure class="viewer">
+    <div class="viewer-head">
+      <span>{{ T "viewerTitle" }}</span>
+      <span class="muted">{{ T "viewerDone" }}</span>
+    </div>
+    <div class="progress"><i></i></div>
+    <picture>
+      <source srcset="/img/m31.webp" type="image/webp">
+      <img src="/img/m31.jpg" width="640" height="860" alt="{{ T "heroAlt" }}" fetchpriority="high">
+    </picture>
+    <figcaption class="viewer-foot">{{ T "heroCaption" }}</figcaption>
+  </figure>
+</section>
+
+<section class="wrap block">
+  <h2>{{ T "whatTitle" }}</h2>
+  <p class="prose">{{ T "whatText" }}</p>
+  <ol class="three">
+    {{- range seq 3 }}
+    <li class="card">
+      <b class="num">{{ . }}</b>
+      <h3>{{ T (printf "move%dTitle" .) }}</h3>
+      <p>{{ T (printf "move%dText" .) }}</p>
+    </li>
+    {{- end }}
+  </ol>
+</section>
+
+<section class="wrap block">
+  <h2>{{ T "shotsTitle" }}</h2>
+  <div class="shots">
+    {{- range slice "result" "stretch" "welcome" }}
+    {{- $key := . | strings.FirstUpper }}
+    <figure class="shot">
+      <img src="/img/{{ . }}-{{ $lang }}.webp" width="1600" height="872" loading="lazy" alt="{{ T (printf "shot%sAlt" $key) }}">
+      <figcaption>{{ T (printf "shot%s" $key) }}</figcaption>
+    </figure>
+    {{- end }}
+  </div>
+</section>
+
+{{- /* The groups and the order follow the app's sidebar (StepCatalog). */}}
+{{- $groups := slice
+  (dict "title" "grpPrep"   "steps" (slice (dict "k" "stLoad" "note" "FITS · TIFF · PNG · JPEG") (dict "k" "stStack" "nk" "stStackNote") (dict "k" "stCrop" "nk" "stCropNote")))
+  (dict "title" "grpBasics" "steps" (slice (dict "k" "stBge" "note" "GraXpert AI") (dict "k" "stDeconv" "note" "GraXpert AI") (dict "k" "stDenoise" "note" "GraXpert AI") (dict "k" "stSolve" "note" "plate solving") (dict "k" "stColor" "nk" "stColorNote")))
+  (dict "title" "grpStars"  "steps" (slice (dict "k" "stStarRemove" "note" "StarNet2") (dict "k" "stGhs" "note" "GHS") (dict "k" "stStarBack")))
+  (dict "title" "grpRefine" "steps" (slice (dict "k" "stGreen" "note" "SCNR") (dict "k" "stFringe") (dict "k" "stContrast") (dict "k" "stSaturation")))
+  (dict "title" "grpFinish" "steps" (slice (dict "k" "stSave" "note" "JPEG · TIFF · FITS")))
+}}
+<section class="wrap block">
+  <h2>{{ T "stepsTitle" }}</h2>
+  <div class="steps">
+    {{- $n := 0 }}
+    {{- range $groups }}
+    <div class="group">
+      <h3>{{ T .title }}</h3>
+      <ol start="{{ add $n 1 }}">
+        {{- range .steps }}
+        {{- $n = add $n 1 }}
+        <li><span>{{ T .k }}</span>
+          {{- with .note }}<small>{{ . }}</small>{{ end }}
+          {{- with .nk }}<small>{{ T . }}</small>{{ end }}</li>
+        {{- end }}
+      </ol>
+    </div>
+    {{- end }}
+  </div>
+</section>
+
+<section class="wrap block">
+  <h2>{{ T "factsTitle" }}</h2>
+  <dl class="facts">
+    {{- range slice "System" "Input" "Ai" "Starnet" "Privacy" "License" }}
+    <div>
+      <dt>{{ T (printf "f%s" .) }}</dt>
+      <dd>{{ T (printf "f%sText" .) }}
+        {{- if eq . "Privacy" }} <a href="{{ site.Params.privacy }}">{{ T "fPrivacyLink" }}</a>{{ end }}</dd>
+    </div>
+    {{- end }}
+  </dl>
+</section>
+
+<section class="wrap block">
+  <div class="support">
+    <p>{{ T "supportText" }}</p>
+    <a class="btn" href="{{ site.Params.support }}">{{ T "supportButton" }}</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="wrap foot">
+  <span>© 2026 Laszlo Fekete · GPL-3.0</span>
+  <nav>
+    <a href="{{ site.Params.store }}">Microsoft Store</a>
+    <a href="{{ site.Params.github }}">GitHub</a>
+    <a href="{{ site.Params.privacy }}">{{ T "privacy" }}</a>
+    <a href="https://blackit.hu/">blackit.hu</a>
+  </nav>
+</footer>
+
+</body>
+</html>

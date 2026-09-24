@@ -1,0 +1,86 @@
+metaDescription: Kezdőbarát asztrofotó-feldolgozás Windowsra – a nyers képektől a kész fotóig 16 vezetett lépésben. Ingyenes és nyílt forráskódú.
+ogTitle: ClearStar – a nyers képektől a kész asztrofotóig
+langGroup: Nyelv
+
+eyebrow: Ingyenes, nyílt forráskódú · Windows 10 és 11
+heroTitle: A nyers képektől a kész asztrofotóig.
+heroLead: >-
+  A ClearStar kézen fog: 16 lépésben, mindegyiknél közérthető magyarázattal és jó
+  alapbeállításokkal lesz a Seestar- vagy fényképezőgépes felvételeidből kész kép.
+  Ha csak végigkattintod, akkor is szép lesz – ha akarod, bármelyik lépésbe belenyúlhatsz.
+ctaStore: Letöltés a Microsoft Store-ból
+ctaGithub: Forráskód a GitHubon
+viewerTitle: Feldolgozás
+viewerDone: 16 / 16 lépés kész
+heroAlt: Az Androméda-galaxis (M 31) ClearStarral feldolgozva
+heroCaption: Androméda-galaxis (M 31) · Seestar-felvételekből, ClearStarral
+
+whatTitle: Mi ez?
+whatText: >-
+  A ClearStar asztrofotó-feldolgozó program kezdőknek: Seestar és más okostávcsövek,
+  valamint fényképezőgépes asztrofotósok számára készült. Összeilleszti (stackeli) a nyers
+  felvételeket, kiegyenlíti a hátteret, élesít, zajt csökkent, azonosítja a csillagokat,
+  beállítja a színeket, és kiemeli a ködöket és galaxisokat. Nem kell hozzá előképzettség:
+  minden lépés elmondja, mit csinál és miért, és élő előnézeten látod az eredményt.
+move1Title: Töltsd be a képeidet
+move1Text: "Egy mappa elég: a fény-, sötét- és flat-képeket magától szétválogatja."
+move2Title: Menj végig a lépéseken
+move2Text: Jó alapbeállításokkal, lépésenként egy kattintással – vagy 2–4 egyszerű csúszkával.
+move3Title: Mentsd el
+move3Text: Megosztáshoz (JPEG), nyomtatáshoz (16 bites TIFF) vagy további szerkesztéshez (FITS).
+
+shotsTitle: Így néz ki
+shotStretchAlt: A ködök kiemelése lépés csúszkákkal és hisztogrammal
+shotStretch: Ködök és galaxisok kiemelése – automatikus nyújtás egy gombbal, utána három csúszka; a kép és a hisztogram élőben követi.
+shotWelcomeAlt: Az üdvözlő ablak
+shotWelcome: Az első indításkor röviden elmondja, mi következik. Bal oldalt végig látod, hol tartasz.
+shotResultAlt: A kész kép a feldolgozás végén
+shotResult: Bármelyik lépés után lenyomva tartva megnézheted az eredetit, vagy előtte/utána osztott nézetben hasonlíthatsz.
+
+stepsTitle: A 16 lépés
+grpPrep: Előkészítés
+grpBasics: Alapok
+grpStars: Csillagok
+grpRefine: Finomítás
+grpFinish: Befejezés
+stLoad: Képek betöltése
+stStack: Képek összeillesztése
+stStackNote: kalibrálás, igazítás csillagokra
+stCrop: Vágás
+stCropNote: forgatás, tükrözés
+stBge: Háttér kiegyenlítése
+stDeconv: Élesítés
+stDenoise: Zajcsökkentés
+stSolve: Égbolt azonosítása
+stColor: Színek kalibrálása
+stColorNote: fotometriai, Gaia
+stStarRemove: Csillagok leválasztása
+stGhs: Ködök, galaxis kiemelése
+stStarBack: Csillagok visszahelyezése
+stGreen: Zöld árnyalat eltávolítása
+stFringe: Színes szegélyek javítása
+stContrast: Kontraszt
+stSaturation: Színtelítettség
+stSave: Mentés
+
+factsTitle: Jó tudni
+fSystem: Rendszer
+fSystemText: Windows 10 (2004-es verziótól) vagy Windows 11, 64 bites. Magyar és angol felület.
+fInput: Bemenet
+fInputText: FITS, TIFF, PNG, JPEG – mono, RGB és nyers Bayer-mintás (OSC) képek.
+fAi: AI-lépések
+fAiText: A GraXpert nyílt modelljeivel, a videokártyán (DirectML) vagy a processzoron. A modelleket egy gombnyomással letölti; ha a GraXpert telepítve van, az ő modelljeit is megtalálja.
+fStarnet: Csillagleválasztás
+fStarnetText: A saját StarNet2 programodat használja – a ClearStar elmondja, honnan szerezheted be.
+fPrivacy: Adatvédelem
+fPrivacyText: Nem gyűjt adatot, nincs fiók és telemetria. Hálózatot csak a csillagkatalógus-lekéréshez és az általad kért letöltésekhez használ.
+fPrivacyLink: Részletek
+fLicense: Licenc
+fLicenseText: GPL-3.0. A Siril és a GraXpert munkájából tanult; a GraXpert AI-modelljei CC BY-NC-SA 4.0 licencűek.
+
+supportText: >-
+  A ClearStar ingyenes és nyílt forráskódú – egy amatőr csillagász hobbiprojektje, aki a saját
+  Seestar-képeihez keresett egyszerű utat, és úgy gondolta, másnak is jól jöhet. Ha hasznosnak
+  találod, és teheted, egy kávé árával támogathatod a további fejlesztést. Köszönöm, és tiszta eget!
+supportButton: Támogatom a fejlesztést
+privacy: Adatvédelem

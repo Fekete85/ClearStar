@@ -1,0 +1,36 @@
+# Landing page for ClearStar at https://clearstar.blackit.hu/ (hu) and /en/.
+#
+# A Hugo site built into its own nginx image (see Dockerfile). Public, no auth,
+# per-IP rate limit — the same pattern as ~/celestial. The download mirror stays
+# where the app looks for it: csillag.blackit.hu/clearstar/ (~/clearstar-mirror).
+#
+# Deploy after a change: docker compose up -d --build
+
+services:
+  clearstar-site:
+    build: .
+    image: clearstar-site
+    container_name: clearstar-site
+    restart: unless-stopped
+    environment:
+      TZ: Europe/Budapest
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      # Per-IP rate limit, Traefik's default remote-address strategy. No
+      # ipStrategy.depth: there is no upstream CDN (see ~/celestial).
+      - "traefik.http.middlewares.clearstar-site-rl.ratelimit.average=60"
+      - "traefik.http.middlewares.clearstar-site-rl.ratelimit.period=1m"
+      - "traefik.http.middlewares.clearstar-site-rl.ratelimit.burst=40"
+      - "traefik.http.routers.clearstar-site.rule=Host(`clearstar.blackit.hu`)"
+      - "traefik.http.routers.clearstar-site.entrypoints=websecure"
+      - "traefik.http.routers.clearstar-site.tls=true"
+      - "traefik.http.routers.clearstar-site.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.clearstar-site.middlewares=security-headers@docker,clearstar-site-rl@docker"
+      - "traefik.http.services.clearstar-site.loadbalancer.server.port=80"
+
+networks:
+  proxy:
+    external: true

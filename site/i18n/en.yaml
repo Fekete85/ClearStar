@@ -1,0 +1,87 @@
+metaDescription: Beginner-friendly astrophotography processing for Windows – raw frames to a finished photo in 16 guided steps. Free and open source.
+ogTitle: ClearStar – from raw frames to a finished astrophoto
+langGroup: Language
+
+eyebrow: Free and open source · Windows 10 and 11
+heroTitle: From raw frames to a finished astrophoto.
+heroLead: >-
+  ClearStar holds your hand: in 16 steps, each with a plain-language explanation and good
+  defaults, your Seestar or camera frames become a finished image. Click straight through
+  and it still looks good – or dig into any step you like.
+ctaStore: Get it from Microsoft Store
+ctaGithub: Source on GitHub
+viewerTitle: Processing
+viewerDone: 16 / 16 steps done
+heroAlt: The Andromeda Galaxy (M 31) processed in ClearStar
+heroCaption: Andromeda Galaxy (M 31) · Seestar frames, processed in ClearStar
+
+whatTitle: What is it?
+whatText: >-
+  ClearStar is astrophoto processing for beginners, made for owners of Seestar and other smart
+  telescopes and for camera astrophotographers. It stacks your raw frames, flattens the
+  background, sharpens, reduces noise, identifies the stars, calibrates the colours and brings
+  out nebulae and galaxies. No prior experience needed: every step tells you what it does and
+  why, and you see the result in a live preview.
+move1Title: Load your images
+move1Text: "One folder is enough: light, dark and flat frames are sorted automatically."
+move2Title: Work through the steps
+move2Text: Good defaults, one click each – or 2–4 simple sliders if you want.
+move3Title: Save it
+move3Text: For sharing (JPEG), printing (16-bit TIFF) or further editing (FITS).
+
+shotsTitle: A look inside
+shotStretchAlt: The bring out nebulae step with sliders and histogram
+shotStretch: Bringing out nebulae and galaxies – one-click auto stretch, then three sliders; the image and the histogram follow live.
+shotWelcomeAlt: The welcome window
+shotWelcome: On first launch it tells you briefly what's ahead. On the left you always see where you are.
+shotResultAlt: The finished image at the end of processing
+shotResult: After any step, hold down to see the original, or compare in a split before/after view.
+
+stepsTitle: The 16 steps
+grpPrep: Preparation
+grpBasics: Basics
+grpStars: Stars
+grpRefine: Refinement
+grpFinish: Finish
+stLoad: Load images
+stStack: Stack images
+stStackNote: calibration, star alignment
+stCrop: Crop
+stCropNote: rotate, mirror
+stBge: Flatten background
+stDeconv: Sharpen
+stDenoise: Reduce noise
+stSolve: Identify the sky
+stColor: Calibrate colours
+stColorNote: photometric, Gaia
+stStarRemove: Separate stars
+stGhs: Bring out nebulae and galaxies
+stStarBack: Put stars back
+stGreen: Remove green cast
+stFringe: Fix colour fringes
+stContrast: Contrast
+stSaturation: Saturation
+stSave: Save
+
+factsTitle: Good to know
+fSystem: System
+fSystemText: Windows 10 (version 2004 or later) or Windows 11, 64-bit. Hungarian and English UI.
+fInput: Input
+fInputText: FITS, TIFF, PNG, JPEG – mono, RGB and raw Bayer-pattern (OSC) images.
+fAi: AI steps
+fAiText: With GraXpert's open models, on your GPU (DirectML) or CPU. The models download with one click; an installed GraXpert's models are found too.
+fStarnet: Star removal
+fStarnetText: Uses your own StarNet2 – ClearStar tells you where to get it.
+fPrivacy: Privacy
+fPrivacyText: No data collection, no account, no telemetry. The network is used only for star catalogue queries and downloads you ask for.
+fPrivacyLink: Details
+fLicense: Licence
+fLicenseText: GPL-3.0. It learned from the work of Siril and GraXpert; GraXpert's AI models are licensed CC BY-NC-SA 4.0.
+
+supportText: >-
+  ClearStar is free and open source – the hobby project of an amateur astronomer who wanted a
+  simple path for his own Seestar images and figured others might use it too. If you find it
+  useful and can spare it, the price of a coffee helps keep the development going. Thank you,
+  and clear skies!
+supportButton: Support the development
+privacy: Privacy
