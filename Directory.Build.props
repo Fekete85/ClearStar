@@ -16,6 +16,6 @@
     <Authors>Laszlo Fekete</Authors>
     <Copyright>© 2026 Laszlo Fekete</Copyright>
     <Description>Vezetett asztrofotó-feldolgozó alkalmazás kezdőknek</Description>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 </Project>
