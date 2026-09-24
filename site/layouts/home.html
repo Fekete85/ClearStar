@@ -84,11 +84,12 @@
 
 <section class="wrap block">
   <h2>{{ T "shotsTitle" }}</h2>
+  {{- with T "shotsNote" }}<p class="note">{{ . }}</p>{{ end }}
   <div class="shots">
-    {{- range slice "result" "stretch" "welcome" }}
+    {{- range slice "result" "stretch" "noise" "crop" "welcome" }}
     {{- $key := . | strings.FirstUpper }}
     <figure class="shot">
-      <img src="/img/{{ . }}-{{ $lang }}.webp" width="1600" height="872" loading="lazy" alt="{{ T (printf "shot%sAlt" $key) }}">
+      <img src="/img/shot-{{ . }}.webp" width="1600" height="872" loading="lazy" alt="{{ T (printf "shot%sAlt" $key) }}">
       <figcaption>{{ T (printf "shot%s" $key) }}</figcaption>
     </figure>
     {{- end }}

@@ -13,7 +13,7 @@ ctaGithub: Source on GitHub
 viewerTitle: Processing
 viewerDone: 16 / 16 steps done
 heroAlt: The Andromeda Galaxy (M 31) processed in ClearStar
-heroCaption: Andromeda Galaxy (M 31) · Seestar frames, processed in ClearStar
+heroCaption: "Andromeda Galaxy (M 31) · 654 Seestar frames, 1 h 49 min"
 
 whatTitle: What is it?
 whatText: >-
@@ -29,13 +29,18 @@ move2Text: Good defaults, one click each – or 2–4 simple sliders if you want
 move3Title: Save it
 move3Text: For sharing (JPEG), printing (16-bit TIFF) or further editing (FITS).
 
-shotsTitle: A look inside
-shotStretchAlt: The bring out nebulae step with sliders and histogram
-shotStretch: Bringing out nebulae and galaxies – one-click auto stretch, then three sliders; the image and the histogram follow live.
-shotWelcomeAlt: The welcome window
-shotWelcome: On first launch it tells you briefly what's ahead. On the left you always see where you are.
-shotResultAlt: The finished image at the end of processing
-shotResult: After any step, hold down to see the original, or compare in a split before/after view.
+shotsTitle: "A look inside"
+shotsNote: ""
+shotResultAlt: "The finished image at the save step"
+shotResult: "Done: 16 / 16 steps. Save for sharing (JPEG), printing (16-bit TIFF) or further editing (FITS)."
+shotStretchAlt: "The bring out nebulae step with sliders and histogram"
+shotStretch: "Bringing out nebulae and galaxies – one-click auto stretch, then three sliders; the image and the histogram follow live."
+shotNoiseAlt: "The reduce noise step with a strength slider"
+shotNoise: "Noise reduction with GraXpert's AI model: one slider for strength, while stars and fine detail are kept."
+shotCropAlt: "The crop step with a selection"
+shotCrop: "Crop: the empty corners left by stacking are cut away automatically – 654 frames, 1 h 49 min of exposure in one image."
+shotWelcomeAlt: "The welcome window"
+shotWelcome: "On first launch it tells you briefly what's ahead. On the left you always see where you are."
 
 stepsTitle: The 16 steps
 grpPrep: Preparation

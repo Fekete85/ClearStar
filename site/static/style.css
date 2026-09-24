@@ -185,3 +185,4 @@ h3 { font-size: 17px; margin: 0; }
   .bar-nav > a { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+.note { color: var(--text3); font-size: 14px; margin: -8px 0 20px; }

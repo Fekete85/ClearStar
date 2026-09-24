@@ -13,7 +13,7 @@ ctaGithub: Forráskód a GitHubon
 viewerTitle: Feldolgozás
 viewerDone: 16 / 16 lépés kész
 heroAlt: Az Androméda-galaxis (M 31) ClearStarral feldolgozva
-heroCaption: Androméda-galaxis (M 31) · Seestar-felvételekből, ClearStarral
+heroCaption: "Androméda-galaxis (M 31) · 654 Seestar-felvétel, 1 óra 49 perc"
 
 whatTitle: Mi ez?
 whatText: >-
@@ -29,13 +29,18 @@ move2Text: Jó alapbeállításokkal, lépésenként egy kattintással – vagy 
 move3Title: Mentsd el
 move3Text: Megosztáshoz (JPEG), nyomtatáshoz (16 bites TIFF) vagy további szerkesztéshez (FITS).
 
-shotsTitle: Így néz ki
-shotStretchAlt: A ködök kiemelése lépés csúszkákkal és hisztogrammal
-shotStretch: Ködök és galaxisok kiemelése – automatikus nyújtás egy gombbal, utána három csúszka; a kép és a hisztogram élőben követi.
-shotWelcomeAlt: Az üdvözlő ablak
-shotWelcome: Az első indításkor röviden elmondja, mi következik. Bal oldalt végig látod, hol tartasz.
-shotResultAlt: A kész kép a feldolgozás végén
-shotResult: Bármelyik lépés után lenyomva tartva megnézheted az eredetit, vagy előtte/utána osztott nézetben hasonlíthatsz.
+shotsTitle: "Így néz ki"
+shotsNote: "A képek az angol felületről készültek – a program magyarul is tud, alapból a Windows nyelvén indul."
+shotResultAlt: "A kész kép a mentés lépésnél"
+shotResult: "Kész: 16 / 16 lépés. Mentés megosztáshoz (JPEG), nyomtatáshoz (16 bites TIFF) vagy további szerkesztéshez (FITS)."
+shotStretchAlt: "A ködök kiemelése lépés csúszkákkal és hisztogrammal"
+shotStretch: "Ködök és galaxisok kiemelése – automatikus nyújtás egy gombbal, utána három csúszka; a kép és a hisztogram élőben követi."
+shotNoiseAlt: "A zajcsökkentés lépés erősség-csúszkával"
+shotNoise: "Zajcsökkentés a GraXpert AI-modelljével: egy csúszka az erősségre, a csillagok és a finom részletek megmaradnak."
+shotCropAlt: "A vágás lépés kijelöléssel"
+shotCrop: "Vágás: magától levágja az összeillesztés után üresen maradt sarkokat – 654 kép, 1 óra 49 perc expozíció egy képben."
+shotWelcomeAlt: "Az üdvözlő ablak"
+shotWelcome: "Az első indításkor röviden elmondja, mi következik. Bal oldalt végig látod, hol tartasz."
 
 stepsTitle: A 16 lépés
 grpPrep: Előkészítés
