@@ -6,16 +6,17 @@ namespace ClearStar.Core.Astrometry;
 
 /// <summary>
 /// Downloads the offline Gaia DR3 astrometry catalogue (Siril Astrometry Catalogue, CC BY 4.0,
-/// published on Zenodo as a bzip2 file of ~1.1 GB) into ClearStar's catalogue folder, decompressing
+/// published on Zenodo as a bzip2 file of ~1.1 GB and copied to ClearStar's mirror) into ClearStar's catalogue folder, decompressing
 /// on the fly and verifying the published SHA-256 of the uncompressed file (~1.5 GB).
 /// </summary>
 public static class CatalogDownloader
 {
-    /// <summary>Mirrors tried in order; the first entry is the publisher's record.</summary>
+    /// <summary>Mirrors tried in order; a failed download or checksum moves on to the next.</summary>
     public static readonly string[] Mirrors =
     [
         // A URL ending in .bz2 is unpacked on the fly; a plain .dat mirror is copied as is.
-        // Add a faster private mirror in front of the publisher's record when one is available.
+        // The author's mirror first (faster than Zenodo), the publisher's record as fallback.
+        AppLinks.Mirror + "siril/catalogs/siril_cat_healpix8_astro.dat.bz2",
         "https://zenodo.org/records/14692304/files/siril_cat_healpix8_astro.dat.bz2?download=1",
     ];
     public const string RecordUrl = "https://zenodo.org/records/14692304";

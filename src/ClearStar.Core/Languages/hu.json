@@ -203,7 +203,7 @@
     },
     "bge": {
       "selectedSource": "kiválasztott",
-      "noModel": "Nincs háttérkivonó AI-modell a gépen. Válassz egyet a lépés „AI-modell” listájából (tallózás vagy letöltés), vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik. Addig a polinom-módszer is használható.",
+      "noModel": "Nincs háttérkivonó AI-modell a gépen. Válassz egyet a lépés „AI-modell” listájából (tallózás vagy letöltés), vagy a „Letöltés” gombbal szerezd be. Addig a polinom-módszer is használható.",
       "estimating": "Háttérmodell becslése az AI-val…",
       "subtracting": "Háttér kivonása…",
       "summaryAi": "AI-modell {0} ({1})",
@@ -216,8 +216,8 @@
     },
     "deconv": {
       "nothing": "Nincs bekapcsolva élesítés – a kép változatlan",
-      "noStarsModel": "Nincs csillag-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (csillagok)” listából, vagy telepítsd a GraXpertet és töltsd le vele. Addig kapcsold ki a csillagok élesítését.",
-      "noObjectModel": "Nincs köd-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (köd, galaxis)” listából, vagy telepítsd a GraXpertet és töltsd le vele. Addig kapcsold ki a köd élesítését.",
+      "noStarsModel": "Nincs csillag-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (csillagok)” listából, vagy a „Letöltés” gombbal szerezd be. Addig kapcsold ki a csillagok élesítését.",
+      "noObjectModel": "Nincs köd-élesítő AI-modell a gépen. Válassz egyet az „AI-modell (köd, galaxis)” listából, vagy a „Letöltés” gombbal szerezd be. Addig kapcsold ki a köd élesítését.",
       "measuring": "Csillagméret mérése…",
       "stars": "Csillagok élesítése…",
       "object": "Köd, galaxis élesítése…",
@@ -229,7 +229,7 @@
     "ai": { "gpu": " · GPU", "cpu": " · CPU" },
     "denoise": {
       "nothing": "Az erősség nulla – a kép változatlan",
-      "noModel": "Nincs zajcsökkentő AI-modell a gépen. Válassz egyet az „AI-modell” listából (tallózás vagy letöltés), vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik.",
+      "noModel": "Nincs zajcsökkentő AI-modell a gépen. Válassz egyet az „AI-modell” listából (tallózás vagy letöltés), vagy a „Letöltés” gombbal szerezd be.",
       "running": "Zajcsökkentés…",
       "summary": "Zajcsökkentve · AI-modell {0} ({1})"
     },
@@ -276,7 +276,9 @@
     "model": {
       "kind": { "BackgroundExtraction": "háttérkivonás", "Denoise": "zajcsökkentés", "DeconvolutionObject": "élesítés (objektum)", "DeconvolutionStars": "élesítés (csillagok)" },
       "ownFile": "saját fájl",
-      "zipNoOnnx": "A zip nem tartalmaz .onnx modellt."
+      "zipNoOnnx": "A zip nem tartalmaz .onnx modellt.",
+      "checksum": "A letöltött fájl sérült (nem egyezik az ellenőrzőösszeg). Próbáld újra.",
+      "mirrorManifest": "A letöltőszerver fájllistája nem olvasható."
     }
   },
 
@@ -326,11 +328,16 @@
       "auto": "Automatikus (a legfrissebb elérhető)",
       "fromFolder": "{0} – {1} mappa",
       "ownFile": "{0} – saját fájl",
-      "missing": "Nincs modell a gépen. Tallózz be egy model.onnx fájlt, tölts le egyet URL-ről, vagy telepítsd a GraXpertet és töltsd le vele – onnantól itt is látszik.",
+      "missing": "Nincs modell a gépen. A „Letöltés” gomb leszedi a legfrissebbet a ClearStar letöltőszerveréről; ha a GraXpert már letöltötte, itt is látszik.",
       "using": "Használt modell: {0} ({1})",
       "refresh": "Frissítés",
       "browse": "Tallózás…",
-      "download": "Letöltés URL-ről…",
+      "download": "Letöltés",
+      "downloadUrl": "URL-ről…",
+      "mirrorChecking": "A legfrissebb modell keresése…",
+      "mirrorNone": "A letöltőszerveren nincs ilyen modell.",
+      "upToDate": "A legfrissebb modell ({0}) már megvan ({1}).",
+      "downloadingMirror": "Letöltés: {0} verzió, {1} MB…",
       "pickTitle": "AI-modell kiválasztása ({0})",
       "pickFilter": "ONNX-modell vagy zip|*.onnx;*.zip|Minden fájl|*.*",
       "loadFailed": "Nem sikerült betölteni: {0}",
@@ -455,7 +462,7 @@
       "tabModels": "AI-modellek",
       "openFolder": "Megnyitás",
       "modelBge": "Háttérkivonás-modell", "modelDenoise": "Zajcsökkentés-modell", "modelDeconv": "Élesítés-modellek (csillagok és objektum)",
-      "summary": "A ClearStar a szerzőjének saját fejlesztése, a kód a GNU GPL 3.0 (vagy későbbi) licenc alatt szabadon használható, módosítható és továbbadható. A stackelés, a nyújtás és a háttérkivonás megoldásait a Siril és a GraXpert (mindkettő GPL-3.0) forráskódjának tanulmányozásával írtuk meg – kód nem került átvételre. Az AI-lépések a GraXpert Development Team CC BY-NC-SA 4.0 licencű modelljeit használják: ezek csak nem kereskedelmi célra használhatók, és a ClearStar nem tartalmazza őket. A képek, amiket a programmal készítesz, a tieid. A program nem küld adatot sehova; hálózatot csak az általad kért modell-letöltés használ. A részletek és a közreműködők névsora a további füleken."
+      "summary": "A ClearStar a szerzőjének saját fejlesztése, a kód a GNU GPL 3.0 (vagy későbbi) licenc alatt szabadon használható, módosítható és továbbadható. A stackelés, a nyújtás és a háttérkivonás megoldásait a Siril és a GraXpert (mindkettő GPL-3.0) forráskódjának tanulmányozásával írtuk meg – kód nem került átvételre. Az AI-lépések a GraXpert Development Team CC BY-NC-SA 4.0 licencű modelljeit használják: ezek csak nem kereskedelmi célra használhatók; a telepítő nem tartalmazza őket, kérésre a ClearStar letöltőszerveréről töltődnek le, változatlanul, a licencükkel együtt. A képek, amiket a programmal készítesz, a tieid. A program nem küld adatot sehova; hálózatot csak az általad kért letöltések és a csillagkatalógus-lekérések használnak. A részletek és a közreműködők névsora a további füleken."
     }
   }
 }

@@ -28,7 +28,7 @@ Mit tud?
 
 Bemenet: FITS, TIFF, PNG, JPEG – mono, RGB és nyers Bayer-mintás képek.
 
-A ClearStar ingyenes és nyílt forráskódú (GPL-3.0). Nem gyűjt adatot; a hálózatot csak a csillagkatalógus-lekéréshez használja, ha te kéred. Az AI-lépésekhez a GraXpert modelljei szükségesek (a GraXpert telepítése után automatikusan megtalálja őket), a csillagleválasztáshoz a StarNet2 – mindkettő a program útmutatója szerint szerezhető be.
+A ClearStar ingyenes és nyílt forráskódú (GPL-3.0). Nem gyűjt adatot; a hálózatot csak a csillagkatalógus-lekéréshez és az általad kért letöltésekhez használja. Az AI-lépésekhez szükséges GraXpert-modelleket egy gombnyomással letölti (ha a GraXpert telepítve van, az ő modelljeit is megtalálja); a csillagleválasztáshoz a StarNet2 kell, a program útmutatója szerint szerezhető be.
 
 **What's new in this version:**
 Első nyilvános béta.
@@ -79,7 +79,7 @@ What it does
 
 Input: FITS, TIFF, PNG, JPEG – mono, RGB and raw Bayer-pattern images.
 
-ClearStar is free and open source (GPL-3.0). It collects no data; the network is used only for star catalogue queries when you ask for them. The AI steps need GraXpert's models (found automatically once GraXpert is installed) and star removal needs StarNet2 – the app guides you to both.
+ClearStar is free and open source (GPL-3.0). It collects no data; the network is used only for star catalogue queries and downloads you ask for. The GraXpert models the AI steps need are downloaded with one click (models of an installed GraXpert are found too); star removal needs StarNet2 – the app guides you to it.
 
 **What's new in this version:**
 First public beta.

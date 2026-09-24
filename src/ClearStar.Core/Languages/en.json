@@ -203,7 +203,7 @@
     },
     "bge": {
       "selectedSource": "selected",
-      "noModel": "No background-extraction AI model on this computer. Pick one from the step's \"AI model\" list (browse or download), or install GraXpert and download it there – it will show up here too. Until then the polynomial method works.",
+      "noModel": "No background-extraction AI model on this computer. Pick one from the step's \"AI model\" list (browse or download), or get it with the \"Download\" button. Until then the polynomial method works.",
       "estimating": "Estimating background with the AI…",
       "subtracting": "Removing background…",
       "summaryAi": "AI model {0} ({1})",
@@ -216,8 +216,8 @@
     },
     "deconv": {
       "nothing": "No sharpening enabled – the image is unchanged",
-      "noStarsModel": "No star-sharpening AI model on this computer. Pick one from the \"AI model (stars)\" list, or install GraXpert and download it there. Until then turn off star sharpening.",
-      "noObjectModel": "No nebula-sharpening AI model on this computer. Pick one from the \"AI model (nebula, galaxy)\" list, or install GraXpert and download it there. Until then turn off nebula sharpening.",
+      "noStarsModel": "No star-sharpening AI model on this computer. Pick one from the \"AI model (stars)\" list, or get it with the \"Download\" button. Until then turn off star sharpening.",
+      "noObjectModel": "No nebula-sharpening AI model on this computer. Pick one from the \"AI model (nebula, galaxy)\" list, or get it with the \"Download\" button. Until then turn off nebula sharpening.",
       "measuring": "Measuring star size…",
       "stars": "Sharpening stars…",
       "object": "Sharpening nebula, galaxy…",
@@ -229,7 +229,7 @@
     "ai": { "gpu": " · GPU", "cpu": " · CPU" },
     "denoise": {
       "nothing": "Strength is zero – the image is unchanged",
-      "noModel": "No denoising AI model on this computer. Pick one from the \"AI model\" list (browse or download), or install GraXpert and download it there – it will show up here too.",
+      "noModel": "No denoising AI model on this computer. Pick one from the \"AI model\" list (browse or download), or get it with the \"Download\" button.",
       "running": "Reducing noise…",
       "summary": "Noise reduced · AI model {0} ({1})"
     },
@@ -276,7 +276,9 @@
     "model": {
       "kind": { "BackgroundExtraction": "background extraction", "Denoise": "denoising", "DeconvolutionObject": "sharpening (object)", "DeconvolutionStars": "sharpening (stars)" },
       "ownFile": "own file",
-      "zipNoOnnx": "The zip contains no .onnx model."
+      "zipNoOnnx": "The zip contains no .onnx model.",
+      "checksum": "The downloaded file is damaged (checksum mismatch). Please try again.",
+      "mirrorManifest": "The download server's file list could not be read."
     }
   },
 
@@ -326,11 +328,16 @@
       "auto": "Automatic (newest available)",
       "fromFolder": "{0} – {1} folder",
       "ownFile": "{0} – own file",
-      "missing": "No model on this computer. Browse to a model.onnx file, download one from a URL, or install GraXpert and download it there – it will show up here too.",
+      "missing": "No model on this computer. \"Download\" fetches the newest one from ClearStar's download server; models GraXpert has already downloaded show up here too.",
       "using": "Model in use: {0} ({1})",
       "refresh": "Refresh",
       "browse": "Browse…",
-      "download": "Download from URL…",
+      "download": "Download",
+      "downloadUrl": "From URL…",
+      "mirrorChecking": "Looking for the newest model…",
+      "mirrorNone": "The download server has no model of this kind.",
+      "upToDate": "The newest model ({0}) is already here ({1}).",
+      "downloadingMirror": "Downloading version {0}, {1} MB…",
       "pickTitle": "Choose AI model ({0})",
       "pickFilter": "ONNX model or zip|*.onnx;*.zip|All files|*.*",
       "loadFailed": "Could not load: {0}",
@@ -455,7 +462,7 @@
       "tabModels": "AI models",
       "openFolder": "Open",
       "modelBge": "Background extraction model", "modelDenoise": "Denoising model", "modelDeconv": "Deconvolution models (stars and object)",
-      "summary": "ClearStar is the author's own work; the code is free to use, modify and redistribute under the GNU GPL 3.0 (or later). The stacking, stretching and background-extraction methods were written after studying the source code of Siril and GraXpert (both GPL-3.0) – no code was copied. The AI steps use the GraXpert Development Team's models, licensed CC BY-NC-SA 4.0: they may be used for non-commercial purposes only and are not included in ClearStar. The images you create with the program are yours. The program sends no data anywhere; the network is used only for model downloads you request. Details and the list of contributors are on the other tabs."
+      "summary": "ClearStar is the author's own work; the code is free to use, modify and redistribute under the GNU GPL 3.0 (or later). The stacking, stretching and background-extraction methods were written after studying the source code of Siril and GraXpert (both GPL-3.0) – no code was copied. The AI steps use the GraXpert Development Team's models, licensed CC BY-NC-SA 4.0: they may be used for non-commercial purposes only; the installer does not include them, they are downloaded on request from ClearStar's download server, unmodified and with their licence. The images you create with the program are yours. The program sends no data anywhere; the network is used only for downloads you request and for star catalogue queries. Details and the list of contributors are on the other tabs."
     }
   }
 }

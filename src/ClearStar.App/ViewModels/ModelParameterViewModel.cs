@@ -10,7 +10,8 @@ namespace ClearStar.App.ViewModels;
 
 /// <summary>
 /// AI-modell választó: a gépen talált (ClearStar / GraXpert) modellek listája, frissítés, tallózás,
-/// letöltés URL-ről. Az üres érték = a legfrissebb elérhető modell; a választás a beállításokba kerül.
+/// letöltés a ClearStar tükréről vagy tetszőleges URL-ről. Az üres érték = a legfrissebb elérhető
+/// modell; a választás a beállításokba kerül.
 /// </summary>
 public partial class ModelParameterViewModel : ParameterViewModel
 {
@@ -20,10 +21,13 @@ public partial class ModelParameterViewModel : ParameterViewModel
     [ObservableProperty] private ModelChoice? _selected;
     [ObservableProperty] private string _statusText = "";
     [ObservableProperty] private bool _isMissing;
-    [ObservableProperty] private bool _isDownloading;
+    [ObservableProperty, NotifyCanExecuteChangedFor(nameof(DownloadCommand)), NotifyCanExecuteChangedFor(nameof(DownloadUrlCommand))]
+    private bool _isDownloading;
     [ObservableProperty] private double _downloadProgress;
 
     public sealed record ModelChoice(string Label, string Path);
+
+    private bool CanDownload() => !IsDownloading;
 
     public ModelParameterViewModel(ParameterDefinition d, StepParameters p) : base(d, p)
     {
@@ -89,8 +93,41 @@ public partial class ModelParameterViewModel : ParameterViewModel
         }
     }
 
-    [RelayCommand]
+    /// <summary>A fajta legfrissebb modellje a tükörről; ha az a verzió már a gépen van, nem tölt le semmit.</summary>
+    [RelayCommand(CanExecute = nameof(CanDownload))]
     private async Task DownloadAsync()
+    {
+        IsDownloading = true;
+        DownloadProgress = 0;
+        StatusText = L.T("ui.model.mirrorChecking");
+        try
+        {
+            var latest = await AiModelStore.LatestOnMirrorAsync(ModelKind);
+            if (latest is null)
+            {
+                StatusText = L.T("ui.model.mirrorNone");
+                return;
+            }
+            var present = AiModelStore.ListAvailable(ModelKind).FirstOrDefault(m => m.Version == latest.Version);
+            if (present is not null)
+            {
+                StatusText = L.F("ui.model.upToDate", present.Version, present.Source);
+                return;
+            }
+            StatusText = L.F("ui.model.downloadingMirror", latest.Version, latest.Size / (1024 * 1024));
+            var info = await AiModelStore.DownloadFromMirrorAsync(latest, new Progress<double>(p => DownloadProgress = p));
+            Parameters[Key] = info.Path;
+            Refresh();
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException or TaskCanceledException or UnauthorizedAccessException)
+        {
+            StatusText = L.F("ui.model.downloadFailed", ex.Message);
+        }
+        finally { IsDownloading = false; }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanDownload))]
+    private async Task DownloadUrlAsync()
     {
         string? url = Views.TextPromptWindow.Show(L.T("ui.model.downloadTitle"), L.T("ui.model.downloadPrompt"), "https://");
         if (string.IsNullOrWhiteSpace(url) || url.Trim() == "https://") return;

@@ -113,14 +113,16 @@ extraction model (256×256 tiling, MAD normalisation, padding, smoothing,
 upscaling), the polynomial background fit, and the planned denoising and
 deconvolution model handling. No GraXpert source code is included in ClearStar.
 
-### GraXpert AI models (not distributed with ClearStar)
+### GraXpert AI models (not bundled, downloaded on request)
 
 The GraXpert Background Extraction, Denoising and Deconvolution models
 (`model.onnx`) are provided by the GraXpert Development Team under the
 **Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
 (CC BY-NC-SA 4.0)** license – https://creativecommons.org/licenses/by-nc-sa/4.0/
-ClearStar does not include these files; it loads models that GraXpert has
-already downloaded, or that the user imports or downloads themselves. Any use
+ClearStar's installer does not include these files. On the user's request it
+downloads them, unmodified and with their licence file, from ClearStar's
+non-commercial download mirror (https://csillag.blackit.hu/clearstar/); it also
+loads models that GraXpert has already downloaded, or that the user imports. Any use
 of the models – including through ClearStar – is restricted to non-commercial
 purposes. The GraXpert team thanks the following people who contributed
 training images (verbatim from the model license files):
@@ -188,7 +190,8 @@ The offline plate-solving catalogue is the "Siril Astrometry Catalogue extracted
 Gaia DR3" published by the Siril team on Zenodo (https://zenodo.org/records/14692304)
 under CC BY 4.0, in the Siril HEALPix Catalog Format 1.0.0 (specification:
 https://zenodo.org/records/14697486). ClearStar downloads it to the user's machine only
-when the user asks for it and verifies the published SHA-256. Gaia data: ESA/Gaia/DPAC,
+when the user asks for it – from ClearStar's download mirror, which holds an
+unmodified copy, or from Zenodo – and verifies the published SHA-256. Gaia data: ESA/Gaia/DPAC,
 CC BY-SA 3.0 IGO.
 
 ### SharpZipLib 1.4.2

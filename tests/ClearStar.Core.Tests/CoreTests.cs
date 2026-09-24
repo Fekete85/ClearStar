@@ -816,3 +816,48 @@ public class StarNetChannelOrderTests
         Assert.InRange(m[0], 0.18f, 0.22f); Assert.InRange(m[1], 0.38f, 0.42f); Assert.InRange(m[2], 0.58f, 0.62f);
     }
 }
+
+public class MirrorManifestTests
+{
+    private const string Manifest = """
+        { "generated": "2026-09-24T04:55:51Z", "files": [
+          { "path": "graxpert/bge-ai-models/1.0.1/LICENSE.html", "size": 2200, "sha256": "aa" },
+          { "path": "graxpert/bge-ai-models/1.0.1/model.onnx", "size": 217663463, "sha256": "4ed3" },
+          { "path": "graxpert/bge-ai-models/1.0.10/model.onnx", "size": 5, "sha256": "bb" },
+          { "path": "graxpert/bge-ai-models/1.0.2/model.onnx", "size": 4, "sha256": "cc" },
+          { "path": "graxpert/deconvolution-stars-ai-models/1.0.0/model.onnx", "size": 3, "sha256": "dd" },
+          { "path": "siril/catalogs/siril_cat_healpix8_astro.dat.bz2", "size": 1142276749, "sha256": "846a" }
+        ] }
+        """;
+
+    [Fact]
+    public void PicksHighestVersionNumerically()
+    {
+        var m = ClearStar.Core.AI.AiModelStore.LatestInManifest(Manifest, ClearStar.Core.AI.AiModelKind.BackgroundExtraction, "https://m/");
+        Assert.NotNull(m);
+        Assert.Equal("1.0.10", m!.Version); // 1.0.10 > 1.0.2 – nem szöveges összehasonlítás
+        Assert.Equal("https://m/graxpert/bge-ai-models/1.0.10/model.onnx", m.Url);
+        Assert.Equal(5, m.Size);
+        Assert.Null(m.LicenseUrl); // ehhez a verzióhoz nincs licencfájl
+    }
+
+    [Fact]
+    public void KeepsKindsApartAndFindsLicense()
+    {
+        var stars = ClearStar.Core.AI.AiModelStore.LatestInManifest(Manifest, ClearStar.Core.AI.AiModelKind.DeconvolutionStars, "https://m/");
+        Assert.Equal("1.0.0", stars!.Version);
+        Assert.Null(ClearStar.Core.AI.AiModelStore.LatestInManifest(Manifest, ClearStar.Core.AI.AiModelKind.DeconvolutionObject, "https://m/"));
+
+        string withLicense = Manifest.Replace("1.0.10", "0.9").Replace("1.0.2/", "0.8/");
+        var bge = ClearStar.Core.AI.AiModelStore.LatestInManifest(withLicense, ClearStar.Core.AI.AiModelKind.BackgroundExtraction, "https://m/");
+        Assert.Equal("1.0.1", bge!.Version);
+        Assert.Equal("https://m/graxpert/bge-ai-models/1.0.1/LICENSE.html", bge.LicenseUrl);
+    }
+
+    [Fact]
+    public void BrokenManifestIsAnIoError()
+    {
+        Assert.Throws<IOException>(() => ClearStar.Core.AI.AiModelStore.LatestInManifest("<html>", ClearStar.Core.AI.AiModelKind.Denoise, "https://m/"));
+        Assert.Throws<IOException>(() => ClearStar.Core.AI.AiModelStore.LatestInManifest("{\"x\":1}", ClearStar.Core.AI.AiModelKind.Denoise, "https://m/"));
+    }
+}

@@ -52,7 +52,7 @@ A felületet nem kell hozzá módosítani.
 | 1 | Képek betöltése | kész |
 | 2 | Összeillesztés | kalibrálás, Bayer-debayer, képenkénti gradiens-kivonás (mint Siril `seqsubsky 1`), csillag szerinti igazítás, háttér-normálás (`norm=add`), teljes látómező (`framing=max`), szigma-vágott átlag |
 | 3 | Vágás | kijelölés fogantyúkkal, szélcsúszka, negyedfordulatok + finom szög (−45…+45°, bilineáris), tükrözés – mind élő előnézettel (WPF TransformedBitmap), a lefedett téglalap az elforgatott képen újraszámolva |
-| 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, DirectML GPU / CPU) vagy polinom-modell; modellválasztó tallózással/URL-letöltéssel |
+| 4 | Háttér kiegyenlítése | GraXpert AI-modell (ONNX Runtime, DirectML GPU / CPU) vagy polinom-modell; modellválasztó, letöltés a tükörről, tallózás, URL |
 | 5 | Élesítés | GraXpert deconvolution-modellek: előbb csillagok, aztán objektum (512-es csempék, log-normálás, FWHM automatikus mérése); DirectML-lel a videokártyán (~11 s a két menet 9 MP-en), CPU-tartalékkal (~140 s) |
 | 6 | Zajcsökkentés | GraXpert denoise-modell (256-os csempék, 128-as lépés, medián/MAD-normálás, fényes pixelek megtartása, erősség szerinti keverés); GPU-n ~20 s 9 MP-en |
 | 7 | Égbolt azonosítása | „közeli” plate solving: a fejléc RA/DEC (vagy objektumnév → CDS Sesame) körül Gaia DR3 csillagok – **offline** a Siril HEALPix-katalógusból (`siril_cat_healpix8_astro.dat`, saját olvasó, ~0,5 s), különben ESA archívum TAP, tartalék VizieR, lemezes gyorsítótár, háromszög-illesztés tükrözéssel is, TAN WCS legkisebb négyzetes illesztéssel; az eredmény a FITS-fejlécbe kerül (~2 s) |
@@ -96,7 +96,10 @@ Beállítások → Windows-biztonság → Alkalmazás- és böngészővezérlés
 ## AI-modellek
 
 A 4. lépés (és később a zajcsökkentés, élesítés) a GraXpert nyílt ONNX-modelljeit használja. A GraXpert
-privát tárolóból tölti őket, ezért a ClearStar közvetlenül nem tud letölteni; a GraXpert által már letöltött
+privát tárolóból tölti őket, ezért a ClearStar a saját letöltési tükréről
+(`https://csillag.blackit.hu/clearstar/`, `AppLinks.Mirror`) szedi le a legfrissebbet: a tükör
+`manifest.json`-ja adja a verziót, a méretet és az SHA-256-ot, amit a letöltés után ellenőrzünk. A tükör
+az offline csillagkatalógust is kiszolgálja (a Zenodo csak tartalék). A GraXpert által már letöltött
 modelleket automatikusan megtalálja (`%LOCALAPPDATA%\GraXpert\GraXpert\…`), ezen kívül `model.onnx`/zip
 betallózható vagy URL-ről letölthető (`%LOCALAPPDATA%\ClearStar\ai-models`). A választás a
 `%LOCALAPPDATA%\ClearStar\settings.json`-ban marad meg. A workflow az „AbdurAstro Method for Processing in
