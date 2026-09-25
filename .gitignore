@@ -7,4 +7,9 @@ design/clearstar-app.html
 testdata/
 publish/
 publish-cli/
-packaging/out/
+windows/packaging/out/
+macos/ClearStar.xcodeproj/
+.build/
+DerivedData/
+*.mlpackage
+*.mlmodelc

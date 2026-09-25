@@ -12,6 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Beépített nyelvek: ClearStar.Core.Languages.<kód>.json néven ágyazódnak be. -->
-    <EmbeddedResource Include="Languages\*.json" LogicalName="ClearStar.Core.Languages.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\..\..\shared\Languages\*.json" LogicalName="ClearStar.Core.Languages.%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

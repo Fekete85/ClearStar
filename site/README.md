@@ -7,7 +7,7 @@ A single-page Hugo site, built into its own nginx image.
 |---|---|
 | `i18n/hu.yaml`, `i18n/en.yaml` | all text – edit these to change the wording |
 | `layouts/home.html` | the one template; the 16 steps follow the app's sidebar |
-| `static/style.css` | colours from `src/ClearStar.App/Themes/Dark.xaml` |
+| `static/style.css` | colours from `windows/src/ClearStar.App/Themes/Dark.xaml` |
 | `static/img/` | hero, social preview, screenshots per language (`<name>-hu.webp`, `<name>-en.webp`) |
 | `hugo.toml` | languages and the outbound links (Store, GitHub, privacy, support) |
 

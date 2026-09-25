@@ -32,8 +32,8 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Jogi szövegek a Névjegy ablakhoz: a repó LICENSE / THIRD-PARTY-NOTICES fájljai és a GraXpert-modellek licencei. -->
-    <EmbeddedResource Include="..\..\LICENSE" LogicalName="Legal.LICENSE.txt" />
-    <EmbeddedResource Include="..\..\THIRD-PARTY-NOTICES.md" LogicalName="Legal.THIRD-PARTY-NOTICES.md" />
+    <EmbeddedResource Include="..\..\..\LICENSE" LogicalName="Legal.LICENSE.txt" />
+    <EmbeddedResource Include="..\..\..\THIRD-PARTY-NOTICES.md" LogicalName="Legal.THIRD-PARTY-NOTICES.md" />
     <EmbeddedResource Include="Legal\*.txt" LogicalName="Legal.%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>

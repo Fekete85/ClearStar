@@ -18,7 +18,7 @@ DirectML) are extracted to the `%TEMP%\.net\ClearStar\` cache on first launch. O
 optional `Languages` folder may go next to the exe.
 
 Supported input: FITS (8/16/32-bit integer, 32/64-bit float; mono, RGB and Bayer-pattern OSC raw – debayered based on `BAYERPAT`), TIFF, PNG, JPEG.
-Real test data: Seestar S50 Pro, 63×30 s M31 (`testdata/M31`, gitignored) – the full pipeline runs on it in ~30 s.
+Real test data: Seestar S50 Pro, 63×30 s M31 (`../testdata/M31`, gitignored) – the full pipeline runs on it in ~30 s.
 Frames in the folder are sorted by the `IMAGETYP` header or by the file name/subfolder (`light`, `dark`, `flat`, `bias`).
 
 ## Structure
@@ -37,8 +37,8 @@ src/ClearStar.App       – WPF UI (MVVM, CommunityToolkit.Mvvm)
   ViewModels/ MainViewModel (workflow + preview), StepViewModel, Parameter*ViewModel
   Controls/   ImageViewer (zoom/pan, before/after split view)
 tests/ClearStar.Core.Tests
-design/                 – Claude Design canvas sources (build.js generates the artboards)
-reference/              – Siril and GraXpert source (GPL-3.0, for study only; gitignored)
+../design/              – Claude Design canvas sources (build.js generates the artboards)
+../reference/           – Siril and GraXpert source (GPL-3.0, for study only; gitignored)
 ```
 
 A new step = one `StepBase` subclass: `Definition` provides the name, explanation and
@@ -75,7 +75,7 @@ The author's name must be set in the `Authors`/`Copyright` fields of `Directory.
 
 ## Languages
 
-Every label comes from the language database: `src/ClearStar.Core/Languages/hu.json` and `en.json` (built in).
+Every label comes from the language database: `../shared/Languages/hu.json` and `en.json` (built into Core; the macOS app uses them too).
 New language: copy `en.json` as `xx.json` (`_meta.name` is the name of the language), translate it, and put it in the
 `Languages` folder next to the program or here: `%LOCALAPPDATA%\ClearStar\Languages`. A file with the same code
 overrides the built-in one; missing keys are shown in English. The language can be selected in the About window
