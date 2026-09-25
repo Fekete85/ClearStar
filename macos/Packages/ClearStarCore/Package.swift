@@ -1,10 +1,10 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 import PackageDescription
 
 // UI-független feldolgozó mag – a windows/src/ClearStar.Core Swift megfelelője.
 let package = Package(
     name: "ClearStarCore",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v26)],
     products: [
         .library(name: "ClearStarCore", targets: ["ClearStarCore"]),
     ],

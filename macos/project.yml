@@ -3,7 +3,7 @@ name: ClearStar
 options:
   bundleIdPrefix: hu.blackit
   deploymentTarget:
-    macOS: "14.0"
+    macOS: "26.0"
   createIntermediateGroups: true
 packages:
   ClearStarCore:
@@ -31,12 +31,6 @@ targets:
         CFBundleDisplayName: ClearStar
         LSApplicationCategoryType: public.app-category.photography
         NSHumanReadableCopyright: © 2026 Laszlo Fekete
-    entitlements:
-      path: ClearStar/ClearStar.entitlements
-      properties:
-        com.apple.security.app-sandbox: true
-        com.apple.security.network.client: true
-        com.apple.security.files.user-selected.read-write: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: hu.blackit.clearstar
@@ -45,5 +39,6 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         CODE_SIGN_STYLE: Automatic
-        # Helyi fordításhoz ad-hoc aláírás; az App Store-hoz a fejlesztői csapat azonosítója kell (DEVELOPMENT_TEAM).
+        # Helyi fordításhoz ad-hoc aláírás. Terjesztés: Developer ID Application tanúsítvány + notarizálás (DMG),
+        # homokozó nélkül – mint a Siril –, hogy a felhasználó StarNet2-jét és a Siril beállításait elérjük.
         CODE_SIGN_IDENTITY: "-"
