@@ -85,10 +85,10 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] F5 commit
 
 ## F6 – Csomagolás és terjesztés
-- [ ] Release konfiguráció: hardened runtime, arm64, macOS 26, verzió a közös forrásból
-- [ ] `macos/packaging/make-dmg.sh`: archív → aláírás (Developer ID, ha van; különben ad-hoc) → ellenőrzés → DMG → notarizálás, ha van hozzá profil
-- [ ] Hardened runtime-os, ad-hoc aláírt Release build lefordul, `codesign` szerint `runtime` jelzővel
-- [ ] A DMG-szkript hiba nélkül lefut, a DMG csatolható, benne az app és az Applications-hivatkozás
-- [ ] Dokumentáció: `macos/README.md`, `PRIVACY.md` (macOS-helyek), `THIRD-PARTY-NOTICES.md` (Core ML-modellek, macOS)
-- [ ] `xcodebuild test` 0 hibával (egység-, paritás- és nézetmodell-tesztek)
-- [ ] F6 commit
+- [x] Release konfiguráció: hardened runtime, arm64, macOS 26, verzió a közös forrásból
+- [x] `macos/packaging/make-dmg.sh`: archív → aláírás (Developer ID, ha van; különben ad-hoc) → ellenőrzés → DMG → notarizálás, ha van hozzá profil
+- [x] Hardened runtime-os, ad-hoc aláírt Release build lefordul, `codesign` szerint `runtime` jelzővel (flags: adhoc,runtime)
+- [x] A DMG-szkript hiba nélkül lefut, a DMG csatolható, benne az app és az Applications-hivatkozás
+- [x] Dokumentáció: `macos/README.md`, `PRIVACY.md` (macOS-helyek), `THIRD-PARTY-NOTICES.md` (Core ML-modellek, macOS)
+- [x] `xcodebuild test` 0 hibával (egység-, paritás- és nézetmodell-tesztek: 58 + 6, TEST SUCCEEDED)
+- [x] F6 commit

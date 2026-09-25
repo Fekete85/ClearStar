@@ -1,6 +1,6 @@
 # ClearStar macOS-port – elemzés és döntések
 
-*Állapot: 2026-09-25. Cél: natív Apple Silicon alkalmazás Core ML-es AI-val, ingyenesen.*
+*Állapot: 2026-09-25 – **a port elkészült** (F0–F6, lásd `PORT-CHECKLIST.md`); a kiadáshoz a `PORT-BLOCKERS.md` tételei kellenek. Cél: natív Apple Silicon alkalmazás Core ML-es AI-val, ingyenesen.*
 
 ## 1. Döntések (2026-09-25)
 

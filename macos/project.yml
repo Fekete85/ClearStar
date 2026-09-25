@@ -11,7 +11,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.1.0"
+    # The version comes from windows/Directory.Build.props (make-dmg.sh passes it); this is the fallback.
+    MARKETING_VERSION: "0.1.1"
     CURRENT_PROJECT_VERSION: "1"
 targets:
   ClearStar:
@@ -40,6 +41,8 @@ targets:
       path: ClearStar/Info.plist
       properties:
         CFBundleDisplayName: ClearStar
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.photography
         NSHumanReadableCopyright: © 2026 Laszlo Fekete
     settings:

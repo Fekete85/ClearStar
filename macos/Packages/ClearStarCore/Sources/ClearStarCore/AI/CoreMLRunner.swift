@@ -83,7 +83,7 @@ public enum CoreMLRunner {
         array.withUnsafeMutableBytes { raw, _ in
             let p = raw.bindMemory(to: Float.self)
             if isContiguous(shape, strides) {
-                data.withUnsafeBufferPointer { s in _ = p.baseAddress!.update(from: s.baseAddress!, count: data.count) }
+                data.withUnsafeBufferPointer { s in p.baseAddress!.update(from: s.baseAddress!, count: data.count) }
                 return
             }
             forEachIndex(shape) { flat, offset in p[offsetOf(offset, strides)] = data[flat] }
@@ -106,7 +106,7 @@ public enum CoreMLRunner {
             default:
                 let p = raw.bindMemory(to: Float.self)
                 if isContiguous(shape, strides) {
-                    result.withUnsafeMutableBufferPointer { d in _ = d.baseAddress!.update(from: p.baseAddress!, count: count) }
+                    result.withUnsafeMutableBufferPointer { d in d.baseAddress!.update(from: p.baseAddress!, count: count) }
                 } else {
                     forEachIndex(shape) { flat, idx in result[flat] = p[offsetOf(idx, strides)] }
                 }

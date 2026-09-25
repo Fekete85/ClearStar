@@ -22,7 +22,7 @@ public final class StackStep: WorkflowStep {
 
     public init() {}
 
-    private struct FramePlan { let frame: FrameInfo; let toReference: SimilarityTransform; let matches: Int; let rms: Float }
+    private struct FramePlan: Sendable { let frame: FrameInfo; let toReference: SimilarityTransform; let matches: Int; let rms: Float }
     private struct FrameQuality { let stars: Int; let starSize: Float; let background: Float }
 
     public func run(_ context: WorkflowContext) async throws -> StepResult {
@@ -145,7 +145,7 @@ public final class StackStep: WorkflowStep {
         var sumSq = clip ? [Float](repeating: 0, count: ch * n) : []
         var count = [Float](repeating: 0, count: n)
         let refPath = lights[refIndex].path
-        let prepareFrame: (FramePlan) throws -> AstroImage = { plan in
+        let prepareFrame: @Sendable (FramePlan) throws -> AstroImage = { plan in
             plan.frame.path == refPath ? reference : try prepare(plan.frame.path, masterDark, masterFlat, gradient, refMedians, ct)
         }
 
@@ -222,7 +222,7 @@ public final class StackStep: WorkflowStep {
 
     /// Consumes the items in order while the next ones are already being prepared in parallel, so
     /// loading/gradient (many threads) and summing (one thread) overlap.
-    private static func forEachPrefetched<T>(_ items: [T], _ prepare: @escaping (T) throws -> AstroImage, _ ct: CancellationToken,
+    private static func forEachPrefetched<T: Sendable>(_ items: [T], _ prepare: @escaping @Sendable (T) throws -> AstroImage, _ ct: CancellationToken,
                                              _ consume: (Int, AstroImage) throws -> Void) throws {
         let ahead = min(concurrency, items.count)
         let slots = (0 ..< items.count).map { _ in Locked<Result<AstroImage, Error>?>(nil) }

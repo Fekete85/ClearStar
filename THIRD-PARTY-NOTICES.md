@@ -6,8 +6,8 @@
 
 ### Mi a ClearStar, és ki készítette?
 
-A ClearStar egy kezdőknek szánt, Windowsra készült asztrofotó-feldolgozó program
-(.NET / WPF, C#). A program forráskódja – a képfeldolgozó algoritmusok saját
+A ClearStar egy kezdőknek szánt asztrofotó-feldolgozó program Windowsra
+(.NET / WPF, C#) és macOS-re (Swift / SwiftUI, Core ML). A program forráskódja – a képfeldolgozó algoritmusok saját
 megvalósítása, a lépésalapú munkafolyamat, a felület, a stackelő/igazító motor,
 a FITS-olvasó, a nyelvi rendszer – **a ClearStar szerzőjének saját munkája**, a
 szerzői jog a szerzőé (lásd a `LICENSE` fájl fejlécét és a program Névjegy
@@ -41,6 +41,9 @@ tisztességes megoldás.
 | SharpZipLib (bzip2-kicsomagolás a katalógus letöltéséhez) | ICSharpCode / SharpZipLib közreműködők | MIT | NuGet-csomag |
 | CommunityToolkit.Mvvm | .NET Foundation | MIT | NuGet-csomag |
 | .NET 10 runtime, WPF | Microsoft | MIT | keretrendszer |
+| **macOS:** a GraXpert-modellek Core ML-re konvertált változata (`model.mlpackage`) | GraXpert Development Team; a konverziót a ClearStar végezte | **CC BY-NC-SA 4.0** (átdolgozás, azonos licenc alatt) | a ClearStar tükréről tölthető le kérésre, a `LICENSE.html`-lel; az app nem tartalmazza |
+| **macOS:** Core ML, SwiftUI, AppKit, ImageIO, Swift Charts, CryptoKit, libbz2 | Apple; libbz2: Julian Seward | a macOS része (libbz2: BSD-jellegű bzip2-licenc) | csak a rendszerből, az app nem tartalmazza |
+| **macOS, csak a fejlesztéshez:** coremltools, PyTorch, onnx2torch, ONNX Runtime (a modellek konvertálása és ellenőrzése) | Apple; PyTorch-szerzők; ENOT LLC; Microsoft | BSD-3-Clause; BSD-3-Clause; Apache-2.0; MIT | az app nem tartalmazza |
 | Segoe UI betűtípus | Microsoft | Windows része | csak a rendszerből |
 
 ### A GraXpert AI-modellek – fontos korlátozás
@@ -136,8 +139,19 @@ Reinhard G., Riccardo A., Roger B., Sherwin C., Steffen <_steffens_> S.,
 Steffen <Steffen> H., Stephen R., Steven D., Thomas P., Thomas G.,
 Ulrike <astronomy_ffm> K.
 
-*Denoising model:* see `src/ClearStar.App/Legal/GraXpert-Denoise-Model-LICENSE.txt`.
-*Deconvolution models:* see `src/ClearStar.App/Legal/GraXpert-Deconvolution-Model-LICENSE.txt`.
+*Denoising model:* see `windows/src/ClearStar.App/Legal/GraXpert-Denoise-Model-LICENSE.txt`.
+*Deconvolution models:* see `windows/src/ClearStar.App/Legal/GraXpert-Deconvolution-Model-LICENSE.txt`.
+
+### Core ML versions of the GraXpert models (macOS, downloaded on request)
+
+For the macOS version the GraXpert models above were converted to Core ML
+(`model.mlpackage`: ONNX → PyTorch with onnx2torch → coremltools, 32-bit float, results checked
+against ONNX Runtime). A converted model is an adaptation of the original and is therefore offered
+under the same **CC BY-NC-SA 4.0** licence, with attribution to the GraXpert Development Team and
+the licence file, from ClearStar's non-commercial mirror (`coreml/` folder). The macOS app does not
+include them; it downloads them when the user asks for it. The conversion tools (coremltools,
+BSD-3-Clause; PyTorch, BSD-3-Clause; onnx2torch, Apache-2.0; ONNX Runtime, MIT) are used only by
+the developer and are not distributed.
 
 ### Gaia DR3 and CDS services (online queries only)
 
@@ -208,6 +222,13 @@ https://github.com/CommunityToolkit/dotnet
 
 Copyright (c) .NET Foundation and Contributors. Licensed under the MIT License.
 https://github.com/dotnet/runtime · https://github.com/dotnet/wpf
+
+### macOS system components
+
+The macOS version uses Apple's system frameworks (Core ML, SwiftUI, AppKit, ImageIO, Swift Charts,
+CryptoKit, Accelerate) and the system's libbz2 (bzip2, Copyright (C) Julian R Seward, BSD-style
+licence) to unpack the catalogue download. They are part of macOS and are not distributed with
+ClearStar.
 
 ### MIT License (text)
 

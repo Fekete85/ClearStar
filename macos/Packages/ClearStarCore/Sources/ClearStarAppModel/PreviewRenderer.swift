@@ -32,12 +32,14 @@ public enum PreviewRenderer {
         try ct.check()
         let w = small.width, h = small.height, n = w * h
         var pixels = [UInt8](repeating: 255, count: n * 4)
+        let channels = small.channels
         small.data.withUnsafeBufferPointer { d in
             pixels.withUnsafeMutableBufferPointer { px in
-                DispatchQueue.concurrentPerform(iterations: h) { y in
+                // Rows are disjoint: every iteration writes its own row.
+                parallelFor(h) { y in
                     for i in y * w ..< (y + 1) * w {
                         let r: UInt8, g: UInt8, b: UInt8
-                        if small.channels == 3 {
+                        if channels == 3 {
                             r = toByte(prms.map { $0[0].apply(d[i]) } ?? d[i])
                             g = toByte(prms.map { $0[1].apply(d[n + i]) } ?? d[n + i])
                             b = toByte(prms.map { $0[2].apply(d[2 * n + i]) } ?? d[2 * n + i])

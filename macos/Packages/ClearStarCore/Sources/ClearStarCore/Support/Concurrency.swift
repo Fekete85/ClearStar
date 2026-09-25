@@ -18,12 +18,23 @@ public final class CancellationToken: Sendable {
     }
 }
 
-/// Runs `body` for 0..<count on all cores (the C# Parallel.For).
+/// Runs `body` for 0..<count on all cores (the C# Parallel.For). The callers only touch disjoint parts
+/// of shared buffers (one row / tile / frame per iteration), which the compiler cannot see – hence the
+/// unchecked box around the closure.
 @inline(__always)
-func parallelFor(_ count: Int, _ body: (Int) -> Void) {
+public func parallelFor(_ count: Int, _ body: (Int) -> Void) {
     if count <= 0 { return }
     if count == 1 { body(0); return }
-    DispatchQueue.concurrentPerform(iterations: count, execute: body)
+    withoutActuallyEscaping(body) { escapable in
+        let box = UncheckedSendable(escapable)
+        DispatchQueue.concurrentPerform(iterations: count) { box.value($0) }
+    }
+}
+
+/// A value handed to concurrent code on the caller's guarantee that the access is race-free.
+struct UncheckedSendable<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
 }
 
 /// Like `parallelFor`, but stops early (and throws) once the token is cancelled.
