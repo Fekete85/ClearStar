@@ -57,16 +57,16 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] F3 commit
 
 ## F4 – Asztrometria és színkalibráció
-- [ ] `Wcs` (Project, Deproject, SkyToPixel, PixelToSky, FITS-írás/-olvasás, formázás) – paritás
-- [ ] `Healpix` (NESTED pixelközéppontok, QueryDiscInclusive) – paritás
-- [ ] `LocalGaiaCatalog` (fejléc-ellenőrzés, index, Cone, BpRpFromTeff, jelöltek: beállítás, Siril macOS-config, Siril-mappa, ClearStar-mappa) – szintetikus katalógusfájllal, paritás
-- [ ] Online katalógusok (VizieR TSV, Gaia TAP CSV, Sesame) – elemzők paritása, lemezes gyorsítótár
-- [ ] `CatalogDownloader` (bzip2 kicsomagolás libbz2-vel, SHA-256, tükörsorrend) – helyi fixtúrával
-- [ ] `PlateSolver` – paritás szintetikus mezőn és a valódi M31-en (a C# által mentett katalógusrészlettel)
-- [ ] `ColorCalibration` (Measure, Fit, Apply) – paritás
-- [ ] Lépések: PlateSolve, ColorCalibration
-- [ ] Teljes 16 lépéses lánc Swiftben a `testdata/M31`-en (AI-val, StarNet-stubbal) hibátlanul lefut
-- [ ] F4 commit
+- [x] `Wcs` (Project, Deproject, SkyToPixel, PixelToSky, FITS-írás/-olvasás, formázás) – paritás
+- [x] `Healpix` (NESTED pixelközéppontok, QueryDiscInclusive) – paritás
+- [x] `LocalGaiaCatalog` (fejléc-ellenőrzés, index, Cone, BpRpFromTeff, jelöltek: beállítás, Siril macOS-config, Siril-mappa, ClearStar-mappa) – szintetikus katalógusfájllal, paritás
+- [x] Online katalógusok (VizieR TSV, Gaia TAP CSV, Sesame) – elemzők paritása, lemezes gyorsítótár
+- [x] `CatalogDownloader` (bzip2 kicsomagolás libbz2-vel, SHA-256, tükörsorrend) – helyi fixtúrával
+- [x] `PlateSolver` – paritás szintetikus mezőn és a valódi M31-en (a C# által mentett katalógusrészlettel)
+- [x] `ColorCalibration` (Measure, Fit, Apply) – paritás
+- [x] Lépések: PlateSolve, ColorCalibration
+- [x] Teljes 16 lépéses lánc Swiftben a `testdata/M31`-en (AI-val, StarNet-stubbal) hibátlanul lefut (4,5 perc; élesítés 94 s, zaj 112 s 7,4 MP-en, GPU FP32)
+- [x] F4 commit
 
 ## F5 – Mac-natív felület
 - [ ] Ablak: `NavigationSplitView` – oldalsáv (csoportok, lépésállapotok, haladásjelző), középen a kép, jobbra inspector
