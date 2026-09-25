@@ -38,7 +38,7 @@ public enum PsfMeasure {
             var area = 0
             for dy in -radius ... radius { for dx in -radius ... radius where data[(cy + dy) * w + cx + dx] >= half { area += 1 } }
             if area < 1 { continue }
-            widths.append(2 * sqrt(Float(area) / .pi))
+            widths.append(2 * sqrt(Float(area) / Float(Double.pi)))   // MathF.PI: Float.pi is rounded down
             if widths.count >= 120 { break }
         }
         if widths.count < 5 { return fallback }

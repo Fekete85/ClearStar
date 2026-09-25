@@ -6,7 +6,8 @@ megoldható tételek: `PORT-BLOCKERS.md`.
 
 **Paritás** = a Swift-kód kimenete a Windows-változat (C#) ugyanarra a bemenetre adott kimenetével egyezik. A
 referenciákat a `windows/tools/ClearStar.Cli` `reference` parancsa állítja elő (`macos/tools/make-references.sh`):
-`testdata/reference/synthetic/` (generált bemenetek) és `testdata/reference/m31/` (a valódi M31-képekből); mindkettő
+`testdata/reference/synthetic/` (generált bemenetek) és `testdata/reference/<készlet>/` (a valódi M31, M99, NGC6992_sub
+képekből); mindegyik
 gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/download-testdata.sh` tölti le.
 
 ## F0 – Előkészítés
@@ -92,3 +93,10 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] Dokumentáció: `macos/README.md`, `PRIVACY.md` (macOS-helyek), `THIRD-PARTY-NOTICES.md` (Core ML-modellek, macOS)
 - [x] `xcodebuild test` 0 hibával (egység-, paritás- és nézetmodell-tesztek: 58 + 6, TEST SUCCEEDED)
 - [x] F6 commit
+
+## F7 – Utómunka (a port után)
+- [x] Valódi paritás mindhárom tesztkészleten (M31, M99, NGC6992_sub): betöltés, stack (bitre azonos), vágás, AI-lépések, plate solve / színkalibráció, nyújtás és befejezés, mentés; a teljes lánc mindhármon
+- [x] `sin`/`cos` párok: az LLVM `__sincos_stret`-té vonta össze őket, ami ~1%-ban 1 ulp-vel eltér a .NET külön hívásaitól (erős forgatásnál a szigma-vágásban látszott) – modulszintű, nem inline-olható `sin`/`cos`; `Float.pi` helyett a .NET-es `MathF.PI`
+- [x] A globális állapotot állító tesztcsomagok (AI, asztrometria, teljes lánc) egymás után futnak (`.globalState` trait)
+- [x] AI-bemelegítés: a lépés kiválasztásakor a hálózat betöltődik és egy próbafutást végez a háttérben (M99-kivágáson a zajszűrés 29,8 s → 8,2 s, a háttérkivonás 6,0 s → 0,3 s az „Alkalmaz” után)
+- [ ] Valódi StarNet2 Macen (B3)

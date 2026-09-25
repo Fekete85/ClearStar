@@ -16,13 +16,17 @@ public enum CoreMLRunner {
     /// Which units the most recently loaded model uses ("GPU" or "CPU") – shown in the step summaries.
     public static var lastProvider: String { state.current.lastProvider }
 
-    private struct State { var models: [String: MLModel] = [:]; var lastProvider = "CPU" }
+    private struct State { var models: [String: MLModel] = [:]; var warm: Set<String> = []; var lastProvider = "CPU" }
     private static let state = Locked(State())
+    /// Loading a large model takes seconds: one load at a time, so a warm-up and a run never load it twice.
+    private static let loadLock = NSLock()
 
     /// The loaded model for a package (compiling it on first use).
     public static func load(_ packagePath: String) throws -> MLModel {
         let gpu = gpuEnabled
         let key = packagePath + (gpu ? "#all" : "#cpu")
+        loadLock.lock()
+        defer { loadLock.unlock() }
         if let m = state.current.models[key] {
             state.withLock { $0.lastProvider = gpu ? "GPU" : "CPU" }
             return m
@@ -35,8 +39,23 @@ public enum CoreMLRunner {
         return model
     }
 
+    /// Loads the model and runs one prediction on zeros, so the GPU pipeline is prepared before the user
+    /// presses Apply (the first run of a large network otherwise spends tens of seconds on this). Safe to
+    /// call repeatedly and from any thread; errors are ignored (the real run reports them).
+    public static func warmUp(_ packagePath: String) {
+        let key = packagePath + (gpuEnabled ? "#all" : "#cpu")
+        if state.current.warm.contains(key) { return }
+        guard let model = try? load(packagePath) else { return }
+        var inputs: [(name: String, shape: [Int], data: [Float])] = []
+        for (name, desc) in model.modelDescription.inputDescriptionsByName {
+            guard let shape = desc.multiArrayConstraint?.shape.map(\.intValue) else { return }
+            inputs.append((name, shape, [Float](repeating: 0, count: shape.reduce(1, *))))
+        }
+        if (try? predict(model, inputs)) != nil { state.withLock { _ = $0.warm.insert(key) } }
+    }
+
     /// Drops the loaded models (after a model was replaced or deleted).
-    public static func unloadAll() { state.withLock { $0.models.removeAll() } }
+    public static func unloadAll() { state.withLock { $0.models.removeAll(); $0.warm.removeAll() } }
 
     /// `model.mlmodelc` next to the package, compiled when missing or older than the package.
     static func compiledURL(_ packagePath: String) throws -> URL {

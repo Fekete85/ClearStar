@@ -117,23 +117,4 @@ import Testing
             #expect(ObjectNameGuess.fromText(n["s"] as! String) == n["guess"] as? String, "\(n)")
         }
     }
-
-    @Test(.enabled(if: TestEnv.hasRealData)) func realFrameSet() throws {
-        let r = try Ref.dict("frameset", real: true)
-        let fs = try FrameSet.scan(TestEnv.m31.path)
-        let refFrames = r.arr("frames") as! [[String: Any]]
-        #expect(fs.frames.count == refFrames.count)
-        for (mine, theirs) in zip(fs.frames, refFrames) {
-            #expect(mine.path.hasSuffix(theirs["name"] as! String))
-            #expect(mine.type.rawValue == theirs["type"] as! String)
-            #expect(mine.exposureSeconds == theirs.d("ExposureSeconds"))
-            #expect(mine.width == theirs["Width"] as! Int && mine.height == theirs["Height"] as! Int)
-            #expect(mine.filter == theirs["Filter"] as? String)
-            #expect(mine.objectName == theirs["ObjectName"] as? String)
-        }
-        #expect(ObjectNameGuess.from(fs) == r["guess"] as? String)
-        #expect(LoadFramesStep.describe(fs).count > 0)
-        let frame0 = try ImageFiles.load(fs.lights[0].path)
-        try expectImage(frame0, "frame0", tol: 0, real: true)
-    }
 }

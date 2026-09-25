@@ -96,19 +96,19 @@ import Testing
         #expect(maxDiff(copy, flat) == 0)
     }
 
-    @Test(.enabled(if: TestEnv.hasRealData)) func realStack() async throws {
-        let frames = try FrameSet.scan(TestEnv.m31.path)
+    @Test(arguments: TestEnv.dataSets) func realStack(_ set: DataSet) async throws {
+        let frames = try FrameSet.scan(set.frames.path)
         let started = Date()
         let result = try await runStep(StackStep(), nil, frames: frames)
         let seconds = Date().timeIntervalSince(started)
-        print("M31 stack: \(seconds) s")
-        let ref = try Ref.image("stack", real: true)
+        print("\(set.folder) stack: \(seconds) s")
+        let ref = try Ref.image("stack", in: set)
         let mine = result.image!
         #expect(mine.width == ref.width && mine.height == ref.height)
         // Float summation on the same order: essentially the same; allow for the last bits.
         #expect(maxDiff(mine, ref) < 1e-4, "stack max diff \(maxDiff(mine, ref))")
         #expect(meanDiff(mine, ref) < 1e-6, "stack mean diff \(meanDiff(mine, ref))")
-        let notes = try Ref.dict("stack", real: true).sub("notes")
+        let notes = try Ref.dict("stack", in: set).sub("notes")
         #expect(result.frameNotes?.count == notes.count)
         for (path, note) in result.frameNotes ?? [:] {
             let theirs = notes.sub((path as NSString).lastPathComponent)

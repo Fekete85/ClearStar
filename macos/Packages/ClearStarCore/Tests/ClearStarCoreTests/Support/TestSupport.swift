@@ -34,6 +34,63 @@ enum TestEnv {
     }()
 
     static var hasRealData: Bool { FileManager.default.fileExists(atPath: m31.path) }
+
+    /// The real test data sets whose frames and C# references are present.
+    static let dataSets: [DataSet] = [
+        DataSet(folder: "M31", ref: "m31", object: "M 31"),
+        DataSet(folder: "M99", ref: "m99", object: nil),
+        // Solves after the background step, but not after sharpening + noise reduction – the C# chain fails the same way.
+        DataSet(folder: "NGC6992_sub", ref: "ngc6992", object: nil, chainSolves: false),
+    ].filter { FileManager.default.fileExists(atPath: $0.frames.path) && FileManager.default.fileExists(atPath: $0.refDir.appendingPathComponent("stack.fits").path) }
+}
+
+/// For suites that set the process-wide state of the steps (catalogues, StarNet, the star layers, GPU switch):
+/// their tests run one at a time across all such suites (`.serialized` only orders tests within one suite).
+struct GlobalStateTrait: SuiteTrait, TestTrait, TestScoping {
+    var isRecursive: Bool { true }
+    func provideScope(for test: Test, testCase: Test.Case?, performing function: @Sendable () async throws -> Void) async throws {
+        guard testCase != nil else { return try await function() }
+        await GlobalStateLock.shared.lock()
+        do { try await function() } catch { GlobalStateLock.shared.unlock(); throw error }
+        GlobalStateLock.shared.unlock()
+    }
+}
+
+extension Trait where Self == GlobalStateTrait {
+    static var globalState: Self { GlobalStateTrait() }
+}
+
+final class GlobalStateLock: @unchecked Sendable {
+    static let shared = GlobalStateLock()
+    private let mutex = NSLock()
+    private var locked = false
+    private var waiters: [CheckedContinuation<Void, Never>] = []
+
+    func lock() async {
+        await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
+            mutex.lock()
+            if locked { waiters.append(c) } else { locked = true; c.resume() }
+            mutex.unlock()
+        }
+    }
+
+    func unlock() {
+        mutex.lock()
+        if waiters.isEmpty { locked = false; mutex.unlock() } else { let next = waiters.removeFirst(); mutex.unlock(); next.resume() }
+    }
+}
+
+/// A folder of real frames with its C# reference outputs (testdata/reference/<ref>).
+struct DataSet: Sendable, CustomTestStringConvertible {
+    let folder: String
+    let ref: String
+    /// The object name typed for the plate solve (nil: from the header).
+    let object: String?
+    /// Whether the whole chain (plate solve after the AI steps) identifies the sky.
+    var chainSolves = true
+    var frames: URL { TestEnv.testdata.appendingPathComponent(folder) }
+    var refDir: URL { TestEnv.testdata.appendingPathComponent("reference/\(ref)") }
+    var testDescription: String { folder }
 }
 
 /// Reading the reference files.
@@ -42,6 +99,21 @@ enum Ref {
         _ = TestEnv.setUp
         return (real ? TestEnv.real : TestEnv.synthetic).appendingPathComponent(name)
     }
+
+    static func url(_ name: String, in set: DataSet) -> URL {
+        _ = TestEnv.setUp
+        return set.refDir.appendingPathComponent(name)
+    }
+
+    static func image(_ name: String, in set: DataSet) throws -> AstroImage { try FitsReader.read(url(name + ".fits", in: set).path) }
+
+    static func dict(_ name: String, in set: DataSet) throws -> [String: Any] {
+        let data = try Data(contentsOf: url(name + ".json", in: set))
+        let text = String(decoding: data, as: UTF8.self).replacingOccurrences(of: "\"NaN\"", with: "null").replacingOccurrences(of: "NaN", with: "null")
+        return try JSONSerialization.jsonObject(with: Data(text.utf8)) as! [String: Any]
+    }
+
+    static func text(_ name: String, in set: DataSet) throws -> String { try String(contentsOf: url(name, in: set), encoding: .utf8) }
 
     static func image(_ name: String, real: Bool = false) throws -> AstroImage {
         let u = url(name + ".fits", real: real)
@@ -114,8 +186,9 @@ func psnr(_ a: AstroImage, _ b: AstroImage) -> Double {
 }
 
 /// Expects the image to match the reference within `tol` (maximum absolute difference).
-func expectImage(_ image: AstroImage, _ refName: String, tol: Float = 1e-5, real: Bool = false, sourceLocation: SourceLocation = #_sourceLocation) throws {
-    let ref = try Ref.image(refName, real: real)
+func expectImage(_ image: AstroImage, _ refName: String, tol: Float = 1e-5, real: Bool = false, in set: DataSet? = nil,
+                 sourceLocation: SourceLocation = #_sourceLocation) throws {
+    let ref = try set.map { try Ref.image(refName, in: $0) } ?? Ref.image(refName, real: real)
     #expect(image.width == ref.width && image.height == ref.height && image.channels == ref.channels,
             "\(refName): geometry \(image.width)×\(image.height)×\(image.channels) vs \(ref.width)×\(ref.height)×\(ref.channels)", sourceLocation: sourceLocation)
     let d = maxDiff(image, ref)

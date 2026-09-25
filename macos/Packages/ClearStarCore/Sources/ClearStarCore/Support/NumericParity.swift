@@ -75,3 +75,12 @@ func formatR(_ v: Double) -> String {
 func ordinalIgnoreCaseLess(_ a: String, _ b: String) -> Bool {
     a.uppercased().unicodeScalars.lexicographicallyPrecedes(b.uppercased().unicodeScalars)
 }
+
+// sin and cos of the same argument: LLVM merges the two calls into __sincos_stret / __sincosf_stret, which
+// round differently from the separate sin/cos .NET calls in ~1% of cases (1 ulp – enough to flip a sigma-clip
+// decision in the stack). These module-level versions shadow the Darwin ones inside ClearStarCore and cannot
+// be inlined, so the calls stay separate.
+@inline(never) func sin(_ x: Double) -> Double { Darwin.sin(x) }
+@inline(never) func cos(_ x: Double) -> Double { Darwin.cos(x) }
+@inline(never) func sin(_ x: Float) -> Float { Darwin.sinf(x) }
+@inline(never) func cos(_ x: Float) -> Float { Darwin.cosf(x) }

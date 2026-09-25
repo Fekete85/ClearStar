@@ -17,3 +17,6 @@ Ezeket a port helyi stubbal vagy fixtúrával kerüli meg; a kiadás előtt a sz
 - A felhős tükör `manifest.json`-ja és a `ClearStar-mirror/README.md`, `make-manifest.ps1` a `coreml/` ággal
   frissült; a blackit-dokumentáció (`MBP_D/Claude/blackit/03-szolgaltatasok.md`) módosítása nincs commitolva
   abban a repóban.
+- **Közös (Windows + Mac) viselkedés:** az NGC6992_sub készleten a 7. lépés (égbolt azonosítása) a háttérkivonás
+  után sikerül, de az élesítés és a zajszűrés után nem („Could not identify the sky”) – a C# lánc ugyanígy áll meg
+  (CLI, 2026-09-25). A teszt ezt a viselkedést rögzíti (`chainSolves: false`); javítása külön döntés.

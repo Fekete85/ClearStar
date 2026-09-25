@@ -19,7 +19,7 @@ public struct SimilarityTransform: Sendable, Equatable {
         return SimilarityTransform(s, ang, -(ia * tx - ib * ty), -(ib * tx + ia * ty))
     }
 
-    public var angleDegrees: Float { angle * 180 / .pi }
+    public var angleDegrees: Float { angle * 180 / Float(Double.pi) }   // MathF.PI: Float.pi is rounded down
 }
 
 public struct MatchResult: Sendable {

@@ -154,6 +154,7 @@ public final class AppModel {
         selectionHint = L.t(step.id == .starlessStretch ? "mac.viewer.eyedropperHint" : "mac.viewer.selectionHint")
         if step.id == .crop { loadCropSelection(step) } else { selection = nil }
         if step.id == .starRemoval { updateStarNetNote(step) }
+        warmUpModels(step)
         if step.id == .plateSolve { updateCatalogNote(step) }
         updateFramesView(step)
         refreshPreview()
@@ -350,6 +351,17 @@ public final class AppModel {
         }
         return HistogramData(input: Histogram.compute(input, stride: 2), output: Histogram.compute(output, stride: 2), curve: curve,
                              lp: p.lp, sp: p.sp, hp: p.hp, bp: p.type == .linear ? p.bp : 0, showMarkers: true)
+    }
+
+    // MARK: - AI warm-up
+
+    /// Prepares the step's networks in the background while the user reads the card (load + one
+    /// prediction), so Apply does not start with tens of seconds of setup.
+    private func warmUpModels(_ step: StepModel) {
+        let explicit = step.parameters.filter { $0.kind == .model }.map { (AiModelKind(rawValue: $0.definition.tag ?? ""), $0.text) }
+        let paths = explicit.compactMap { kind, path in kind.flatMap { AiModelStore.resolve($0, explicitPath: path)?.path } }
+        if paths.isEmpty { return }
+        Task.detached(priority: .utility) { for p in paths { CoreMLRunner.warmUp(p) } }
     }
 
     // MARK: - Crop

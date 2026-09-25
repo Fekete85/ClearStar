@@ -31,11 +31,12 @@ A tesztek a Windows (C#) kimenetekhez mérik a Swift-kódot (`testdata/reference
 
 ```
 macos/tools/download-testdata.sh        # GraXpert ONNX-modellek + Siril offline katalógus a tükörről (~2,8 GB)
-macos/tools/make-references.sh          # C# referenciák: szintetikus + (ha van testdata/M31) valódi M31
+macos/tools/make-references.sh          # C# referenciák: szintetikus + a meglévő valódi készletek (M31, M99, NGC6992_sub)
 ```
 
 A Core ML-modellek a `testdata/coreml/`-ban kellenek a valódi AI-tesztekhez (`tools/convert-models/`, lásd
-ott). A valódi adatokat igénylő tesztek hiányzó `testdata/M31` esetén kimaradnak. Az éles tükör tesztje:
+ott). A valódi adatokat igénylő tesztek minden olyan készletre lefutnak, amelynek képei és referenciái megvannak
+(`TestEnv.dataSets`); a hiányzók kimaradnak. Az éles tükör tesztje:
 `CLEARSTAR_LIVE_MIRROR=1 swift test --filter liveMirror`.
 
 ## Felépítés

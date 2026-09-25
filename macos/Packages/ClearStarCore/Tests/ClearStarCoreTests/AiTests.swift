@@ -4,7 +4,7 @@ import Testing
 
 /// F3: tile geometry, the Core ML networks against the C# (ONNX Runtime) results, the model store with a
 /// local mirror, and StarNet2 through a stand-in program.
-@Suite(.serialized) struct AiTests {
+@Suite(.serialized, .globalState) struct AiTests {
     init() { _ = TestEnv.setUp }
 
     static let coreml = TestEnv.testdata.appendingPathComponent("coreml")
@@ -36,48 +36,48 @@ import Testing
         #expect(!BackgroundExtractionStep.lastSamplePoints.isEmpty)
     }
 
-    @Test(.enabled(if: TestEnv.hasRealData && AiTests.hasModels)) func realBackgroundAi() async throws {
+    @Test(.enabled(if: AiTests.hasModels), arguments: TestEnv.dataSets) func realBackgroundAi(_ set: DataSet) async throws {
         CoreMLRunner.gpuEnabled = true
-        let crop = try Ref.image("s03_crop", real: true)
+        let crop = try Ref.image("s03_crop", in: set)
         let r = try await runStep(BackgroundExtractionStep(), crop) { $0.set(BackgroundExtractionStep.modelKey, Self.model("bge", "1.0.1")) }
-        let ref = try Ref.image("s04_bge_ai", real: true)
+        let ref = try Ref.image("s04_bge_ai", in: set)
         #expect(maxDiff(r.image!, ref) < 2e-5, "bge max diff \(maxDiff(r.image!, ref))")
         let bg = try BackgroundModel.estimateBackground(crop, Self.model("bge", "1.0.1"), smoothing: 0.1)
-        let refBg = try Ref.image("bge_model", real: true)
+        let refBg = try Ref.image("bge_model", in: set)
         #expect(maxDiff(bg, refBg) < 2e-5, "bge model max diff \(maxDiff(bg, refBg))")
         let div = BackgroundModel.divide(crop, refBg)
-        try expectImage(div, "bge_divide", tol: 1e-6, real: true)
+        try expectImage(div, "bge_divide", tol: 1e-6, in: set)
         #expect(r.summary.contains("1.0.1"))
 
         let poly = try await runStep(BackgroundExtractionStep(), crop) { $0.set(BackgroundExtractionStep.methodKey, BackgroundExtractionStep.methodPolynomial) }
-        try expectImage(poly.image!, "s04_bge_poly", tol: 1e-6, real: true)
+        try expectImage(poly.image!, "s04_bge_poly", tol: 1e-6, in: set)
     }
 
-    @Test(.enabled(if: TestEnv.hasRealData && AiTests.hasModels)) func realDeconvolution() async throws {
+    @Test(.enabled(if: AiTests.hasModels), arguments: TestEnv.dataSets) func realDeconvolution(_ set: DataSet) async throws {
         CoreMLRunner.gpuEnabled = true
-        let input = try Ref.image("ai_input", real: true)
+        let input = try Ref.image("ai_input", in: set)
         let fwhm = try PsfMeasure.estimateFwhm(input)
-        expectClose(Double(fwhm), try Ref.dict("psf", real: true).d("fwhmCut"), 1e-6, "fwhm")
+        expectClose(Double(fwhm), try Ref.dict("psf", in: set).d("fwhmCut"), 1e-6, "fwhm")
         let started = Date()
         let r = try await runStep(DeconvolutionStep(), input) { p in
             p.set(DeconvolutionStep.starsModelKey, Self.model("deconvolution-stars", "1.0.0"))
             p.set(DeconvolutionStep.objectModelKey, Self.model("deconvolution-object", "1.0.1"))
         }
-        print("deconvolution 1024×768: \(Date().timeIntervalSince(started)) s")
-        let ref = try Ref.image("s05_deconv", real: true)
+        print("\(set.folder) deconvolution: \(Date().timeIntervalSince(started)) s")
+        let ref = try Ref.image("s05_deconv", in: set)
         let out = r.image!
         print("deconv maxDiff \(maxDiff(out, ref)) mean \(meanDiff(out, ref)) psnr \(psnr(out, ref))")
         #expect(psnr(out, ref) > 60, "deconv PSNR \(psnr(out, ref))")
         #expect(meanDiff(out, ref) < 5e-5, "deconv mean diff \(meanDiff(out, ref))")
     }
 
-    @Test(.enabled(if: TestEnv.hasRealData && AiTests.hasModels)) func realDenoise() async throws {
+    @Test(.enabled(if: AiTests.hasModels), arguments: TestEnv.dataSets) func realDenoise(_ set: DataSet) async throws {
         CoreMLRunner.gpuEnabled = true
-        let input = try Ref.image("ai_input", real: true)
+        let input = try Ref.image("ai_input", in: set)
         let started = Date()
         let r = try await runStep(DenoiseStep(), input) { $0.set(DenoiseStep.modelKey, Self.model("denoise", "3.0.2")) }
-        print("denoise 1024×768: \(Date().timeIntervalSince(started)) s")
-        let ref = try Ref.image("s06_denoise", real: true)
+        print("\(set.folder) denoise: \(Date().timeIntervalSince(started)) s")
+        let ref = try Ref.image("s06_denoise", in: set)
         let out = r.image!
         print("denoise maxDiff \(maxDiff(out, ref)) mean \(meanDiff(out, ref)) psnr \(psnr(out, ref))")
         #expect(psnr(out, ref) > 60, "denoise PSNR \(psnr(out, ref))")

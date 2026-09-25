@@ -28,7 +28,13 @@ public static class Reference
         string mode = args[1], outDir = args[2];
         Directory.CreateDirectory(outDir);
         if (mode == "synthetic") Synthetic(outDir);
-        else await Real(outDir, Arg(args, "--m31"), Arg(args, "--models"), Arg(args, "--catalog"), args.Contains("--no-stack"));
+        else await Real(outDir, Arg(args, "--frames"), Arg(args, "--models"), Arg(args, "--catalog"), args.Contains("--no-stack"), OptionalArg(args, "--object"));
+    }
+
+    private static string? OptionalArg(string[] args, string name)
+    {
+        int i = Array.IndexOf(args, name);
+        return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
     }
 
     private static string Arg(string[] args, string name)
@@ -587,16 +593,16 @@ public static class Reference
 
     // ------------------------------------------------------------------ real data
 
-    private static async Task Real(string root, string m31, string models, string catalogFile, bool skipStack)
+    private static async Task Real(string root, string framesFolder, string models, string catalogFile, bool skipStack, string? objectName)
     {
         var sw = System.Diagnostics.Stopwatch.StartNew();
         void Log(string s) => Console.WriteLine($"{sw.Elapsed.TotalSeconds,6:0.0} s  {s}");
 
-        var frames = FrameSet.Scan(m31);
+        var frames = FrameSet.Scan(framesFolder);
         SaveJson(root, "frameset", new
         {
             frames.Folder,
-            frames = frames.Frames.Select(f => new { name = Path.GetRelativePath(m31, f.Path), type = f.Type.ToString(), f.ExposureSeconds, f.Width, f.Height, f.Filter, f.ObjectName }),
+            frames = frames.Frames.Select(f => new { name = Path.GetRelativePath(framesFolder, f.Path), type = f.Type.ToString(), f.ExposureSeconds, f.Width, f.Height, f.Filter, f.ObjectName }),
             guess = ObjectNameGuess.From(frames),
             describe = LoadFramesStep.Describe(frames),
         });
@@ -640,8 +646,10 @@ public static class Reference
         var crop = await Step(new CropStep(), stack, "s03_crop", p => p[CropStep.MarginKey] = 0.05);
         var bgePoly = await Step(new BackgroundExtractionStep(), crop, "s04_bge_poly", p => p[BackgroundExtractionStep.MethodKey] = BackgroundExtractionStep.MethodPolynomial);
         var bge = await Step(new BackgroundExtractionStep(), crop, "s04_bge_ai", p => p[BackgroundExtractionStep.ModelKey] = Model("bge", "1.0.1"));
-        // The AI steps on a 1024×768 cut (the networks are slow on the CPU) – enough tiles for the geometry.
-        var cut = CropStep.Crop(bge, 200, 150, bge.Width - 200 - 1024, bge.Height - 150 - 768);
+        // The AI steps on a centred cut of at most 1024×768 (the networks are slow on the CPU) – enough tiles for the geometry.
+        int cw = Math.Min(1024, bge.Width - 64), chh = Math.Min(768, bge.Height - 64);
+        int cl = (bge.Width - cw) / 2, ctp = (bge.Height - chh) / 2;
+        var cut = CropStep.Crop(bge, cl, ctp, bge.Width - cl - cw, bge.Height - ctp - chh);
         Save(root, "ai_input", cut);
         await Step(new DeconvolutionStep(), cut, "s05_deconv", p =>
         {
@@ -655,28 +663,40 @@ public static class Reference
         SaveJson(root, "psf", new { fwhm = PsfMeasure.EstimateFwhm(bge), fwhmCut = PsfMeasure.EstimateFwhm(cut) });
         Log("ai");
 
-        // Plate solve with the offline catalogue, then the colour calibration on the same catalogue.
+        // Plate solve with the offline catalogue, then the colour calibration on the same catalogue. A data
+        // set without a usable centre or scale fails here: the reference records the message instead.
         var catalog = LocalGaiaCatalog.Open(catalogFile) ?? throw new InvalidOperationException("catalogue");
         PlateSolveStep.Catalog = catalog;
-        var solved = await Step(new PlateSolveStep(), bge, "s07_platesolve", p => p[PlateSolveStep.ObjectKey] = "M 31");
-        var wcs = Wcs.TryRead(solved.Header, solved.Height)!;
-        SaveJson(root, "s07_platesolve", new
+        AstroImage calibrated;
+        try
         {
-            wcs = new[] { wcs.Ra, wcs.Dec, wcs.CrPix1, wcs.CrPix2, wcs.Cd11, wcs.Cd12, wcs.Cd21, wcs.Cd22 },
-            PlateSolveStep.LastResult!.MatchedStars, PlateSolveStep.LastResult.RmsArcsec,
-            header = solved.Header,
-        });
-        double fov = Math.Sqrt((double)solved.Width * solved.Width + (double)solved.Height * solved.Height) * wcs.ScaleArcsec / 3600.0;
-        var centre = wcs.PixelToSky((solved.Width - 1) / 2.0, (solved.Height - 1) / 2.0);
-        var stars = catalog.Cone(centre.ra, centre.dec, 0.5 * fov + 0.05, 14f, 4000);
-        File.WriteAllLines(Path.Combine(root, "s08_catalog.csv"), stars.Select(s => string.Join(",", new[] { s.Ra, s.Dec, s.G, s.Bp, s.Rp }.Select(v => v.ToString("R", CultureInfo.InvariantCulture)))));
-        float fwhm = PsfMeasure.EstimateFwhm(solved);
-        var samples = ColorCalibration.Measure(solved, wcs, stars, fwhm);
-        var fit = ColorCalibration.Fit(samples, ColorCalibration.GalaxyBpRp)!;
-        var calibrated = ColorCalibration.Apply(solved, fit.RedFactor, fit.BlueFactor, true);
-        calibrated.Header["CLRCAL"] = "T";
-        Save(root, "s08_colorcal", calibrated);
-        SaveJson(root, "s08_colorcal", new { fwhm, samples = samples.Count, fit = new[] { fit.RedFactor, fit.BlueFactor, fit.StarsUsed } });
+            var solved = await Step(new PlateSolveStep(), bge, "s07_platesolve", p => { if (objectName is not null) p[PlateSolveStep.ObjectKey] = objectName; });
+            var wcs = Wcs.TryRead(solved.Header, solved.Height)!;
+            SaveJson(root, "s07_platesolve", new
+            {
+                wcs = new[] { wcs.Ra, wcs.Dec, wcs.CrPix1, wcs.CrPix2, wcs.Cd11, wcs.Cd12, wcs.Cd21, wcs.Cd22 },
+                PlateSolveStep.LastResult!.MatchedStars, PlateSolveStep.LastResult.RmsArcsec,
+                header = solved.Header,
+            });
+            double fov = Math.Sqrt((double)solved.Width * solved.Width + (double)solved.Height * solved.Height) * wcs.ScaleArcsec / 3600.0;
+            var centre = wcs.PixelToSky((solved.Width - 1) / 2.0, (solved.Height - 1) / 2.0);
+            var stars = catalog.Cone(centre.ra, centre.dec, 0.5 * fov + 0.05, 14f, 4000);
+            File.WriteAllLines(Path.Combine(root, "s08_catalog.csv"), stars.Select(s => string.Join(",", new[] { s.Ra, s.Dec, s.G, s.Bp, s.Rp }.Select(v => v.ToString("R", CultureInfo.InvariantCulture)))));
+            float fwhm = PsfMeasure.EstimateFwhm(solved);
+            var samples = ColorCalibration.Measure(solved, wcs, stars, fwhm);
+            var fit = ColorCalibration.Fit(samples, ColorCalibration.GalaxyBpRp)!;
+            calibrated = ColorCalibration.Apply(solved, fit.RedFactor, fit.BlueFactor, true);
+            calibrated.Header["CLRCAL"] = "T";
+            Save(root, "s08_colorcal", calibrated);
+            SaveJson(root, "s08_colorcal", new { fwhm, samples = samples.Count, fit = new[] { fit.RedFactor, fit.BlueFactor, fit.StarsUsed } });
+        }
+        catch (InvalidOperationException ex)
+        {
+            SaveJson(root, "s07_platesolve", new { error = ex.Message });
+            calibrated = bge;
+            Save(root, "s08_colorcal", calibrated);
+            SaveJson(root, "s08_colorcal", new { skipped = true });
+        }
         Log("colour");
 
         // Stretch as the CLI does it: auto stretch, then the default sliders committed.

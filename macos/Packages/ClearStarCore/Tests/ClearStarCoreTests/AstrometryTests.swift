@@ -3,7 +3,7 @@ import Testing
 @testable import ClearStarCore
 
 /// F4 parity: WCS, HEALPix, the offline catalogue, the online parsers, plate solving, colour calibration.
-@Suite(.serialized) struct AstrometryTests {
+@Suite(.serialized, .globalState) struct AstrometryTests {
     let r: [String: Any]
     init() throws { r = try Ref.dict("wcs") }
 
@@ -164,41 +164,53 @@ import Testing
         }
     }
 
-    @Test(.enabled(if: TestEnv.hasRealData && FileManager.default.fileExists(atPath: TestEnv.catalog.path)))
-    func realPlateSolveAndColour() async throws {
+    @Test(.enabled(if: FileManager.default.fileExists(atPath: TestEnv.catalog.path)), arguments: TestEnv.dataSets)
+    func realPlateSolveAndColour(_ set: DataSet) async throws {
         _ = TestEnv.setUp
-        let bge = try Ref.image("s04_bge_ai", real: true)
+        let bge = try Ref.image("s04_bge_ai", in: set)
         PlateSolveStep.catalog = try #require(LocalGaiaCatalog.open(TestEnv.catalog.path))
+        defer {
+            ColorCalibrationStep.onlineCatalog = GaiaOnlineCatalog(useVizierFallback: false, timeout: 10)
+            PlateSolveStep.catalog = AutoStarCatalog()
+        }
+        let ref = try Ref.dict("s07_platesolve", in: set)
+        if let error = ref["error"] as? String {
+            // The C# run could not solve this set (no usable centre / scale): Swift fails the same way.
+            do {
+                _ = try await runStep(PlateSolveStep(), bge) { p in if let o = set.object { p.set(PlateSolveStep.objectKey, o) } }
+                Issue.record("\(set.folder): the plate solve should fail like in C#: \(error)")
+            } catch {
+                #expect(error.localizedDescription == (ref["error"] as! String))
+            }
+            return
+        }
         let started = Date()
-        let solved = try await runStep(PlateSolveStep(), bge) { $0.set(PlateSolveStep.objectKey, "M 31") }
-        print("plate solve: \(Date().timeIntervalSince(started)) s – \(solved.summary)")
-        let ref = try Ref.dict("s07_platesolve", real: true)
+        let solved = try await runStep(PlateSolveStep(), bge) { p in if let o = set.object { p.set(PlateSolveStep.objectKey, o) } }
+        print("\(set.folder) plate solve: \(Date().timeIntervalSince(started)) s – \(solved.summary)")
         let wcs = try #require(Wcs.read(solved.image!.header, imageHeight: bge.height))
-        expectArray(wcsArray(wcs), nums(ref["wcs"]), 1e-9, "M31 wcs")
+        expectArray(wcsArray(wcs), nums(ref["wcs"]), 1e-9, "\(set.folder) wcs")
         #expect(PlateSolveStep.lastResult?.matchedStars == ref["MatchedStars"] as? Int)
-        let refImage = try Ref.image("s07_platesolve", real: true)
+        let refImage = try Ref.image("s07_platesolve", in: set)
         #expect(maxDiff(solved.image!, refImage) == 0)
 
         // Colour calibration with the catalogue stars the C# run used (served as the "online" catalogue).
-        let csv = try Ref.text("s08_catalog.csv", real: true)
+        let csv = try Ref.text("s08_catalog.csv", in: set)
         let stars = csv.split(separator: "\n").map { line -> CatalogStar in
             let f = line.split(separator: ",").map { Double($0) ?? .nan }
             return CatalogStar(f[0], f[1], Float(f[2]), Float(f[3]), Float(f[4]))
         }
         ColorCalibrationStep.onlineCatalog = FixedCatalog(stars: stars)
         let cal = try await runStep(ColorCalibrationStep(), refImage)
-        let refCal = try Ref.dict("s08_colorcal", real: true)
+        let refCal = try Ref.dict("s08_colorcal", in: set)
         let fit = try #require(ColorCalibrationStep.lastResult)
-        expectArray([Double(fit.redFactor), Double(fit.blueFactor), Double(fit.starsUsed)], nums(refCal["fit"]), 1e-5, "M31 colour fit")
-        try expectImage(cal.image!, "s08_colorcal", tol: 1e-5, real: true)
+        expectArray([Double(fit.redFactor), Double(fit.blueFactor), Double(fit.starsUsed)], nums(refCal["fit"]), 1e-5, "\(set.folder) colour fit")
+        try expectImage(cal.image!, "s08_colorcal", tol: 1e-5, in: set)
         #expect(cal.image!.header["CLRCAL"] == "T")
 
         // Offline: the online catalogue fails, the plate solve's catalogue is used instead.
         ColorCalibrationStep.onlineCatalog = FixedCatalog(stars: nil)
         let offline = try await runStep(ColorCalibrationStep(), refImage)
         #expect(offline.image != nil)
-        ColorCalibrationStep.onlineCatalog = GaiaOnlineCatalog(useVizierFallback: false, timeout: 10)
-        PlateSolveStep.catalog = AutoStarCatalog()
     }
 
     // MARK: catalogue download
