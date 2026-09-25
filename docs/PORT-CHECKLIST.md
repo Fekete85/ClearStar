@@ -44,17 +44,17 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] F2 commit
 
 ## F3 – AI (Core ML) és StarNet2
-- [ ] `macos/tools/convert-models/` (requirements, convert.py): mind a 4 GraXpert-modell `.mlpackage`-dzsé alakítva
-- [ ] Konverzió numerikus ellenőrzése ONNX Runtime-mal (mind a 4 modell a tűréshatáron belül)
-- [ ] `Tiling` (PadIndex, Pad, Unpad, geometria) – paritás
-- [ ] `BackgroundModel`, `DenoiseModel`, `DeconvolutionModel` Core ML-lel – paritás a C# ONNX-kimenetével valódi képrészleten
-- [ ] `PsfMeasure` – paritás
-- [ ] `AiModelStore` (lista, választás, import `.mlpackage`/zip, tükör-manifest `coreml/…`, letöltés SHA-256-tal, fordítás) – helyi tükör-fixtúrával tesztelve
-- [ ] Neural Engine/GPU kapcsoló (`ai.gpu` beállítás → computeUnits)
-- [ ] Lépések: BackgroundExtraction (AI + polinom), Deconvolution, Denoise
-- [ ] `StarNet` (keresés: beállítás, Siril-config macOS-en, /Applications, ~/Applications, PATH; futtatás `--machine-progress`-szel; BGR-csere; lineáris oda-vissza) – stub-programmal tesztelve
-- [ ] `StarLayerStore`, StarRemoval lépés
-- [ ] F3 commit
+- [x] `macos/tools/convert-models/` (requirements, convert.py): mind a 4 GraXpert-modell `.mlpackage`-dzsé alakítva
+- [x] Konverzió numerikus ellenőrzése ONNX Runtime-mal (mind a 4 modell a tűréshatáron belül)
+- [x] `Tiling` (PadIndex, Pad, Unpad, geometria) – paritás
+- [x] `BackgroundModel`, `DenoiseModel`, `DeconvolutionModel` Core ML-lel – paritás a C# ONNX-kimenetével valódi képrészleten
+- [x] `PsfMeasure` – paritás
+- [x] `AiModelStore` (lista, választás, import `.mlpackage`/zip, tükör-manifest `coreml/…`, letöltés SHA-256-tal, fordítás) – helyi tükör-fixtúrával tesztelve
+- [x] Neural Engine/GPU kapcsoló (`ai.gpu` beállítás → computeUnits)
+- [x] Lépések: BackgroundExtraction (AI + polinom), Deconvolution, Denoise
+- [x] `StarNet` (keresés: beállítás, Siril-config macOS-en, /Applications, ~/Applications, PATH; futtatás `--machine-progress`-szel; BGR-csere; lineáris oda-vissza) – stub-programmal tesztelve
+- [x] `StarLayerStore`, StarRemoval lépés
+- [x] F3 commit
 
 ## F4 – Asztrometria és színkalibráció
 - [ ] `Wcs` (Project, Deproject, SkyToPixel, PixelToSky, FITS-írás/-olvasás, formázás) – paritás

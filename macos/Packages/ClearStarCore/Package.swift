@@ -15,6 +15,6 @@ let package = Package(
             swiftSettings: [.unsafeFlags(["-O"], .when(configuration: .debug))],
             linkerSettings: [.linkedLibrary("bz2")]
         ),
-        .testTarget(name: "ClearStarCoreTests", dependencies: ["ClearStarCore"]),
+        .testTarget(name: "ClearStarCoreTests", dependencies: ["ClearStarCore"], exclude: ["Fixtures"]),
     ]
 )

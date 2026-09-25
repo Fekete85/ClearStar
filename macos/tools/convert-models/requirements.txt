@@ -1,0 +1,8 @@
+# python 3.12; coremltools 9 is tested with torch 2.7
+coremltools==9.0
+torch==2.7.0
+torchvision==0.22.0
+onnx==1.23.0
+onnx2torch==1.5.15
+onnxruntime==1.30.0
+numpy

@@ -22,8 +22,13 @@ public enum AppPaths {
     /// Temporary working folders (snapshots, StarNet files, downloads).
     public static var temporary: URL { FileManager.default.temporaryDirectory.appendingPathComponent("ClearStar", isDirectory: true) }
 
-    /// The user's home folder (the real one, not a container).
-    public static var home: URL { FileManager.default.homeDirectoryForCurrentUser }
+    private static let homeOverride = Locked<URL?>(nil)
+
+    /// The user's home folder (where Siril's settings and the Applications folders are looked up).
+    public static var home: URL { homeOverride.current ?? FileManager.default.homeDirectoryForCurrentUser }
+
+    /// Tests: a fake home folder (nil restores the real one).
+    public static func useHome(_ url: URL?) { homeOverride.current = url }
 
     /// Redirects the support and cache folders (tests); nil restores the defaults.
     public static func useRoot(_ root: URL?) { override.current = root }
