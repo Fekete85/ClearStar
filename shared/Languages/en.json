@@ -464,5 +464,55 @@
       "modelBge": "Background extraction model", "modelDenoise": "Denoising model", "modelDeconv": "Deconvolution models (stars and object)",
       "summary": "ClearStar is the author's own work; the code is free to use, modify and redistribute under the GNU GPL 3.0 (or later). The stacking, stretching and background-extraction methods were written after studying the source code of Siril and GraXpert (both GPL-3.0) – no code was copied. The AI steps use the GraXpert Development Team's models, licensed CC BY-NC-SA 4.0: they may be used for non-commercial purposes only; the installer does not include them, they are downloaded on request from ClearStar's download server, unmodified and with their licence. The images you create with the program are yours. The program sends no data anywhere; the network is used only for downloads you request and for star catalogue queries. Details and the list of contributors are on the other tabs."
     }
+  },
+
+  "mac": {
+    "menu": {
+      "open": "Open Folder or Image…",
+      "step": "Step",
+      "apply": "Apply Step",
+      "skip": "Skip Step",
+      "next": "Next Step",
+      "previous": "Previous Step",
+      "reset": "Reset Settings",
+      "cancel": "Cancel Running Step",
+      "about": "About ClearStar",
+      "starnet": "Set Up StarNet2…",
+      "catalog": "Offline Star Catalogue…",
+      "inspector": "Show Settings Panel",
+      "original": "Show Original",
+      "support": "Support the Development…"
+    },
+    "settings": {
+      "title": "Settings",
+      "general": "General",
+      "gpu": "Run the AI models on the GPU (Core ML)",
+      "gpuNote": "When on, background extraction, sharpening and noise reduction run on the Mac's graphics processor – many times faster than on the CPU. Turn it off only if the AI steps fail.",
+      "languageNote": "The language change takes effect when ClearStar restarts. New language: copy an xx.json file into the language folder.",
+      "restart": "Restart Now"
+    },
+    "starnet": {
+      "how": "1. Open the download page with the button below and get the macOS command-line version (Apple Silicon, arm64).\n2. Unzip it, for example into Applications/StarNet2 (or anywhere you like).\n3. Run it once from Finder with right-click → Open, so macOS lets it run later.\n4. Come back here: ClearStar finds it in the Applications folders, in Siril's settings, or choose it with \"Choose StarNet2…\".",
+      "pickTitle": "Select the starnet2 program",
+      "notExecutable": "This file is not a program that can be run."
+    },
+    "model": {
+      "pickTitle": "Choose Core ML model ({0})",
+      "downloadPrompt": "Download address of the model (a .zip holding a .mlpackage):",
+      "missing": "No model on this Mac yet. \"Download\" fetches the newest one from ClearStar's download server (Core ML, a few hundred MB)."
+    },
+    "frames": {
+      "empty": "No images loaded yet."
+    },
+    "viewer": {
+      "zoom": "Zoom",
+      "dropHint": "Drop a folder or an image",
+      "selectionHint": "Drag a rectangle over the area to keep · you can drag its edges and corners afterwards · pinch or ⌘-scroll: zoom · two-finger scroll or ⌥-drag: pan",
+      "eyedropperHint": "Eyedropper: drag a small box on empty, dark sky – the symmetry point (SP) takes its value · pinch or ⌘-scroll: zoom · two-finger scroll or ⌥-drag: pan"
+    },
+    "about": {
+      "support": "Support the development",
+      "website": "Website"
+    }
   }
 }

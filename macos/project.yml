@@ -23,8 +23,19 @@ targets:
       - path: ../shared/Languages
         type: folder
         buildPhase: resources
+      # Jogi szövegek a Névjegyhez: a repó licence és közleményei, a GraXpert-modellek licencei (Resources/Legal).
+      - path: ../LICENSE
+        buildPhase: resources
+      - path: ../THIRD-PARTY-NOTICES.md
+        buildPhase: resources
+      - path: ../windows/src/ClearStar.App/Legal
+        type: folder
+        buildPhase: resources
     dependencies:
       - package: ClearStarCore
+        product: ClearStarCore
+      - package: ClearStarCore
+        product: ClearStarAppModel
     info:
       path: ClearStar/Info.plist
       properties:
@@ -42,3 +53,17 @@ targets:
         # Helyi fordításhoz ad-hoc aláírás. Terjesztés: Developer ID Application tanúsítvány + notarizálás (DMG),
         # homokozó nélkül – mint a Siril –, hogy a felhasználó StarNet2-jét és a Siril beállításait elérjük.
         CODE_SIGN_IDENTITY: "-"
+schemes:
+  ClearStar:
+    build:
+      targets:
+        ClearStar: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - package: ClearStarCore/ClearStarCoreTests
+        - package: ClearStarCore/ClearStarAppModelTests
+    archive:
+      config: Release

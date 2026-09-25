@@ -464,5 +464,55 @@
       "modelBge": "Háttérkivonás-modell", "modelDenoise": "Zajcsökkentés-modell", "modelDeconv": "Élesítés-modellek (csillagok és objektum)",
       "summary": "A ClearStar a szerzőjének saját fejlesztése, a kód a GNU GPL 3.0 (vagy későbbi) licenc alatt szabadon használható, módosítható és továbbadható. A stackelés, a nyújtás és a háttérkivonás megoldásait a Siril és a GraXpert (mindkettő GPL-3.0) forráskódjának tanulmányozásával írtuk meg – kód nem került átvételre. Az AI-lépések a GraXpert Development Team CC BY-NC-SA 4.0 licencű modelljeit használják: ezek csak nem kereskedelmi célra használhatók; a telepítő nem tartalmazza őket, kérésre a ClearStar letöltőszerveréről töltődnek le, változatlanul, a licencükkel együtt. A képek, amiket a programmal készítesz, a tieid. A program nem küld adatot sehova; hálózatot csak az általad kért letöltések és a csillagkatalógus-lekérések használnak. A részletek és a közreműködők névsora a további füleken."
     }
+  },
+
+  "mac": {
+    "menu": {
+      "open": "Mappa vagy kép megnyitása…",
+      "step": "Lépés",
+      "apply": "Lépés alkalmazása",
+      "skip": "Lépés kihagyása",
+      "next": "Következő lépés",
+      "previous": "Előző lépés",
+      "reset": "Beállítások alaphelyzetbe",
+      "cancel": "Futó lépés megszakítása",
+      "about": "A ClearStar névjegye",
+      "starnet": "StarNet2 beállítása…",
+      "catalog": "Offline csillagkatalógus…",
+      "inspector": "Beállítások panel",
+      "original": "Eredeti kép mutatása",
+      "support": "A fejlesztés támogatása…"
+    },
+    "settings": {
+      "title": "Beállítások",
+      "general": "Általános",
+      "gpu": "AI-modellek futtatása a grafikus processzoron (Core ML)",
+      "gpuNote": "Bekapcsolva a háttér kiegyenlítése, az élesítés és a zajcsökkentés a Mac grafikus processzorán fut – sokszor gyorsabban, mint a processzoron. Csak akkor kapcsold ki, ha az AI-lépések hibát adnak.",
+      "languageNote": "A nyelvváltás a ClearStar újraindítása után lép életbe. Új nyelv: másolj egy xx.json fájlt a nyelvi mappába.",
+      "restart": "Újraindítás most"
+    },
+    "starnet": {
+      "how": "1. Nyisd meg a letöltési oldalt az alábbi gombbal, és töltsd le a macOS parancssoros változatot (Apple Silicon, arm64).\n2. Csomagold ki, például az Alkalmazások/StarNet2 mappába (vagy bárhová).\n3. Egyszer indítsd el a Finderből jobb kattintás → Megnyitás paranccsal, hogy a macOS később engedje futni.\n4. Gyere vissza ide: a ClearStar megtalálja az Alkalmazások mappákban, a Siril beállításaiban, vagy válaszd ki a „StarNet2 kiválasztása…” gombbal.",
+      "pickTitle": "Válaszd ki a starnet2 programot",
+      "notExecutable": "Ez a fájl nem futtatható program."
+    },
+    "model": {
+      "pickTitle": "Core ML-modell kiválasztása ({0})",
+      "downloadPrompt": "A modell letöltési címe (.mlpackage-et tartalmazó .zip):",
+      "missing": "Ezen a Macen még nincs modell. A „Letöltés” a ClearStar letöltési szerveréről hozza a legfrissebbet (Core ML, néhány száz MB)."
+    },
+    "frames": {
+      "empty": "Még nincs betöltött kép."
+    },
+    "viewer": {
+      "zoom": "Nagyítás",
+      "dropHint": "Húzz ide egy mappát vagy képet",
+      "selectionHint": "Húzz egy téglalapot a megtartandó területre · a széleit, sarkait utána is húzhatod · csippentés vagy ⌘-görgetés: nagyítás · kétujjas görgetés vagy ⌥-húzás: mozgatás",
+      "eyedropperHint": "Pipetta: húzz egy kis négyzetet az üres, sötét égre – a szimmetriapont (SP) átveszi az értékét · csippentés vagy ⌘-görgetés: nagyítás · kétujjas görgetés vagy ⌥-húzás: mozgatás"
+    },
+    "about": {
+      "support": "A fejlesztés támogatása",
+      "website": "Weboldal"
+    }
   }
 }

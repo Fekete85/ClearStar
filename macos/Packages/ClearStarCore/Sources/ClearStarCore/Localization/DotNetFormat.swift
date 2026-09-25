@@ -2,8 +2,8 @@ import Foundation
 
 /// A nyelvi fájlok .NET `string.Format` helyőrzőinek az a része, amit ténylegesen használunk:
 /// `{0}`, `{1:0.0}`, `{0:0.#}`, `{0:P1}` és a szakaszos `{0:+0.00;−0.00;0}` (pozitív;negatív;nulla).
-enum DotNetFormat {
-    static func format(_ template: String, _ args: [Any], locale: Locale) -> String {
+public enum DotNetFormat {
+    public static func format(_ template: String, _ args: [Any], locale: Locale) -> String {
         var out = ""
         var i = template.startIndex
         while i < template.endIndex {

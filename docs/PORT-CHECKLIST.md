@@ -69,20 +69,20 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] F4 commit
 
 ## F5 – Mac-natív felület
-- [ ] Ablak: `NavigationSplitView` – oldalsáv (csoportok, lépésállapotok, haladásjelző), középen a kép, jobbra inspector
-- [ ] Inspector: paraméter-UI a definíciókból (csúszka tick-feliratokkal / értékformátummal, kapcsoló, választó, mappa/fájl, szöveg, modellválasztó), haladó beállítások, Alkalmaz / Kihagy / Alaphelyzet, megjegyzés + művelet, másodlagos művelet
-- [ ] Képnéző: nagyítás/mozgatás, illesztés, előtte–utána osztott nézet, „eredeti” nyomva tartva, kijelölés fogantyúkkal (vágás), pipetta (GHS), méretcímke
-- [ ] Élő előnézet: GHS (+ hisztogram-panel), csillagok visszahelyezése, zöld/szegély/kontraszt/telítettség, vágás-orientáció
-- [ ] Képlista-nézet: betöltött képek kártyái, minőségi grafikonok (4 mérőszám), stack-bélyegkép, egyedi kép előnézete lapozással
-- [ ] Eszköztár (osztott nézet, előnézet-erősítés + preset-menü, névjegy), állapotsor (üzenet, haladás, megszakítás, képinfó)
-- [ ] Üdvözlő lap, fogd és vidd (mappa / fájl), Megnyitás… menü
-- [ ] Menüsor és billentyűparancsok (Megnyitás ⌘O, Alkalmaz ⌘↩, Kihagyás, előző/következő lépés, nagyítás ⌘+ ⌘− ⌘0, osztott nézet, erősítés)
-- [ ] Beállítások ablak (nyelv, Neural Engine/GPU), Névjegy (verzió, licenc, felhasznált munkák, modell-licencek, támogatás)
-- [ ] StarNet-beállító és katalógus-beállító lap (letöltés folyamatjelzővel, megszakítással)
-- [ ] Liquid Glass (eszköztár, lebegő vezérlők), világos és sötét mód
-- [ ] Nézetmodell-tesztek (lépésválasztás, alkalmazás, kihagyás, elavulás, élő előnézet) az Xcode tesztcélban
-- [ ] Az app elindul, a teljes lánc a felületen végigkattintható (képernyőképpel ellenőrizve)
-- [ ] F5 commit
+- [x] Ablak: `NavigationSplitView` – oldalsáv (csoportok, lépésállapotok, haladásjelző), középen a kép, jobbra inspector
+- [x] Inspector: paraméter-UI a definíciókból (csúszka tick-feliratokkal / értékformátummal, kapcsoló, választó, mappa/fájl, szöveg, modellválasztó), haladó beállítások, Alkalmaz / Kihagy / Alaphelyzet, megjegyzés + művelet, másodlagos művelet
+- [x] Képnéző: nagyítás/mozgatás, illesztés, előtte–utána osztott nézet, „eredeti” nyomva tartva, kijelölés fogantyúkkal (vágás), pipetta (GHS), méretcímke
+- [x] Élő előnézet: GHS (+ hisztogram-panel), csillagok visszahelyezése, zöld/szegély/kontraszt/telítettség, vágás-orientáció
+- [x] Képlista-nézet: betöltött képek kártyái, minőségi grafikonok (4 mérőszám), stack-bélyegkép, egyedi kép előnézete lapozással
+- [x] Eszköztár (osztott nézet, előnézet-erősítés + preset-menü, névjegy), állapotsor (üzenet, haladás, megszakítás, képinfó)
+- [x] Üdvözlő lap, fogd és vidd (mappa / fájl), Megnyitás… menü
+- [x] Menüsor és billentyűparancsok (Megnyitás ⌘O, Alkalmaz ⌘↩, Kihagyás, előző/következő lépés, nagyítás ⌘+ ⌘− ⌘0, osztott nézet, erősítés)
+- [x] Beállítások ablak (nyelv, Neural Engine/GPU), Névjegy (verzió, licenc, felhasznált munkák, modell-licencek, támogatás)
+- [x] StarNet-beállító és katalógus-beállító lap (letöltés folyamatjelzővel, megszakítással)
+- [x] Liquid Glass (eszköztár, lebegő vezérlők), világos és sötét mód
+- [x] Nézetmodell-tesztek (lépésválasztás, alkalmazás, kihagyás, elavulás, élő előnézet) – a `ClearStarAppModel` csomagcélban, az Xcode-séma tesztjei között
+- [x] Az app elindul, a teljes lánc a felületen végigkattintható (képernyőképpel ellenőrizve: M31, 16/16 lépés, a 9. StarNet nélkül kihagyva; világos és sötét mód)
+- [x] F5 commit
 
 ## F6 – Csomagolás és terjesztés
 - [ ] Release konfiguráció: hardened runtime, arm64, macOS 26, verzió a közös forrásból
