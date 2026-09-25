@@ -5,7 +5,7 @@ public enum StepCatalog {
     public static func createAll() -> [any WorkflowStep] {
         [
             LoadFramesStep(),
-            NotImplementedStep(.stack),
+            StackStep(),
             CropStep(),
             NotImplementedStep(.backgroundExtraction),
             NotImplementedStep(.deconvolution),

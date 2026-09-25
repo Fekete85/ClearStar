@@ -35,13 +35,13 @@ gitignore-olt (D4). A modelleket és az offline katalógust a `macos/tools/downl
 - [x] F1 commit
 
 ## F2 – Stackelés és igazítás
-- [ ] `StarDetector` – paritás (szintetikus és valódi képen)
-- [ ] `StarMatcher` (VoteTranslation, Refine, TriangleMatch, Pair, Fit) és `SimilarityTransform` – paritás
-- [ ] `ImageWarp` – paritás
-- [ ] `BackgroundExtractionStep.Flatten` (polinom, visszautasítás) – paritás
-- [ ] `StackStep` (kalibrálás, gradiens, igazítás, framing=max, szigma-vágás, minőségjegyek, FrameNote-ok) – paritás a teljes M31-stacken (63 kép)
-- [ ] M31-stack Release-ben ≤ 60 s
-- [ ] F2 commit
+- [x] `StarDetector` – paritás (szintetikus és valódi képen)
+- [x] `StarMatcher` (VoteTranslation, Refine, TriangleMatch, Pair, Fit) és `SimilarityTransform` – paritás
+- [x] `ImageWarp` – paritás
+- [x] `BackgroundExtractionStep.Flatten` (polinom, visszautasítás) – paritás
+- [x] `StackStep` (kalibrálás, gradiens, igazítás, framing=max, szigma-vágás, minőségjegyek, FrameNote-ok) – paritás a teljes M31-stacken (63 kép)
+- [x] M31-stack optimalizált buildben ≤ 60 s (mérve: 50 s; C# Release: 52 s)
+- [x] F2 commit
 
 ## F3 – AI (Core ML) és StarNet2
 - [ ] `macos/tools/convert-models/` (requirements, convert.py): mind a 4 GraXpert-modell `.mlpackage`-dzsé alakítva
