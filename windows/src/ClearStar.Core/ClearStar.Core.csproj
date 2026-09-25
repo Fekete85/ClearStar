@@ -6,7 +6,9 @@
   <ItemGroup>
     <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
     <!-- DirectML build: runs the AI models on any DirectX 12 GPU (NVIDIA/AMD/Intel), with CPU fallback. -->
-    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" />
+    <PackageReference Include="Microsoft.ML.OnnxRuntime.DirectML" Version="1.24.4" Condition="'$(OS)' == 'Windows_NT'" />
+    <!-- Elsewhere (the macOS port's reference outputs) the CPU build; DirectML then falls back to the CPU. -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.24.4" Condition="'$(OS)' != 'Windows_NT'" />
     <!-- BZip2 decompression of the downloaded offline star catalogue (MIT). -->
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>

@@ -13,4 +13,5 @@ macos/ClearStar.xcodeproj/
 DerivedData/
 *.mlpackage
 *.mlmodelc
+*.mlpackage.zip
 .DS_Store

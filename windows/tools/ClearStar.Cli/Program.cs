@@ -4,6 +4,7 @@ using ClearStar.Core.Pipeline;
 using ClearStar.Core.Steps;
 
 if (args.Length >= 2 && args[0] == "bench") { ClearStar.Cli.Bench.Run(args[1]); return; }
+if (args.Length >= 3 && args[0] == "reference") { await ClearStar.Cli.Reference.RunAsync(args); return; }
 if (args.Length >= 2 && args[0] == "onnx") { ClearStar.Cli.OnnxProbe.Run(args[1]); return; }
 if (args.Length >= 1 && args[0] == "catalog-download")
 {
