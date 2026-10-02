@@ -110,8 +110,9 @@ public static partial class StarNet
             if (process.ExitCode != 0 || !File.Exists(output))
                 throw new InvalidOperationException(lastError ?? $"StarNet2 exit code {process.ExitCode}");
             var result = ImageFiles.Load(output, debayer: false);
-            // StarNet2 (OpenCV inside) writes the colour planes of a FITS cube in BGR order: swap them back.
-            if (result.Channels == 3)
+            // Some StarNet2 builds (OpenCV inside) write the colour planes of a FITS cube in BGR order,
+            // others in RGB: swap red and blue back only when the swapped planes match the input better.
+            if (result.Channels == 3 && stretched.Channels == 3 && IsRedBlueSwapped(stretched, result))
             {
                 var red = result.Channel(0).ToArray();
                 result.Channel(2).CopyTo(result.Channel(0));
@@ -123,6 +124,25 @@ public static partial class StarNet
         {
             try { Directory.Delete(dir, recursive: true); } catch (IOException) { } catch (UnauthorizedAccessException) { }
         }
+    }
+
+    /// <summary>
+    /// True when the starless image's red and blue planes fit the input's blue and red planes
+    /// better than in their own order. Stars aside, StarNet2 leaves background and nebula
+    /// untouched, so the right order has the smaller difference. Sampled for speed.
+    /// </summary>
+    public static bool IsRedBlueSwapped(AstroImage input, AstroImage starless)
+    {
+        if (input.PixelsPerChannel != starless.PixelsPerChannel) return false;
+        ReadOnlySpan<float> r = input.Channel(0), b = input.Channel(2), sr = starless.Channel(0), sb = starless.Channel(2);
+        int step = Math.Max(1, r.Length / 1_000_000);
+        double same = 0, swapped = 0;
+        for (int i = 0; i < r.Length; i += step)
+        {
+            same += Math.Abs(sr[i] - r[i]) + Math.Abs(sb[i] - b[i]);
+            swapped += Math.Abs(sr[i] - b[i]) + Math.Abs(sb[i] - r[i]);
+        }
+        return swapped < same;
     }
 
     /// <summary>

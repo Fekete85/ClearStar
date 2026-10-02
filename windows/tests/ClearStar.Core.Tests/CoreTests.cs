@@ -812,8 +812,28 @@ public class StarNetChannelOrderTests
         for (int c = 0; c < 3; c++) { float level = 0.2f + 0.2f * c; for (int i = 0; i < img.PixelsPerChannel; i++) img.Data[c * img.PixelsPerChannel + i] = level + (rnd.NextSingle() - 0.5f) * 0.01f; }
         var outp = ClearStar.Core.AI.StarNet.RemoveStars(img, exe);
         var m = Enumerable.Range(0, 3).Select(c => ImageStats.Compute(outp.Channel(c).ToArray()).Median).ToArray();
-        // StarNet2 writes BGR planes; the runner must swap them back so red stays red.
+        // Whatever plane order this StarNet2 build writes, red must stay red.
         Assert.InRange(m[0], 0.18f, 0.22f); Assert.InRange(m[1], 0.38f, 0.42f); Assert.InRange(m[2], 0.58f, 0.62f);
+    }
+
+    [Fact]
+    public void RedBlueSwapIsDetectedOnlyWhenPresent()
+    {
+        var input = new AstroImage(200, 150, 3);
+        var rnd = new Random(2);
+        int n = input.PixelsPerChannel;
+        for (int i = 0; i < n; i++)
+        {
+            float neb = 0.3f * MathF.Exp(-((i % 200 - 100) * (i % 200 - 100) + (i / 200 - 75) * (i / 200 - 75)) / 2000f);
+            input.Data[i] = 0.15f + neb + rnd.NextSingle() * 0.02f;          // H-alpha red
+            input.Data[n + i] = 0.12f + 0.3f * neb + rnd.NextSingle() * 0.02f;
+            input.Data[2 * n + i] = 0.10f + 0.1f * neb + rnd.NextSingle() * 0.02f;
+        }
+        var rgb = input.CreateEmptyLike(); input.Data.CopyTo(rgb.Data, 0);
+        var bgr = input.CreateEmptyLike(); input.Data.CopyTo(bgr.Data, 0);
+        input.Channel(2).CopyTo(bgr.Channel(0)); input.Channel(0).CopyTo(bgr.Channel(2));
+        Assert.False(ClearStar.Core.AI.StarNet.IsRedBlueSwapped(input, rgb));
+        Assert.True(ClearStar.Core.AI.StarNet.IsRedBlueSwapped(input, bgr));
     }
 }
 
