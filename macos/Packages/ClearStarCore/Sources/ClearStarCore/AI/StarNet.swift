@@ -111,13 +111,31 @@ public enum StarNet {
             throw ClearStarError(lastError.current ?? "StarNet2 exit code \(process.terminationStatus)")
         }
         let result = try ImageFiles.load(output, debayer: false)
-        // StarNet2 (OpenCV inside) writes the colour planes of a FITS cube in BGR order: swap them back.
-        if result.channels == 3 {
+        // Some StarNet2 builds (OpenCV inside) write the colour planes of a FITS cube in BGR order,
+        // others in RGB: swap red and blue back only when the swapped planes match the input better.
+        if result.channels == 3 && stretched.channels == 3 && isRedBlueSwapped(stretched, result) {
             let red = result.channelArray(0)
             result.setChannel(0, result.channelArray(2))
             result.setChannel(2, red)
         }
         return result
+    }
+
+    /// True when the starless image's red and blue planes fit the input's blue and red planes
+    /// better than in their own order. Stars aside, StarNet2 leaves background and nebula
+    /// untouched, so the right order has the smaller difference. Sampled for speed.
+    public static func isRedBlueSwapped(_ input: AstroImage, _ starless: AstroImage) -> Bool {
+        let n = input.pixelsPerChannel
+        guard n == starless.pixelsPerChannel else { return false }
+        let a = input.data, s = starless.data
+        let step = max(1, n / 1_000_000)
+        var same = 0.0, swapped = 0.0
+        for i in stride(from: 0, to: n, by: step) {
+            let r = a[i], b = a[2 * n + i], sr = s[i], sb = s[2 * n + i]
+            same += Double(abs(sr - r) + abs(sb - b))
+            swapped += Double(abs(sr - b) + abs(sb - r))
+        }
+        return swapped < same
     }
 
     private static func handleLine(_ text: String, _ progress: (@Sendable (Double) -> Void)?, _ lastError: Locked<String?>) {

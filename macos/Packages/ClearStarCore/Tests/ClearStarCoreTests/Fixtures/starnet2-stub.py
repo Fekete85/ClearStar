@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Stand-in for the StarNet2 command-line program in the tests: the same arguments and --machine-progress
 output; it "removes" the stars by clipping every value above STUB_CLIP (default 1.0 = no change) and, like
-the real StarNet2, writes a colour FITS cube in BGR plane order. STUB_FAIL=1 makes it fail like StarNet2."""
+the real StarNet2 build, writes a colour FITS cube in BGR plane order (STUB_RGB=1: RGB order, like other
+builds). STUB_FAIL=1 makes it fail like StarNet2."""
 import json, os, struct, sys
 
 args = sys.argv[1:]
@@ -33,7 +34,7 @@ values = list(struct.unpack(">%df" % (n * planes), data[header_end:header_end + 
 for step in range(1, 5):
     print(json.dumps({"event": "progress", "percent": step * 25}, separators=(",", ":")), file=sys.stderr, flush=True)
 values = [min(v, clip) for v in values]
-if planes == 3:
+if planes == 3 and not os.environ.get("STUB_RGB"):
     values = values[2 * n:3 * n] + values[n:2 * n] + values[0:n]
 body = struct.pack(">%df" % len(values), *values)
 body += b"\0" * ((2880 - len(body) % 2880) % 2880)

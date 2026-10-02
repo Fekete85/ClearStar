@@ -266,6 +266,13 @@ import Testing
         #expect(stars.data.max()! < 1e-4)
         #expect(progress.current.contains(1.0))
 
+        // A StarNet2 build that writes RGB planes must not be swapped.
+        setenv("STUB_RGB", "1", 1)
+        let starlessRgb = try StarNet.removeStars(big, exe: Self.stub.path)
+        unsetenv("STUB_RGB")
+        let starlessBgr = try StarNet.removeStars(big, exe: Self.stub.path)
+        #expect(starlessRgb.data == starlessBgr.data)
+
         // Through the step: the star layer is stored for the stretch steps.
         StarLayerStore.clear()
         let r = try await runStep(StarRemovalStep(), big)
