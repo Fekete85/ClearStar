@@ -1,17 +1,17 @@
 # ClearStar
 
-Vezetett asztrofotó-feldolgozó alkalmazás kezdőknek: a nyers képektől a kész képig 16 lépésben,
-minden lépésnél közérthető magyarázattal és 2–4 egyszerű beállítással.
+Guided astrophotography processing app for beginners: from raw frames to a finished image in 16 steps,
+with a plain-language explanation and 2–4 simple settings at every step.
 
-| Mappa | Tartalom |
+| Folder | Contents |
 |---|---|
-| [`windows/`](windows/README.md) | Windows-alkalmazás (.NET 10, WPF, ONNX Runtime + DirectML) – a Microsoft Store-ban |
-| [`macos/`](macos/README.md) | macOS-alkalmazás (Swift, SwiftUI, Core ML, Apple Silicon) – készül, aláírt DMG-ként a saját oldalról |
-| `shared/Languages/` | közös nyelvi fájlok (`hu.json`, `en.json`) – mindkét alkalmazás ezeket használja |
-| [`docs/`](docs/macos-port-analysis.md) | a macOS-port elemzése, döntései és ütemterve |
-| `site/` | a clearstar.blackit.hu nyitóoldal (Hugo) |
-| `design/` | a Claude Design canvas forrásai |
-| `testdata/`, `reference/` | tesztképek, illetve Siril/GraXpert forrás tanulmányozásra (gitignore-olva) |
+| [`windows/`](windows/README.md) | Windows app (.NET 10, WPF, ONNX Runtime + DirectML) – on the Microsoft Store |
+| [`macos/`](macos/README.md) | macOS app (Swift, SwiftUI, Core ML, Apple Silicon) – in progress, as a signed DMG from the project site |
+| `shared/Languages/` | shared language files (`hu.json`, `en.json`) – used by both apps |
+| [`docs/`](docs/macos-port-analysis.md) | analysis, decisions and roadmap of the macOS port |
+| `site/` | the clearstar.blackit.hu landing page (Hugo) |
+| `design/` | Claude Design canvas sources |
+| `testdata/`, `reference/` | test images and Siril/GraXpert source for study (gitignored) |
 
-Licenc: **GPL-3.0-or-later** (`LICENSE`); a felhasznált munkák és a GraXpert AI-modellek licence:
-`THIRD-PARTY-NOTICES.md`; adatvédelem: `PRIVACY.md`.
+Licence: **GPL-3.0-or-later** (`LICENSE`); licences of the third-party works and the GraXpert AI models:
+`THIRD-PARTY-NOTICES.md`; privacy: `PRIVACY.md`.
