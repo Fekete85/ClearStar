@@ -1,85 +1,85 @@
 # ClearStar – macOS (Apple Silicon)
 
-Natív SwiftUI-alkalmazás Apple Siliconra (macOS 26+), ugyanazzal a 16 lépéses vezetett folyamattal, mint a
-Windows-változat. Az AI-lépések Core ML-en futnak, a StarNet2-t és a Siril offline katalógusát a Windows-
-változathoz hasonlóan kezeli. Terjesztés: aláírt, notarizált DMG a saját oldalról (mint a Siril). Tervek és
-döntések: [`../docs/macos-port-analysis.md`](../docs/macos-port-analysis.md),
-[`../docs/PORT-DECISIONS.md`](../docs/PORT-DECISIONS.md), állapot: [`../docs/PORT-CHECKLIST.md`](../docs/PORT-CHECKLIST.md).
+Native SwiftUI app for Apple Silicon (macOS 26+), with the same 16-step guided workflow as the
+Windows version. The AI steps run on Core ML; StarNet2 and Siril's offline catalogue are handled the same
+way as in the Windows version. Distribution: a signed, notarized DMG from the project site (like Siril). Plans and
+decisions: [`../docs/macos-port-analysis.md`](../docs/macos-port-analysis.md),
+[`../docs/PORT-DECISIONS.md`](../docs/PORT-DECISIONS.md), status: [`../docs/PORT-CHECKLIST.md`](../docs/PORT-CHECKLIST.md).
 
-## Fordítás, futtatás, tesztek
+## Build, run, test
 
-Kell hozzá: Xcode 26+, [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`); a
-paritás-referenciákhoz .NET 10 SDK.
+Requires: Xcode 26+, [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`); for the
+parity references, the .NET 10 SDK.
 
 ```
 cd macos
-xcodegen generate                                   # project.yml → ClearStar.xcodeproj (nincs verziókezelve)
-open ClearStar.xcodeproj                            # vagy:
+xcodegen generate                                   # project.yml → ClearStar.xcodeproj (not version-controlled)
+open ClearStar.xcodeproj                            # or:
 xcodebuild -scheme ClearStar -destination 'platform=macOS,arch=arm64' -derivedDataPath ~/Library/Developer/ClearStarDD build
 xcodebuild -scheme ClearStar -destination 'platform=macOS,arch=arm64' -derivedDataPath ~/Library/Developer/ClearStarDD test
 ```
 
-A build-mappák a hálózati/szinkronizált (GDrive) köteten „File exists” hibával elszállnak az index
-átnevezésekor, ezért kerülnek helyi lemezre (`-derivedDataPath`, `swift test --scratch-path`).
+On a network/synced (GDrive) volume the build folders fail with a "File exists" error when the index
+is renamed, so they are placed on a local disk (`-derivedDataPath`, `swift test --scratch-path`).
 
-Parancssori indításnál egy mappa vagy kép argumentum azonnal betölt és összeilleszt (mint Windowson):
+When launched from the command line, a folder or image argument is loaded and stacked right away (as on Windows):
 `open ClearStar.app --args ~/Astro/M31`.
 
-### Tesztadatok és paritás
+### Test data and parity
 
-A tesztek a Windows (C#) kimenetekhez mérik a Swift-kódot (`testdata/reference/`, gitignore-olt):
+The tests measure the Swift code against the Windows (C#) outputs (`testdata/reference/`, gitignored):
 
 ```
-macos/tools/download-testdata.sh        # GraXpert ONNX-modellek + Siril offline katalógus a tükörről (~2,8 GB)
-macos/tools/make-references.sh          # C# referenciák: szintetikus + a meglévő valódi készletek (M31, M99, NGC6992_sub)
+macos/tools/download-testdata.sh        # GraXpert ONNX models + Siril offline catalogue from the mirror (~2.8 GB)
+macos/tools/make-references.sh          # C# references: synthetic + the existing real data sets (M31, M99, NGC6992_sub)
 ```
 
-A Core ML-modellek a `testdata/coreml/`-ban kellenek a valódi AI-tesztekhez (`tools/convert-models/`, lásd
-ott). A valódi adatokat igénylő tesztek minden olyan készletre lefutnak, amelynek képei és referenciái megvannak
-(`TestEnv.dataSets`); a hiányzók kimaradnak. Az éles tükör tesztje:
+The real AI tests need the Core ML models in `testdata/coreml/` (`tools/convert-models/`, see
+there). Tests that need real data run on every data set whose images and references are present
+(`TestEnv.dataSets`); missing ones are skipped. Test against the live mirror:
 `CLEARSTAR_LIVE_MIRROR=1 swift test --filter liveMirror`.
 
-## Felépítés
+## Structure
 
 ```
-project.yml                     XcodeGen: arm64, macOS 26+, hardened runtime, homokozó nélkül; séma a csomag tesztjeivel
+project.yml                     XcodeGen: arm64, macOS 26+, hardened runtime, no sandbox; scheme with the package tests
 ClearStar/                      SwiftUI app
-  ClearStarApp.swift            ablakok (fő, Névjegy, Beállítások), menük és billentyűparancsok
-  Views/                        MainView (oldalsáv, eszköztár, állapotsor), InspectorView (lépéskártya, paraméterek,
-                                modellválasztó), ImageViewer (AppKit: nagyítás, mozgatás, osztott nézet, kijelölés),
-                                FramesView (képlista, minőségi grafikonok, hisztogram), Sheets, AboutAndSettings
-Packages/ClearStarCore/         Swift csomag
-  Sources/ClearStarCore/        a windows/src/ClearStar.Core portja: Imaging, IO, Pipeline, Registration, Steps,
-                                AI (Core ML, modelltár, StarNet2), Astrometry (WCS, HEALPix, katalógusok, plate solve)
-  Sources/ClearStarAppModel/    a felület nézetmodelljei (a WPF MainViewModel portja), UI nélkül tesztelhető
-  Sources/CBZip2/               a rendszer libbz2-je (katalógus-kicsomagolás)
-  Tests/                        paritás-, egység- és nézetmodell-tesztek
+  ClearStarApp.swift            windows (main, About, Settings), menus and keyboard shortcuts
+  Views/                        MainView (sidebar, toolbar, status bar), InspectorView (step card, parameters,
+                                model picker), ImageViewer (AppKit: zoom, pan, split view, selection),
+                                FramesView (frame list, quality charts, histogram), Sheets, AboutAndSettings
+Packages/ClearStarCore/         Swift package
+  Sources/ClearStarCore/        port of windows/src/ClearStar.Core: Imaging, IO, Pipeline, Registration, Steps,
+                                AI (Core ML, model store, StarNet2), Astrometry (WCS, HEALPix, catalogues, plate solve)
+  Sources/ClearStarAppModel/    view models of the UI (port of the WPF MainViewModel), testable without UI
+  Sources/CBZip2/               the system libbz2 (catalogue decompression)
+  Tests/                        parity, unit and view-model tests
 tools/                          download-testdata.sh, make-references.sh, convert-models/ (ONNX → Core ML)
-packaging/make-dmg.sh           Release archív → aláírás → DMG → notarizálás
-../shared/Languages/            hu.json, en.json – közös a Windows-változattal (Mac-specifikus szövegek: mac.*)
+packaging/make-dmg.sh           Release archive → signing → DMG → notarization
+../shared/Languages/            hu.json, en.json – shared with the Windows version (Mac-specific strings: mac.*)
 ```
 
-## Adatok helye
+## Data locations
 
-`~/Library/Application Support/ClearStar/`: `settings.json` (ugyanazok a kulcsok, mint Windowson),
-`ai-models/<fajta>/<verzió>/model.mlpackage`, `catalogs/`, `Languages/`; a katalógus-lekérdezések
-gyorsítótára: `~/Library/Caches/ClearStar/`. A Siril beállításait (`~/Library/Application Support/org.siril.Siril`)
-a StarNet2 és az offline katalógus felderítéséhez olvassa.
+`~/Library/Application Support/ClearStar/`: `settings.json` (same keys as on Windows),
+`ai-models/<kind>/<version>/model.mlpackage`, `catalogs/`, `Languages/`; the catalogue query
+cache: `~/Library/Caches/ClearStar/`. The app reads Siril's settings (`~/Library/Application Support/org.siril.Siril`)
+to discover StarNet2 and the offline catalogue.
 
-## Kiadás (DMG)
-
-```
-macos/packaging/make-dmg.sh             # → macos/packaging/out/ClearStar-<verzió>-arm64.dmg
-```
-
-A verzió a `windows/Directory.Build.props`-ból jön (a Windows-kiadószkript állítja), a build-szám a
-commitok száma. Aláírás nélkül ad-hoc aláírt (csak ezen a gépen futtatható) DMG készül; kiadáshoz:
+## Release (DMG)
 
 ```
-export CODESIGN_IDENTITY="Developer ID Application: <név> (<TEAM>)" DEVELOPMENT_TEAM=<TEAM>
-xcrun notarytool store-credentials clearstar-notary --apple-id <apple id> --team-id <TEAM>   # egyszer
+macos/packaging/make-dmg.sh             # → macos/packaging/out/ClearStar-<version>-arm64.dmg
+```
+
+The version comes from `windows/Directory.Build.props` (set by the Windows release script), the build number is
+the commit count. Without a signing identity an ad-hoc signed DMG is built (runs only on this machine); for a release:
+
+```
+export CODESIGN_IDENTITY="Developer ID Application: <name> (<TEAM>)" DEVELOPMENT_TEAM=<TEAM>
+xcrun notarytool store-credentials clearstar-notary --apple-id <apple id> --team-id <TEAM>   # once
 NOTARY_PROFILE=clearstar-notary macos/packaging/make-dmg.sh
 ```
 
-A szkript ellenőrzi a hardened runtime-ot, az arm64-et, a verziót, a DMG-t felcsatolja és ellenőrzi, majd
-notarizál és „staple”-öl.
+The script checks the hardened runtime, arm64 and the version, mounts and verifies the DMG, then
+notarizes and staples it.
